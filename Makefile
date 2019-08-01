@@ -13,7 +13,8 @@ VPATH := src STM8S_StdPeriph_Driver/src
 
 OUTPUT_DIR = ./build
 
-SOURCES = main.c buttons.c delay.c stm8s_gpio.c stm8s_clk.c
+SOURCES = main.c buttons.c delay.c debug.c \
+ stm8s_gpio.c stm8s_clk.c stm8s_uart2.c
 
 OBJ_FILES = $(addprefix $(OUTPUT_DIR)/, $(notdir $(SOURCES:.c=.rel)))
 
