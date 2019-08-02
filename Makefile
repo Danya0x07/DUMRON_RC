@@ -13,10 +13,13 @@ VPATH := src lib/STM8S_StdPeriph_Driver/src
 
 OUTPUT_DIR = ./build
 
-SOURCES = main.c buttons.c delay.c debug.c joystic.c \
- stm8s_gpio.c stm8s_clk.c stm8s_uart2.c stm8s_adc1.c
+SOURCES_FROM_SPL = stm8s_gpio.c stm8s_clk.c stm8s_uart2.c stm8s_adc1.c
 
-OBJ_FILES = $(addprefix $(OUTPUT_DIR)/, $(notdir $(SOURCES:.c=.rel)))
+ALL_SOURCES = $(SOURCES_FROM_SPL) \
+ main.c buttons.c delay.c debug.c joystick.c msgprotocol.c
+ 
+
+OBJ_FILES = $(addprefix $(OUTPUT_DIR)/, $(notdir $(ALL_SOURCES:.c=.rel)))
 
 all: $(OUTPUT_DIR) $(OUTPUT_DIR)/$(TARGET).hex
 

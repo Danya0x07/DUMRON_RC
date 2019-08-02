@@ -1,5 +1,5 @@
-#ifndef DEBUG_H
-#define DEBUG_H
+#ifndef DEBUG_H_INCLUDED
+#define DEBUG_H_INCLUDED
 
 #include <stm8s.h>
 

@@ -1,12 +1,12 @@
-#ifndef BUTTONS_H
-#define BUTTONS_H
+#ifndef BUTTONS_H_INCLUDED
+#define BUTTONS_H_INCLUDED
 
 #include <stm8s.h>
 
 /*
  * Флаги событий для всех имеющихся кнопок.
  */
-enum {
+typedef enum {
     BTN_ARMUP_PRESSED   = 1 << 0,
     BTN_ARMUP_RELEASED  = 1 << 1,
     BTN_ARMUP_PRESSED_2 = 1 << 2,
@@ -25,7 +25,7 @@ enum {
     BTN_TOGGLELIGHTS_PRESSED   = 1 << 15,
     BTN_TOGGLELIGHTS_RELEASED  = 1L << 16,
     BTN_TOGGLELIGHTS_PRESSED_2 = 1L << 17
-};
+} ButtonEventFlag;
 
 /* Регистр кнопочных событий */
 extern uint32_t buttons_events;

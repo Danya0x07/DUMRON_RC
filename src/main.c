@@ -1,8 +1,11 @@
 #include <stm8s.h>
 #include "buttons.h"
 #include "debug.h"
-#include "joystic.h"
+#include "joystick.h"
+#include "msgprotocol.h"
 
+Joystick joystick;
+DataToRobot data_to_robot, data_buff;
 
 void setup(void)
 {
@@ -20,81 +23,99 @@ void setup(void)
     ADC1_DeInit();
 }
 
-
 int main(void)
 {
     setup();
     
     buttons_init();
     uart_init();
-    joystic_init();
+    joystick_init();
 
     while (1) {
         buttons_update();
+        /* button arm up */
         if (buttons_events & BTN_ARMUP_PRESSED) {
+            data_to_robot.periph_state |= ARM_UP;
+            
             uart_write_str("aup\n");
-        }
-        if (buttons_events & BTN_ARMUP_PRESSED_2) {
+        } else if (buttons_events & BTN_ARMUP_PRESSED_2) {
+            data_to_robot.periph_state |= ARM_FOLD;
+            
             uart_write_str("aup2\n");
-        }
-        if (buttons_events & BTN_ARMUP_RELEASED) {
+        } else if (buttons_events & BTN_ARMUP_RELEASED) {
+            data_to_robot.periph_state &= ~ARM_UP;
+            
             uart_write_str("aur\n");
         }
-        
+        /* button arm down */
         if (buttons_events & BTN_ARMDOWN_PRESSED) {
+            data_to_robot.periph_state |= ARM_DOWN;
+            
             uart_write_str("adp\n");
-        }
-        if (buttons_events & BTN_ARMDOWN_PRESSED_2) {
+        } else if (buttons_events & BTN_ARMDOWN_PRESSED_2) {
             uart_write_str("adp2\n");
-        }
-        if (buttons_events & BTN_ARMDOWN_RELEASED) {
+        } else if (buttons_events & BTN_ARMDOWN_RELEASED) {
+            data_to_robot.periph_state &= ~ARM_DOWN;
+            
             uart_write_str("adr\n");
         }
-        
+        /* button claw squeeze */
         if (buttons_events & BTN_CLAWSQUEEZE_PRESSED) {
+            data_to_robot.periph_state |= CLAW_SQUEEZE;
+            
             uart_write_str("csp\n");
-        }
-        if (buttons_events & BTN_CLAWRELEASE_PRESSED_2) {
+        } else if (buttons_events & BTN_CLAWRELEASE_PRESSED_2) {
             uart_write_str("csp2\n");
-        }
-        if (buttons_events & BTN_CLAWSQUEEZE_RELEASED) {
+        } else if (buttons_events & BTN_CLAWSQUEEZE_RELEASED) {
+            data_to_robot.periph_state &= ~CLAW_SQUEEZE;
+            
             uart_write_str("csr\n");
         }
-
+        /* button claw release */
         if (buttons_events & BTN_CLAWRELEASE_PRESSED) {
+            data_to_robot.periph_state |= CLAW_RELEASE;
+            
             uart_write_str("crp\n");
-        }
-        if (buttons_events & BTN_CLAWRELEASE_PRESSED_2) {
+        } else if (buttons_events & BTN_CLAWRELEASE_PRESSED_2) {
             uart_write_str("crp2\n");
-        }
-        if (buttons_events & BTN_CLAWRELEASE_RELEASED) {
+        } else if (buttons_events & BTN_CLAWRELEASE_RELEASED) {
+            data_to_robot.periph_state &= ~CLAW_RELEASE;
+            
             uart_write_str("crr\n");
         }
-
+        /* button klaxon */
         if (buttons_events & BTN_KLAXON_PRESSED) {
+            data_to_robot.periph_state |= KLAXON_EN;
+            
             uart_write_str("kp\n");
-        }
-        if (buttons_events & BTN_KLAXON_PRESSED_2) {
+        } else if (buttons_events & BTN_KLAXON_PRESSED_2) {
             uart_write_str("kp2\n");
-        }
-        if (buttons_events & BTN_KLAXON_RELEASED) {
+        } else if (buttons_events & BTN_KLAXON_RELEASED) {
+            data_to_robot.periph_state &= ~KLAXON_EN;
+            
             uart_write_str("kr\n");
         }
-
+        /* button togglelights */
         if (buttons_events & BTN_TOGGLELIGHTS_PRESSED) {
+            data_to_robot.periph_state ^= LIGHTS_EN;
+            
             uart_write_str("tp\n");
-            uart_write_byte(joystic.direction);
-            uart_write_byte(joystic.x_abs);
-            uart_write_byte(joystic.y_abs);
+            uart_write_byte(joystick.direction);
+            uart_write_byte(joystick.x_abs);
+            uart_write_byte(joystick.y_abs);
             uart_write_byte('\n');
-        }
-        if (buttons_events & BTN_TOGGLELIGHTS_PRESSED_2) {
+        } else if (buttons_events & BTN_TOGGLELIGHTS_PRESSED_2) {
             uart_write_str("tp2\n");
-        }
-        if (buttons_events & BTN_TOGGLELIGHTS_RELEASED) {
+        } else if (buttons_events & BTN_TOGGLELIGHTS_RELEASED) {
             uart_write_str("tr\n");
         }
 
-        joystic_update();
+        joystick_update(&joystick);
+        robot_calc_movement(&data_to_robot, &joystick);
+        if (!robot_data_is_sync(&data_buff, &data_to_robot)) {
+            /* TODO: Отправка данных data_to_robot роботу. */
+            robot_data_sync(&data_buff, &data_to_robot);
+        }
+        
     }
 }
