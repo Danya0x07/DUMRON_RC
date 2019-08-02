@@ -31,6 +31,6 @@ enum {
 extern uint32_t buttons_events;
 
 void buttons_init(void);
-void buttons_checkevents(void);
+void buttons_update(void);
 
 #endif

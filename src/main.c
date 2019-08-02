@@ -30,65 +30,69 @@ int main(void)
     joystic_init();
 
     while (1) {
-        buttons_checkevents();
+        buttons_update();
         if (buttons_events & BTN_ARMUP_PRESSED) {
-            uart_write_str("aup");
+            uart_write_str("aup\n");
         }
         if (buttons_events & BTN_ARMUP_PRESSED_2) {
-            uart_write_str("aup2");
+            uart_write_str("aup2\n");
         }
         if (buttons_events & BTN_ARMUP_RELEASED) {
-            uart_write_str("aur");
+            uart_write_str("aur\n");
         }
         
         if (buttons_events & BTN_ARMDOWN_PRESSED) {
-            uart_write_str("adp");
+            uart_write_str("adp\n");
         }
         if (buttons_events & BTN_ARMDOWN_PRESSED_2) {
-            uart_write_str("adp2");
+            uart_write_str("adp2\n");
         }
         if (buttons_events & BTN_ARMDOWN_RELEASED) {
-            uart_write_str("adr");
+            uart_write_str("adr\n");
         }
         
         if (buttons_events & BTN_CLAWSQUEEZE_PRESSED) {
-            uart_write_str("csp");
+            uart_write_str("csp\n");
         }
         if (buttons_events & BTN_CLAWRELEASE_PRESSED_2) {
-            uart_write_str("csp2");
+            uart_write_str("csp2\n");
         }
         if (buttons_events & BTN_CLAWSQUEEZE_RELEASED) {
-            uart_write_str("csr");
+            uart_write_str("csr\n");
         }
 
         if (buttons_events & BTN_CLAWRELEASE_PRESSED) {
-            uart_write_str("crp");
+            uart_write_str("crp\n");
         }
         if (buttons_events & BTN_CLAWRELEASE_PRESSED_2) {
-            uart_write_str("crp2");
+            uart_write_str("crp2\n");
         }
         if (buttons_events & BTN_CLAWRELEASE_RELEASED) {
-            uart_write_str("crr");
+            uart_write_str("crr\n");
         }
 
         if (buttons_events & BTN_KLAXON_PRESSED) {
-            uart_write_str("kp");
+            uart_write_str("kp\n");
         }
         if (buttons_events & BTN_KLAXON_PRESSED_2) {
-            uart_write_str("kp2");
+            uart_write_str("kp2\n");
         }
         if (buttons_events & BTN_KLAXON_RELEASED) {
-            uart_write_str("kr");
+            uart_write_str("kr\n");
         }
 
         if (buttons_events & BTN_TOGGLELIGHTS_PRESSED) {
-            uart_write_str("tp");
+            uart_write_str("tp\n");
+            uart_write_byte(joystic.direction);
+            uart_write_byte(joystic.x_abs);
+            uart_write_byte(joystic.y_abs);
+            uart_write_byte('\n');
         }
         if (buttons_events & BTN_TOGGLELIGHTS_PRESSED_2) {
-            uart_write_str("tp2");
+            uart_write_str("tp2\n");
         }
         if (buttons_events & BTN_TOGGLELIGHTS_RELEASED) {
-            uart_write_str("tr");
+            uart_write_str("tr\n");
         }
 
         joystic_update();

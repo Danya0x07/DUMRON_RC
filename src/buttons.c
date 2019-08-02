@@ -68,7 +68,7 @@ void buttons_init(void)
     GPIOF->DDR &= ~GPIO_PIN_4;
 }
 
-void buttons_checkevents(void)
+void buttons_update(void)
 {
     buttons_events = 0;
     
