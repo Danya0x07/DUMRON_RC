@@ -131,6 +131,18 @@ void buttons_checkevents(void)
             btn_klaxon.mode = ON_PRESS;
         }
     }
+
+    if (btn_pressed(&btn_togglelights)) {
+        if (btn_pressed_again(&btn_togglelights)) {
+            buttons_events |= BTN_TOGGLELIGHTS_PRESSED_2;
+        } else if (btn_togglelights.mode == ON_PRESS) {
+            buttons_events |= BTN_TOGGLELIGHTS_PRESSED;
+            btn_togglelights.mode = ON_RELEASE;
+        } else {
+            buttons_events |= BTN_TOGGLELIGHTS_RELEASED;
+            btn_togglelights.mode = ON_PRESS;
+        }
+    }
 }
 
 static bool btn_pressed(struct Button* btn)

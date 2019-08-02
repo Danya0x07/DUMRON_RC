@@ -6,15 +6,15 @@ CFLAGS = -mstm8 --out-fmt-ihx
 
 DEFINES = -DSTM8S105
 
-INCLUDES = -I'./STM8S_StdPeriph_Driver/inc/' \
+INCLUDES = -I'./lib/STM8S_StdPeriph_Driver/inc/' \
 -I'./inc/'
 
-VPATH := src STM8S_StdPeriph_Driver/src
+VPATH := src lib/STM8S_StdPeriph_Driver/src
 
 OUTPUT_DIR = ./build
 
-SOURCES = main.c buttons.c delay.c debug.c \
- stm8s_gpio.c stm8s_clk.c stm8s_uart2.c
+SOURCES = main.c buttons.c delay.c debug.c joystic.c \
+ stm8s_gpio.c stm8s_clk.c stm8s_uart2.c stm8s_adc1.c
 
 OBJ_FILES = $(addprefix $(OUTPUT_DIR)/, $(notdir $(SOURCES:.c=.rel)))
 

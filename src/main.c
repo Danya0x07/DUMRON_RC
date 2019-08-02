@@ -1,6 +1,7 @@
 #include <stm8s.h>
 #include "buttons.h"
 #include "debug.h"
+#include "joystic.h"
 
 
 void setup(void)
@@ -15,6 +16,8 @@ void setup(void)
     GPIO_DeInit(GPIOD);
     GPIO_DeInit(GPIOE);
     GPIO_DeInit(GPIOF);
+
+    ADC1_DeInit();
 }
 
 
@@ -24,6 +27,7 @@ int main(void)
     
     buttons_init();
     uart_init();
+    joystic_init();
 
     while (1) {
         buttons_checkevents();
@@ -86,6 +90,7 @@ int main(void)
         if (buttons_events & BTN_TOGGLELIGHTS_RELEASED) {
             uart_write_str("tr");
         }
-        
+
+        joystic_update();
     }
 }
