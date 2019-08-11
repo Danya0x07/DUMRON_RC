@@ -2,7 +2,7 @@ TARGET = main
 CC = sdcc
 MCU = stm8s105k4
 
-CFLAGS = -mstm8 --out-fmt-ihx --opt-code-speed
+CFLAGS = -mstm8 --std-c89 --out-fmt-ihx --opt-code-speed
 
 DEFINES = -DSTM8S105
 
@@ -13,7 +13,7 @@ VPATH := src lib/STM8S_StdPeriph_Driver/src
 
 OUTPUT_DIR = ./build
 
-SOURCES_FROM_SPL = stm8s_gpio.c stm8s_clk.c stm8s_uart2.c stm8s_adc1.c
+SOURCES_FROM_SPL = stm8s_gpio.c stm8s_clk.c stm8s_uart2.c stm8s_adc1.c stm8s_tim4.c
 
 ALL_SOURCES = $(SOURCES_FROM_SPL) \
  main.c buttons.c delay.c debug.c joystick.c msgprotocol.c
@@ -41,3 +41,6 @@ clean:
 
 prog: all
 	stm8flash -c stlinkv2 -p $(MCU) -w build/$(TARGET).hex
+
+uart:
+	gtkterm --port /dev/ttyUSB0 --speed 9600

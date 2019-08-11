@@ -133,9 +133,7 @@ void buttons_update(void)
     }
 
     if (btn_pressed(&btn_togglelights)) {
-        if (btn_pressed_again(&btn_togglelights)) {
-            buttons_events |= BTN_TOGGLELIGHTS_PRESSED_2;
-        } else if (btn_togglelights.mode == ON_PRESS) {
+        if (btn_togglelights.mode == ON_PRESS) {
             buttons_events |= BTN_TOGGLELIGHTS_PRESSED;
             btn_togglelights.mode = ON_RELEASE;
         } else {
@@ -150,7 +148,7 @@ static bool btn_pressed(struct Button* btn)
     bool pressed = FALSE;
     bool current_state = btn->reg->IDR & btn->pin;
     if (btn->last_state != current_state) {
-        delay(50);
+        delay_ms(5);
         current_state = btn->reg->IDR & btn->pin;
     }
 
@@ -164,7 +162,7 @@ static bool btn_pressed_again(struct Button* btn)
 {
     uint8_t i;
     for (i = 0; i < 100; i++) {
-        delay(1);
+        delay_ms(2);
         if (btn_pressed(btn)) {
             return TRUE;
         }

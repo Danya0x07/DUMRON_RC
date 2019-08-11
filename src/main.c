@@ -1,4 +1,5 @@
 #include <stm8s.h>
+#include "delay.h"
 #include "buttons.h"
 #include "debug.h"
 #include "joystick.h"
@@ -7,30 +8,18 @@
 Joystick joystick;
 DataToRobot data_to_robot, data_buff;
 
-void setup(void)
-{
-    CLK_DeInit();
-    CLK_SYSCLKConfig(CLK_PRESCALER_CPUDIV1);
-    CLK_SYSCLKConfig(CLK_PRESCALER_HSIDIV2);
-
-    GPIO_DeInit(GPIOA);
-    GPIO_DeInit(GPIOB);
-    GPIO_DeInit(GPIOC);
-    GPIO_DeInit(GPIOD);
-    GPIO_DeInit(GPIOE);
-    GPIO_DeInit(GPIOF);
-
-    ADC1_DeInit();
-}
+void setup(void);
 
 int main(void)
 {
     setup();
-    
+
+    delay_init();
     buttons_init();
     uart_init();
     joystick_init();
 
+    enableInterrupts();
     while (1) {
         buttons_update();
         /* button arm up */
@@ -118,4 +107,22 @@ int main(void)
         }
         
     }
+}
+
+void setup(void)
+{
+    CLK_DeInit();
+    CLK_SYSCLKConfig(CLK_PRESCALER_CPUDIV1);
+    CLK_SYSCLKConfig(CLK_PRESCALER_HSIDIV2);
+
+    GPIO_DeInit(GPIOA);
+    GPIO_DeInit(GPIOB);
+    GPIO_DeInit(GPIOC);
+    GPIO_DeInit(GPIOD);
+    GPIO_DeInit(GPIOE);
+    GPIO_DeInit(GPIOF);
+
+    ADC1_DeInit();
+
+    TIM4_DeInit();
 }
