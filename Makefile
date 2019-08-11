@@ -2,24 +2,26 @@ TARGET = main
 CC = sdcc
 MCU = stm8s105k4
 
-CFLAGS = -mstm8 --std-c89 --out-fmt-ihx --opt-code-speed
+CFLAGS = -mstm8 --std-c89 --opt-code-speed
 
 DEFINES = -DSTM8S105
 
 INCLUDES = -I'./lib/STM8S_StdPeriph_Driver/inc/' \
--I'./inc/'
+ -I'./inc/'
 
-VPATH := src lib/STM8S_StdPeriph_Driver/src
+LIBPATHS = -L'/home/danya/Projects/DUMRON_RC/lib/'
+
+STATICLIBS = -lSTM8S_StdPeriph_Driver_optspeed.lib
+
+SOURCES = src/main.c \
+ src/buttons.c \
+ src/delay.c \
+ src/debug.c \
+ src/joystick.c \
+ src/msgprotocol.c 
 
 OUTPUT_DIR = ./build
-
-SOURCES_FROM_SPL = stm8s_gpio.c stm8s_clk.c stm8s_uart2.c stm8s_adc1.c stm8s_tim4.c
-
-ALL_SOURCES = $(SOURCES_FROM_SPL) \
- main.c buttons.c delay.c debug.c joystick.c msgprotocol.c
- 
-
-OBJ_FILES = $(addprefix $(OUTPUT_DIR)/, $(notdir $(ALL_SOURCES:.c=.rel)))
+OBJ_FILES = $(addprefix $(OUTPUT_DIR)/, $(notdir $(SOURCES:.c=.rel)))
 
 all: $(OUTPUT_DIR) $(OUTPUT_DIR)/$(TARGET).hex
 
@@ -31,9 +33,9 @@ $(OUTPUT_DIR):
 	size $@
 
 $(OUTPUT_DIR)/$(TARGET).ihx: $(OBJ_FILES)
-	$(CC) $(CFLAGS) -o $@ $^
+	$(CC) $(CFLAGS) $(LIBPATHS) $(STATICLIBS) -o $@ $^
 
-build/%.rel: %.c
+build/%.rel: src/%.c
 	$(CC) $(CFLAGS) $(INCLUDES) $(DEFINES) -c -o $@ $<
 
 clean:
