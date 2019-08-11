@@ -5,8 +5,8 @@
 #include "joystick.h"
 #include "msgprotocol.h"
 
-Joystick joystick;
-DataToRobot data_to_robot, data_buff;
+JoystickData joystick_data;
+DataToRobot data_to_robot;
 
 void setup(void);
 
@@ -89,9 +89,9 @@ int main(void)
             data_to_robot.periph_state ^= LIGHTS_EN;
             
             uart_write_str("tp\n");
-            uart_write_byte(joystick.direction);
-            uart_write_byte(joystick.x_abs);
-            uart_write_byte(joystick.y_abs);
+            uart_write_byte(joystick_data.direction);
+            uart_write_byte(joystick_data.x_abs);
+            uart_write_byte(joystick_data.y_abs);
             uart_write_byte('\n');
         } else if (buttons_events & BTN_TOGGLELIGHTS_PRESSED_2) {
             uart_write_str("tp2\n");
@@ -99,11 +99,11 @@ int main(void)
             uart_write_str("tr\n");
         }
 
-        joystick_update(&joystick);
-        robot_calc_movement(&data_to_robot, &joystick);
-        if (!robot_data_is_sync(&data_buff, &data_to_robot)) {
+        joystick_update(&joystick_data);
+        robot_calc_movement(&data_to_robot, &joystick_data);
+        if (robot_data_is_new(&data_to_robot)) {
             /* TODO: Отправка данных data_to_robot роботу. */
-            robot_data_sync(&data_buff, &data_to_robot);
+            robot_data_update_buffer(&data_to_robot);
         }
         
     }

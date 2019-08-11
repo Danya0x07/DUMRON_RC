@@ -29,8 +29,8 @@ typedef struct {
     uint8_t periph_state;
 } DataToRobot;
 
-void robot_calc_movement(DataToRobot* data, const Joystick* joystick);
-bool robot_data_is_sync(const DataToRobot*, const DataToRobot*);
-void robot_data_sync(DataToRobot* dst_data, const DataToRobot* src_data);
+void robot_calc_movement(DataToRobot*, const JoystickData*);
+bool robot_data_is_new(const DataToRobot*);
+void robot_data_update_buffer(const DataToRobot*);
 
 #endif

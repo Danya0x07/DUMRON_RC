@@ -160,9 +160,9 @@ static bool btn_pressed(struct Button* btn)
 
 static bool btn_pressed_again(struct Button* btn)
 {
-    uint8_t i;
-    for (i = 0; i < 100; i++) {
-        delay_ms(2);
+    register uint8_t i;
+    for (i = 0; i < 125; i++) {
+        delay_ms(1);
         if (btn_pressed(btn)) {
             return TRUE;
         }

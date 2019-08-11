@@ -24,7 +24,7 @@ void joystick_init(void)
 #endif
 }
 
-void joystick_update(Joystick* joystick)
+void joystick_update(JoystickData* joystick_data)
 {
     static ADC1_Channel_TypeDef channel_to_watch = JOYSTICK_X_CHANNEL;
     static bool new_x_available = FALSE, new_y_available = FALSE;
@@ -46,9 +46,9 @@ void joystick_update(Joystick* joystick)
     }
 
     if (new_x_available && new_y_available) {
-        joystick->direction = joystick_direction(x_buff, y_buff);
-        joystick->x_abs = joystick_abs_deflection(x_buff);
-        joystick->y_abs = joystick_abs_deflection(y_buff);
+        joystick_data->direction = joystick_direction(x_buff, y_buff);
+        joystick_data->x_abs = joystick_abs_deflection(x_buff);
+        joystick_data->y_abs = joystick_abs_deflection(y_buff);
         new_x_available = new_y_available = FALSE;
     }
 }

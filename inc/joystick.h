@@ -21,9 +21,9 @@ typedef struct {
     JoystickDirection direction;
     JoystickAbsDeflection x_abs;  /* Абсолютное отклонение по x */
     JoystickAbsDeflection y_abs;  /* Абсолютное отклонение по y */
-} Joystick;
+} JoystickData;
 
 void joystick_init(void);
-void joystick_update(Joystick*);
+void joystick_update(JoystickData*);
 
 #endif
