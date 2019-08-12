@@ -1,7 +1,7 @@
 #include "buttons.h"
 #include "delay.h"
 
-uint32_t buttons_events = 0;
+uint16_t buttons_events = 0;
 
 typedef enum {PULLDOWN, PULLUP = !PULLDOWN} ButtonMode;
 
@@ -73,9 +73,7 @@ void buttons_update(void)
     buttons_events = 0;
     
     if (btn_pressed(&btn_armup)) {
-        if (btn_pressed_again(&btn_armup)) {
-            buttons_events |= BTN_ARMUP_PRESSED_2;
-        } else if (btn_armup.mode == ON_PRESS) {
+        if (btn_armup.mode == ON_PRESS) {
             buttons_events |= BTN_ARMUP_PRESSED;
             btn_armup.mode = ON_RELEASE;
         } else {
@@ -85,9 +83,7 @@ void buttons_update(void)
     }
 
     if (btn_pressed(&btn_armdown)) {
-        if (btn_pressed_again(&btn_armdown)) {
-            buttons_events |= BTN_ARMDOWN_PRESSED_2;
-        } else if (btn_armdown.mode == ON_PRESS) {
+        if (btn_armdown.mode == ON_PRESS) {
             buttons_events |= BTN_ARMDOWN_PRESSED;
             btn_armdown.mode = ON_RELEASE;
         } else {
@@ -97,9 +93,7 @@ void buttons_update(void)
     }
 
     if (btn_pressed(&btn_clawsqueeze)) {
-        if (btn_pressed_again(&btn_clawsqueeze)) {
-            buttons_events |= BTN_CLAWSQUEEZE_PRESSED_2;
-        } else if (btn_clawsqueeze.mode == ON_PRESS) {
+        if (btn_clawsqueeze.mode == ON_PRESS) {
             buttons_events |= BTN_CLAWSQUEEZE_PRESSED;
             btn_clawsqueeze.mode = ON_RELEASE;
         } else {
@@ -109,9 +103,7 @@ void buttons_update(void)
     }
 
     if (btn_pressed(&btn_clawrelease)) {
-        if (btn_pressed_again(&btn_clawrelease)) {
-            buttons_events |= BTN_CLAWRELEASE_PRESSED_2;
-        } else if (btn_clawrelease.mode == ON_PRESS) {
+        if (btn_clawrelease.mode == ON_PRESS) {
             buttons_events |= BTN_CLAWRELEASE_PRESSED;
             btn_clawrelease.mode = ON_RELEASE;
         } else {
@@ -121,9 +113,7 @@ void buttons_update(void)
     }
 
     if (btn_pressed(&btn_klaxon)) {
-        if (btn_pressed_again(&btn_klaxon)) {
-            buttons_events |= BTN_KLAXON_PRESSED_2;
-        } else if (btn_klaxon.mode == ON_PRESS) {
+        if (btn_klaxon.mode == ON_PRESS) {
             buttons_events |= BTN_KLAXON_PRESSED;
             btn_klaxon.mode = ON_RELEASE;
         } else {
@@ -133,12 +123,10 @@ void buttons_update(void)
     }
 
     if (btn_pressed(&btn_togglelights)) {
-        if (btn_togglelights.mode == ON_PRESS) {
-            buttons_events |= BTN_TOGGLELIGHTS_PRESSED;
-            btn_togglelights.mode = ON_RELEASE;
+        if (btn_pressed_again(&btn_togglelights)) {
+            buttons_events |= BTN_TOGGLELIGHTS_PRESSED_2;
         } else {
-            buttons_events |= BTN_TOGGLELIGHTS_RELEASED;
-            btn_togglelights.mode = ON_PRESS;
+            buttons_events |= BTN_TOGGLELIGHTS_PRESSED;
         }
     }
 }
@@ -160,8 +148,8 @@ static bool btn_pressed(struct Button* btn)
 
 static bool btn_pressed_again(struct Button* btn)
 {
-    register uint8_t i;
-    for (i = 0; i < 125; i++) {
+    uint8_t i;
+    for (i = 0; i < 200; i++) {
         delay_ms(1);
         if (btn_pressed(btn)) {
             return TRUE;
