@@ -49,11 +49,15 @@ int main(void)
         /* button claw release */
         if (buttons_events & BTN_CLAWRELEASE_PRESSED) {
             data_to_robot.periph_state |= CLAW_RELEASE;
-            uart_write_str("crp\n");
-        } else if (buttons_events & BTN_CLAWRELEASE_RELEASED) {
+            /*uart_write_str("crp\n");*/
+            uart_write_byte(joystick_data.direction);
+            uart_write_byte(joystick_data.x_abs);
+            uart_write_byte(joystick_data.y_abs);
+            /*uart_write_byte('\n');*/
+        }/* else if (buttons_events & BTN_CLAWRELEASE_RELEASED) {
             data_to_robot.periph_state &= ~CLAW_RELEASE;
             uart_write_str("crr\n");
-        }
+        }*/
         /* button klaxon */
         if (buttons_events & BTN_KLAXON_PRESSED) {
             data_to_robot.periph_state |= KLAXON_EN;

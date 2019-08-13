@@ -3,25 +3,20 @@
 #define JOYSTICK_X_CHANNEL   ADC1_CHANNEL_0
 #define JOYSTICK_Y_CHANNEL   ADC1_CHANNEL_1
 
+/* Подгонка для осей джойстика. */
+#define JOYSTICK_X_CALIBRATION_VAL 0
+#define JOYSTICK_Y_CALIBRATION_VAL 12
+
 static void adc_select_channel(ADC1_Channel_TypeDef);
 static JoystickDirection joystick_direction(uint8_t, uint8_t);
 static JoystickAbsDeflection joystick_abs_deflection(uint8_t);
 
 void joystick_init(void)
 {
-#ifdef OPTIMISATION
-    /* ConversionConfig */
-    ADC1->CR2 |= (uint8_t)(ADC1_ALIGN_RIGHT);
-    adc_select_channel(JOY_X_CHANNEL);
-    /* PrescalerConfig  */
-    ADC1->CR1 |= (uint8_t)(ADC1_PRESSEL_FCPU_D8);
-    /* Enable ADC */
-    ADC1->CR1 |= ADC1_CR1_ADON;
-#else
     ADC1_ConversionConfig(ADC1_CONVERSIONMODE_SINGLE, JOYSTICK_X_CHANNEL, ADC1_ALIGN_RIGHT);
     ADC1_PrescalerConfig(ADC1_PRESSEL_FCPU_D8);
     ADC1_Cmd(ENABLE);
-#endif
+    ADC1_StartConversion();
 }
 
 void joystick_update(JoystickData* joystick_data)
@@ -31,13 +26,15 @@ void joystick_update(JoystickData* joystick_data)
     static uint8_t x_buff, y_buff;
     
     if (ADC1_GetFlagStatus(ADC1_FLAG_EOC)) {
-        uint8_t axis_val = ADC1_GetConversionValue() * 4 / 1023;
+        int8_t calibration_val = (channel_to_watch == JOYSTICK_X_CHANNEL) ?
+                                    JOYSTICK_X_CALIBRATION_VAL : JOYSTICK_Y_CALIBRATION_VAL;
+        uint8_t axis_val = (ADC1_GetConversionValue() + calibration_val) * 4 / 1023;
         if (channel_to_watch == JOYSTICK_X_CHANNEL) {
             x_buff = axis_val;
             new_x_available = TRUE;
             channel_to_watch = JOYSTICK_Y_CHANNEL;
         } else {  /* channel_to_watch == JOYSTICK_Y_CHANNEL */
-            y_buff = axis_val;
+            y_buff = 4 - axis_val;  /* потому что конструкция джойстика */
             new_y_available = TRUE;
             channel_to_watch = JOYSTICK_X_CHANNEL;
         }
