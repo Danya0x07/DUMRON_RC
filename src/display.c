@@ -120,43 +120,49 @@ static void display_clear(void);
 
 void display_init(void)
 {
-    GPIO_Init(LCD_GPIO, LCD_PIN_RST | LCD_PIN_CE, GPIO_MODE_OUT_PP_HIGH_SLOW);
-    GPIO_Init(LCD_GPIO, LCD_PIN_DC | LCD_PIN_BL, GPIO_MODE_OUT_PP_LOW_SLOW);
+    GPIO_Init(LCD_GPIO, LCD_PIN_RST | LCD_PIN_CE, GPIO_MODE_OUT_PP_HIGH_FAST);
+    GPIO_Init(LCD_GPIO, LCD_PIN_DC | LCD_PIN_BL, GPIO_MODE_OUT_PP_LOW_FAST);
+    delay_ms(10);
 
+    /* Перезагрузка дисплея; */
     GPIO_WriteLow(LCD_GPIO, LCD_PIN_RST);
-    delay_ms(1);
+    delay_ms(70);
     GPIO_WriteHigh(LCD_GPIO, LCD_PIN_RST);
 
+    GPIO_WriteLow(LCD_GPIO, LCD_PIN_CE);
+    
     /* Переключиться в режим расширенных команд; */
     display_write_byte(LCD_CMD, 0x21);
     /* Установить контрастность; */
-    display_write_byte(LCD_CMD, 0xBF);
+    display_write_byte(LCD_CMD, 0x13);
     /* Установить температурную коррекцию; */ 
-    display_write_byte(LCD_CMD, 0x04);
+    display_write_byte(LCD_CMD, 0x06);
     /* Установить смещение напряжения 1 : 48; */
-    display_write_byte(LCD_CMD, 0xB8);
+    display_write_byte(LCD_CMD, 0xC2);
     /* Переключиться в режим обычных команд; */
     display_write_byte(LCD_CMD, 0x20);
     /* Установить обычный(неинверсный) режим графики; */
+    display_write_byte(LCD_CMD, 0x09);
+
+    display_clear();
+
+    display_write_byte(LCD_CMD, 0x08);
     display_write_byte(LCD_CMD, 0x0C);
 }
 
 void display_test(char* data)
 {
-    display_set_position(1, 1);
-    display_string(data);
-    display_set_position(3, 3);
     display_string(data);
 }
 
 static void display_write_byte(MeaningOfByte meaning, uint8_t byte)
 {
+    GPIO_WriteLow(LCD_GPIO, LCD_PIN_CE);
     if (meaning == LCD_CMD) {
         GPIO_WriteLow(LCD_GPIO, LCD_PIN_DC);
     } else {
         GPIO_WriteHigh(LCD_GPIO, LCD_PIN_DC);
     }
-    GPIO_WriteLow(LCD_GPIO, LCD_PIN_CE);
     while (!SPI_GetFlagStatus(SPI_FLAG_TXE));
     SPI_SendData(byte);
     GPIO_WriteHigh(LCD_GPIO, LCD_PIN_CE);
@@ -188,6 +194,7 @@ static void display_string(char* str)
 static void display_clear(void)
 {
     uint16_t i;
+    display_set_position(0, 0);
     for (i = 0; i < LCD_PIXELS_X * LCD_PIXELS_Y; i++) {
         display_write_byte(LCD_DATA, 0x00);
     }

@@ -11,25 +11,17 @@ DataToRobot data_to_robot;
 
 void setup(void);
 
-void blink_led(void)
-{
-    led_on();
-    delay_ms(300);
-    led_off();
-    delay_ms(300);
-}
-
 int main(void)
 {
     setup();
-    debug_init();
     delay_init();
-    buttons_init();
-    joystick_init();
     
     enableInterrupts();
     
     display_init();
+    debug_init();
+    buttons_init();
+    joystick_init();
     display_test("Hello Nokia.");
     
     while (1) {
@@ -82,10 +74,6 @@ int main(void)
         if (buttons_events & BTN_TOGGLELIGHTS_PRESSED) {
             data_to_robot.periph_state ^= LIGHTS_EN;
             uart_write_str("tp\n");
-            /*uart_write_byte(joystick_data.direction);
-            uart_write_byte(joystick_data.x_abs);
-            uart_write_byte(joystick_data.y_abs);
-            uart_write_byte('\n');*/
         } else if (buttons_events & BTN_TOGGLELIGHTS_PRESSED_2) {
             uart_write_str("tp2\n");
         }
@@ -120,7 +108,7 @@ void setup(void)
 
     SPI_DeInit();
     SPI_Init(SPI_FIRSTBIT_MSB, SPI_BAUDRATEPRESCALER_64, SPI_MODE_MASTER,
-             SPI_CLOCKPOLARITY_LOW, SPI_CLOCKPHASE_1EDGE,
+             SPI_CLOCKPOLARITY_HIGH, SPI_CLOCKPHASE_2EDGE,
              SPI_DATADIRECTION_2LINES_FULLDUPLEX, SPI_NSS_SOFT, 0);
     SPI_Cmd(ENABLE);
 }
