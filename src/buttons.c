@@ -17,7 +17,7 @@ static struct Button {
     GPIO_TypeDef* reg;
     uint8_t pin;
     ButtonMode mode;
-    bool last_state;
+    BitStatus last_status;
 } btn_armup,
   btn_armdown,
   btn_clawsqueeze,
@@ -34,38 +34,38 @@ void buttons_init(void)
     btn_armup.reg = GPIOB;
     btn_armup.pin = GPIO_PIN_2;
     btn_armup.mode = PULLUP;
-    btn_armup.last_state = FALSE;
-    GPIOB->DDR &= ~GPIO_PIN_2;
+    btn_armup.last_status = RESET;
+    GPIO_Init(GPIOB, GPIO_PIN_2, GPIO_MODE_IN_FL_NO_IT);
 
     btn_armdown.reg = GPIOB;
     btn_armdown.pin = GPIO_PIN_3;
     btn_armdown.mode = PULLUP;
-    btn_armdown.last_state = FALSE;
-    GPIOB->DDR &= ~GPIO_PIN_3;
+    btn_armdown.last_status = RESET;
+    GPIO_Init(GPIOB, GPIO_PIN_3, GPIO_MODE_IN_FL_NO_IT);
 
     btn_clawsqueeze.reg = GPIOB;
     btn_clawsqueeze.pin = GPIO_PIN_4;
     btn_clawsqueeze.mode = PULLUP;
-    btn_clawsqueeze.last_state = FALSE;
-    GPIOB->DDR &= ~GPIO_PIN_4;
+    btn_clawsqueeze.last_status = RESET;
+    GPIO_Init(GPIOB, GPIO_PIN_3, GPIO_MODE_IN_FL_NO_IT);
 
     btn_clawrelease.reg = GPIOB;
     btn_clawrelease.pin = GPIO_PIN_5;
     btn_clawrelease.mode = PULLUP;
-    btn_clawrelease.last_state = FALSE;
-    GPIOB->DDR &= ~GPIO_PIN_5;
+    btn_clawrelease.last_status = RESET;
+    GPIO_Init(GPIOB, GPIO_PIN_5, GPIO_MODE_IN_FL_NO_IT);
 
     btn_klaxon.reg = GPIOC;
     btn_klaxon.pin = GPIO_PIN_1;
     btn_klaxon.mode = PULLUP;
-    btn_klaxon.last_state = FALSE;
-    GPIOC->DDR &= ~GPIO_PIN_1;
+    btn_klaxon.last_status = RESET;
+    GPIO_Init(GPIOC, GPIO_PIN_1, GPIO_MODE_IN_FL_NO_IT);
 
     btn_togglelights.reg = GPIOF;
     btn_togglelights.pin = GPIO_PIN_4;
     btn_togglelights.mode = PULLUP;
-    btn_togglelights.last_state = FALSE;
-    GPIOF->DDR &= ~GPIO_PIN_4;
+    btn_togglelights.last_status = RESET;
+    GPIO_Init(GPIOF, GPIO_PIN_4, GPIO_MODE_IN_FL_NO_IT);
 }
 
 void buttons_update(void)
@@ -134,15 +134,15 @@ void buttons_update(void)
 static bool btn_pressed(struct Button* btn)
 {
     bool pressed = FALSE;
-    bool current_state = btn->reg->IDR & btn->pin;
-    if (btn->last_state != current_state) {
+    BitStatus current_status = GPIO_ReadInputPin(btn->reg, btn->pin);
+    if (btn->last_status != current_status) {
         delay_ms(5);
-        current_state = btn->reg->IDR & btn->pin;
+        current_status = GPIO_ReadInputPin(btn->reg, btn->pin);
     }
 
-    if (!btn->last_state && current_state) pressed = !(bool)btn->mode;
-    else if (btn->last_state && !current_state) pressed = (bool)btn->mode;
-    btn->last_state = current_state;
+    if (!btn->last_status && current_status) pressed = !(bool)btn->mode;
+    else if (btn->last_status && !current_status) pressed = (bool)btn->mode;
+    btn->last_status = current_status;
     return pressed;
 }
 

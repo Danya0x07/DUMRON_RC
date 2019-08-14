@@ -1,8 +1,6 @@
 #ifndef JOYSTICK_H_INCLUDED
 #define JOYSTICK_H_INCLUDED
 
-#include <stm8s.h>
-
 typedef enum {
     MIDDLE,
     UP, DOWN,

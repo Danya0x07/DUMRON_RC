@@ -4,22 +4,34 @@
 #include "debug.h"
 #include "joystick.h"
 #include "msgprotocol.h"
+#include "display.h"
 
 JoystickData joystick_data;
 DataToRobot data_to_robot;
 
 void setup(void);
 
+void blink_led(void)
+{
+    led_on();
+    delay_ms(300);
+    led_off();
+    delay_ms(300);
+}
+
 int main(void)
 {
     setup();
-
+    debug_init();
     delay_init();
     buttons_init();
-    uart_init();
     joystick_init();
-
+    
     enableInterrupts();
+    
+    display_init();
+    display_test("Hello Nokia.");
+    
     while (1) {
         buttons_update();
         /* button arm up */
@@ -105,4 +117,10 @@ void setup(void)
     ADC1_DeInit();
 
     TIM4_DeInit();
+
+    SPI_DeInit();
+    SPI_Init(SPI_FIRSTBIT_MSB, SPI_BAUDRATEPRESCALER_64, SPI_MODE_MASTER,
+             SPI_CLOCKPOLARITY_LOW, SPI_CLOCKPHASE_1EDGE,
+             SPI_DATADIRECTION_2LINES_FULLDUPLEX, SPI_NSS_SOFT, 0);
+    SPI_Cmd(ENABLE);
 }

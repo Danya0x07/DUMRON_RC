@@ -18,7 +18,8 @@ SOURCES = src/main.c \
  src/delay.c \
  src/debug.c \
  src/joystick.c \
- src/msgprotocol.c 
+ src/msgprotocol.c \
+ src/display.c
 
 OUTPUT_DIR = ./build
 OBJ_FILES = $(addprefix $(OUTPUT_DIR)/, $(notdir $(SOURCES:.c=.rel)))

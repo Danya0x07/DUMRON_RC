@@ -1,4 +1,5 @@
 #include "joystick.h"
+#include <stm8s.h>
 
 #define JOYSTICK_X_CHANNEL   ADC1_CHANNEL_0
 #define JOYSTICK_Y_CHANNEL   ADC1_CHANNEL_1
@@ -7,14 +8,16 @@
 #define JOYSTICK_X_CALIBRATION_VAL 0
 #define JOYSTICK_Y_CALIBRATION_VAL 12
 
-static void adc_select_channel(ADC1_Channel_TypeDef);
+#define adc_select_channel(adc_channel) \
+ ADC1_ConversionConfig(ADC1_CONVERSIONMODE_SINGLE, adc_channel, ADC1_ALIGN_RIGHT)
+
 static JoystickDirection joystick_direction(uint8_t, uint8_t);
 static JoystickAbsDeflection joystick_abs_deflection(uint8_t);
 
 void joystick_init(void)
 {
     ADC1_ConversionConfig(ADC1_CONVERSIONMODE_SINGLE, JOYSTICK_X_CHANNEL, ADC1_ALIGN_RIGHT);
-    ADC1_PrescalerConfig(ADC1_PRESSEL_FCPU_D8);
+    ADC1_PrescalerConfig(ADC1_PRESSEL_FCPU_D10);
     ADC1_Cmd(ENABLE);
     ADC1_StartConversion();
 }
@@ -48,12 +51,6 @@ void joystick_update(JoystickData* joystick_data)
         joystick_data->y_abs = joystick_abs_deflection(y_buff);
         new_x_available = new_y_available = FALSE;
     }
-}
-
-static void adc_select_channel(ADC1_Channel_TypeDef channel)
-{
-    ADC1->CSR &= (uint8_t)(~ADC1_CSR_CH);
-    ADC1->CSR |= (uint8_t)(channel);
 }
 
 static JoystickDirection joystick_direction(uint8_t x, uint8_t y)
