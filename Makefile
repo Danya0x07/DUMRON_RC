@@ -21,6 +21,13 @@ SOURCES = src/main.c \
  src/msgprotocol.c \
  src/display.c
 
+HEADERS = inc/buttons.h \
+ inc/delay.h \
+ inc/debug.h \
+ inc/joystick.h \
+ inc/msgprotocol.h \
+ inc/display.h
+
 OUTPUT_DIR = ./build
 OBJ_FILES = $(addprefix $(OUTPUT_DIR)/, $(notdir $(SOURCES:.c=.rel)))
 
@@ -36,7 +43,7 @@ $(OUTPUT_DIR):
 $(OUTPUT_DIR)/$(TARGET).ihx: $(OBJ_FILES)
 	$(CC) $(CFLAGS) $(LIBPATHS) $(STATICLIBS) -o $@ $^
 
-build/%.rel: src/%.c
+build/%.rel: src/%.c $(HEADERS)
 	$(CC) $(CFLAGS) $(INCLUDES) $(DEFINES) -c -o $@ $<
 
 clean:
