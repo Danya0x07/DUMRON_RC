@@ -8,6 +8,12 @@
 #define LCD_PIN_DC  GPIO_PIN_0
 #define LCD_PIN_BL  GPIO_PIN_4
 
+#ifdef USE_VIRT_SPI
+  #define VSPI_GPIO GPIOC
+  #define VSPI_PIN_MOSI GPIO_PIN_6
+  #define VSPI_PIN_SCK  GPIO_PIN_5 
+#endif
+
 #define LCD_PIXELS_X    84
 #define LCD_PIXELS_Y    48
 
@@ -120,33 +126,30 @@ static void display_clear(void);
 
 void display_init(void)
 {
+#ifdef USE_VIRT_SPI
+    GPIO_Init(VSPI_GPIO, VSPI_PIN_MOSI, GPIO_MODE_OUT_PP_LOW_FAST);
+    GPIO_Init(VSPI_GPIO, VSPI_PIN_SCK, GPIO_MODE_OUT_PP_HIGH_FAST);
+#endif
     GPIO_Init(LCD_GPIO, LCD_PIN_RST | LCD_PIN_CE, GPIO_MODE_OUT_PP_HIGH_FAST);
-    GPIO_Init(LCD_GPIO, LCD_PIN_DC | LCD_PIN_BL, GPIO_MODE_OUT_PP_LOW_FAST);
+    GPIO_Init(LCD_GPIO, LCD_PIN_DC | LCD_PIN_BL, GPIO_MODE_OUT_PP_HIGH_FAST);
     delay_ms(10);
 
     /* Перезагрузка дисплея; */
     GPIO_WriteLow(LCD_GPIO, LCD_PIN_RST);
-    delay_ms(70);
+    delay_ms(1);
     GPIO_WriteHigh(LCD_GPIO, LCD_PIN_RST);
-
-    GPIO_WriteLow(LCD_GPIO, LCD_PIN_CE);
     
     /* Переключиться в режим расширенных команд; */
     display_write_byte(LCD_CMD, 0x21);
     /* Установить контрастность; */
-    display_write_byte(LCD_CMD, 0x13);
+    display_write_byte(LCD_CMD, 0xB0);
     /* Установить температурную коррекцию; */ 
-    display_write_byte(LCD_CMD, 0x06);
+    display_write_byte(LCD_CMD, 0x04);
     /* Установить смещение напряжения 1 : 48; */
-    display_write_byte(LCD_CMD, 0xC2);
+    display_write_byte(LCD_CMD, 0x14);
     /* Переключиться в режим обычных команд; */
     display_write_byte(LCD_CMD, 0x20);
     /* Установить обычный(неинверсный) режим графики; */
-    display_write_byte(LCD_CMD, 0x09);
-
-    display_clear();
-
-    display_write_byte(LCD_CMD, 0x08);
     display_write_byte(LCD_CMD, 0x0C);
 }
 
@@ -157,14 +160,29 @@ void display_test(char* data)
 
 static void display_write_byte(MeaningOfByte meaning, uint8_t byte)
 {
+    register uint8_t i;
     GPIO_WriteLow(LCD_GPIO, LCD_PIN_CE);
     if (meaning == LCD_CMD) {
         GPIO_WriteLow(LCD_GPIO, LCD_PIN_DC);
     } else {
         GPIO_WriteHigh(LCD_GPIO, LCD_PIN_DC);
     }
+#ifdef USE_VIRT_SPI
+    for (i = 0; i < 8; i++) {
+        if (byte & 0x80) {
+            GPIO_WriteHigh(VSPI_GPIO, VSPI_PIN_MOSI);
+        } else {
+            GPIO_WriteLow(VSPI_GPIO, VSPI_PIN_MOSI);
+        }
+        GPIO_WriteHigh(VSPI_GPIO, VSPI_PIN_SCK);
+        delay_ms(1);
+        GPIO_WriteLow(VSPI_GPIO, VSPI_PIN_SCK);
+        delay_ms(1);
+    }
+#else
     while (!SPI_GetFlagStatus(SPI_FLAG_TXE));
     SPI_SendData(byte);
+#endif
     GPIO_WriteHigh(LCD_GPIO, LCD_PIN_CE);
 }
 

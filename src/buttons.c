@@ -47,7 +47,7 @@ void buttons_init(void)
     btn_clawsqueeze.pin = GPIO_PIN_4;
     btn_clawsqueeze.mode = PULLUP;
     btn_clawsqueeze.last_status = RESET;
-    GPIO_Init(GPIOB, GPIO_PIN_3, GPIO_MODE_IN_FL_NO_IT);
+    GPIO_Init(GPIOB, GPIO_PIN_4, GPIO_MODE_IN_FL_NO_IT);
 
     btn_clawrelease.reg = GPIOB;
     btn_clawrelease.pin = GPIO_PIN_5;
@@ -148,7 +148,7 @@ static bool btn_pressed(struct Button* btn)
 
 static bool btn_pressed_again(struct Button* btn)
 {
-    uint8_t i;
+    register uint8_t i;
     for (i = 0; i < 200; i++) {
         delay_ms(1);
         if (btn_pressed(btn)) {
