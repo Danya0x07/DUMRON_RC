@@ -1,0 +1,37 @@
+#include "radio.h"
+
+#define NRF_GPIO    GPIOC
+#define NRF_PIN_CE  GPIO_PIN_4
+#define NRF_PIN_CSN GPIO_PIN_3
+
+#define NRF_STATUS_REG_ADDR 0x07
+#define NRF_STATUS_RX_DR    (1 << 6)
+#define NRF_STATUS_TX_DS    (1 << 5)
+#define NRF_STATUS_MAX_RT   (1 << 4)
+#define NRF_STATUS_RX_P_NO2 (1 << 3)
+#define NRF_STATUS_RX_P_NO1 (1 << 2)
+#define NRF_STATUS_RX_P_NO0 (1 << 1)
+#define NRF_STATUS_TX_FULL0 (1 << 0)
+
+#define NRF_CONFIG_REG_ADDR 0x00
+#define NRF_CONFIG_MASK_RX_DR   (1 << 6)
+#define NRF_CONFIG_MASK_TX_DS   (1 << 5)
+#define NRF_CONFIG_MASK_MAX_RT  (1 << 4)
+#define NRF_CONFIG_EN_CRC   (1 << 3)
+#define NRF_CONFIG_CRC0     (1 << 2)
+#define NRF_CONFIG_PWR_UP   (1 << 1)
+#define NRF_CONFIG_PRIM_RX  (1 << 0)
+
+#define NRF_RX_PW_P0_REG_ADDR 0x11
+
+#define NRF_COMMAND_R_REGISTER   0x00
+#define NRF_COMMAND_W_REGISTER   0x20
+#define NRF_COMMAND_R_RX_PAYLOAD 0x61
+#define NRF_COMMAND_W_TX_PAYLOAD 0xA0
+#define NRF_COMMAND_FLUSH_TX 0xE1
+#define NRF_COMMAND_FLUSH_RX 0xE2
+#define NRF_COMMAND_REUSE_TX_PL   0xE3
+#define NRF_COMMAND_R_RX_PL_WID   0x60
+#define NRF_COMMAND_W_ACK_PAYLOAD 0xA8
+#define NRF_COMMAND_W_TX_PAYLOAD_NOACK 0xB0
+#define NRF_COMMAND_NOP 0xFF

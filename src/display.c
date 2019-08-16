@@ -121,7 +121,7 @@ static void display_clear(void);
 void display_init(void)
 {
     GPIO_Init(LCD_GPIO, LCD_PIN_RST | LCD_PIN_CE, GPIO_MODE_OUT_PP_HIGH_FAST);
-    GPIO_Init(LCD_GPIO, LCD_PIN_DC | LCD_PIN_BL, GPIO_MODE_OUT_PP_HIGH_FAST);
+    GPIO_Init(LCD_GPIO, LCD_PIN_DC | LCD_PIN_BL, GPIO_MODE_OUT_PP_LOW_FAST);
 
     /* Перезагрузка дисплея; */
     GPIO_WriteLow(LCD_GPIO, LCD_PIN_RST);

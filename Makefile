@@ -19,14 +19,16 @@ SOURCES = src/main.c \
  src/debug.c \
  src/joystick.c \
  src/msgprotocol.c \
- src/display.c
+ src/display.c \
+ src/radio.c
 
 HEADERS = inc/buttons.h \
  inc/delay.h \
  inc/debug.h \
  inc/joystick.h \
  inc/msgprotocol.h \
- inc/display.h
+ inc/display.h \
+ inc/radio.h
 
 OUTPUT_DIR = ./build
 OBJ_FILES = $(addprefix $(OUTPUT_DIR)/, $(notdir $(SOURCES:.c=.rel)))
