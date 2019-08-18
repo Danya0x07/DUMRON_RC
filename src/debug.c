@@ -10,7 +10,6 @@ void debug_init(void)
                UART2_SYNCMODE_CLOCK_DISABLE,
                UART2_MODE_TXRX_ENABLE);
     GPIO_Init(LED_GPIO, LED_PIN, GPIO_MODE_OUT_PP_HIGH_SLOW);
-    led_off();
 }
 
 void uart_write_byte(uint8_t byte)

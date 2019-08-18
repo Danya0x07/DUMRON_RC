@@ -15,11 +15,9 @@ int main(void)
 {
     setup();
     delay_init();
-    
     enableInterrupts();
-    
-    display_init();
     debug_init();
+    display_init();
     buttons_init();
     joystick_init();
     display_test("Hello Nokia.");
@@ -101,21 +99,21 @@ void setup(void)
     GPIO_DeInit(GPIOD);
     GPIO_DeInit(GPIOE);
     GPIO_DeInit(GPIOF);
-
-    GPIO_Init(GPIOA, GPIO_PIN_ALL, GPIO_MODE_OUT_PP_LOW_SLOW);
-    GPIO_Init(GPIOB, GPIO_PIN_ALL, GPIO_MODE_OUT_PP_LOW_SLOW);
-    GPIO_Init(GPIOC, GPIO_PIN_ALL, GPIO_MODE_OUT_PP_LOW_SLOW);
-    GPIO_Init(GPIOD, GPIO_PIN_ALL, GPIO_MODE_OUT_PP_LOW_SLOW);
-    GPIO_Init(GPIOE, GPIO_PIN_ALL, GPIO_MODE_OUT_PP_LOW_SLOW);
-    GPIO_Init(GPIOF, GPIO_PIN_ALL, GPIO_MODE_OUT_PP_LOW_SLOW);
+    /* Неиспользуемые пока пины */
+    GPIO_Init(GPIOA, GPIO_PIN_1 | GPIO_PIN_2, GPIO_MODE_IN_PU_NO_IT);
+    GPIO_Init(GPIOC, GPIO_PIN_2, GPIO_MODE_OUT_PP_LOW_SLOW);
+    GPIO_Init(GPIOD, GPIO_PIN_7, GPIO_MODE_OUT_PP_LOW_SLOW);
 
     ADC1_DeInit();
 
     TIM4_DeInit();
 
     SPI_DeInit();
+    GPIO_Init(GPIOC, GPIO_PIN_6, GPIO_MODE_OUT_PP_LOW_FAST);  /* MOSI pin */
+    GPIO_Init(GPIOC, GPIO_PIN_7, GPIO_MODE_IN_PU_NO_IT);  /* MISO pin */
+    GPIO_Init(GPIOC, GPIO_PIN_5, GPIO_MODE_OUT_PP_HIGH_FAST);  /* SCK pin */
     SPI_Init(SPI_FIRSTBIT_MSB, SPI_BAUDRATEPRESCALER_16, SPI_MODE_MASTER,
              SPI_CLOCKPOLARITY_LOW, SPI_CLOCKPHASE_1EDGE,
-             SPI_DATADIRECTION_2LINES_FULLDUPLEX, SPI_NSS_SOFT, 0);
+             SPI_DATADIRECTION_2LINES_FULLDUPLEX, SPI_NSS_SOFT, 7);
     SPI_Cmd(ENABLE);
 }

@@ -147,7 +147,6 @@ void display_test(char* data)
 
 static void display_write_byte(MeaningOfByte meaning, uint8_t byte)
 {
-    register uint8_t i;
     GPIO_WriteLow(LCD_GPIO, LCD_PIN_CE);
     if (meaning == LCD_CMD) {
         GPIO_WriteLow(LCD_GPIO, LCD_PIN_DC);
