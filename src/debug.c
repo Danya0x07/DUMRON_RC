@@ -1,4 +1,5 @@
 #include "debug.h"
+#include <stdlib.h>
 
 void debug_init(void)
 {
@@ -12,15 +13,23 @@ void debug_init(void)
     GPIO_Init(LED_GPIO, LED_PIN, GPIO_MODE_OUT_PP_HIGH_SLOW);
 }
 
-void uart_write_byte(uint8_t byte)
+void uart_send_byte(uint8_t byte)
 {
     while (!UART2_GetFlagStatus(UART2_FLAG_TXE));
     UART2_SendData8(byte);
 }
 
-void uart_write_str(const char* str)
+void uart_send_str(const char* str)
 {
     while (*str) {
-        uart_write_byte(*str++);
+        while (!UART2_GetFlagStatus(UART2_FLAG_TXE));
+        UART2_SendData8(*str++);
     }
+}
+
+void uart_send_int(int n)
+{
+    static char itoa_result_buffer[40];
+    _itoa(n, itoa_result_buffer, 10);
+    uart_send_str(itoa_result_buffer);
 }

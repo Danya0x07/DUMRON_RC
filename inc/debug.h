@@ -11,7 +11,10 @@
 #define led_toggle()    GPIO_WriteReverse(LED_GPIO, LED_PIN)
 
 void debug_init(void);
-void uart_write_byte(uint8_t);
-void uart_write_str(const char*);
+void uart_send_str(const char*);
+void uart_send_int(int);
+
+#define logs(str)   uart_send_str(str)
+#define logi(n)     uart_send_int(n)
 
 #endif

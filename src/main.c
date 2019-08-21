@@ -27,53 +27,53 @@ int main(void)
         /* button arm up */
         if (buttons_events & BTN_ARMUP_PRESSED) {
             data_to_robot.periph_state |= ARM_UP;
-            uart_write_str("aup\n");
+            logs("aup\n");
         } else if (buttons_events & BTN_ARMUP_RELEASED) {
             data_to_robot.periph_state &= ~ARM_UP;
-            uart_write_str("aur\n");
+            logs("aur\n");
         }
         /* button arm down */
         if (buttons_events & BTN_ARMDOWN_PRESSED) {
             data_to_robot.periph_state |= ARM_DOWN;
-            uart_write_str("adp\n");
+            logs("adp\n");
         } else if (buttons_events & BTN_ARMDOWN_RELEASED) {
             data_to_robot.periph_state &= ~ARM_DOWN;
-            uart_write_str("adr\n");
+            logs("adr\n");
         }
         /* button claw squeeze */
         if (buttons_events & BTN_CLAWSQUEEZE_PRESSED) {
             data_to_robot.periph_state |= CLAW_SQUEEZE;
-            uart_write_str("csp\n");
+            logs("csp\n");
         } else if (buttons_events & BTN_CLAWSQUEEZE_RELEASED) {
             data_to_robot.periph_state &= ~CLAW_SQUEEZE;
-            uart_write_str("csr\n");
+            logs("csr\n");
         }
         /* button claw release */
         if (buttons_events & BTN_CLAWRELEASE_PRESSED) {
             data_to_robot.periph_state |= CLAW_RELEASE;
-            /*uart_write_str("crp\n");*/
-            uart_write_byte(joystick_data.direction);
-            uart_write_byte(joystick_data.x_abs);
-            uart_write_byte(joystick_data.y_abs);
-            /*uart_write_byte('\n');*/
+            /*logs("crp\n");*/
+            logi(joystick_data.direction);
+            logi(joystick_data.x_abs);
+            logi(joystick_data.y_abs);
+            /*logi('\n');*/
         }/* else if (buttons_events & BTN_CLAWRELEASE_RELEASED) {
             data_to_robot.periph_state &= ~CLAW_RELEASE;
-            uart_write_str("crr\n");
+            logs("crr\n");
         }*/
         /* button klaxon */
         if (buttons_events & BTN_KLAXON_PRESSED) {
             data_to_robot.periph_state |= KLAXON_EN;
-            uart_write_str("kp\n");
+            logs("kp\n");
         } else if (buttons_events & BTN_KLAXON_RELEASED) {
             data_to_robot.periph_state &= ~KLAXON_EN;
-            uart_write_str("kr\n");
+            logs("kr\n");
         }
         /* button togglelights */
         if (buttons_events & BTN_TOGGLELIGHTS_PRESSED) {
             data_to_robot.periph_state ^= LIGHTS_EN;
-            uart_write_str("tp\n");
+            logs("tp\n");
         } else if (buttons_events & BTN_TOGGLELIGHTS_PRESSED_2) {
-            uart_write_str("tp2\n");
+            logs("tp2\n");
         }
 
         joystick_update(&joystick_data);
@@ -111,7 +111,7 @@ void setup(void)
     SPI_DeInit();
     GPIO_Init(GPIOC, GPIO_PIN_6, GPIO_MODE_OUT_PP_LOW_FAST);  /* MOSI pin */
     GPIO_Init(GPIOC, GPIO_PIN_7, GPIO_MODE_IN_PU_NO_IT);  /* MISO pin */
-    GPIO_Init(GPIOC, GPIO_PIN_5, GPIO_MODE_OUT_PP_HIGH_FAST);  /* SCK pin */
+    GPIO_Init(GPIOC, GPIO_PIN_5, GPIO_MODE_OUT_PP_LOW_FAST);  /* SCK pin */
     SPI_Init(SPI_FIRSTBIT_MSB, SPI_BAUDRATEPRESCALER_16, SPI_MODE_MASTER,
              SPI_CLOCKPOLARITY_LOW, SPI_CLOCKPHASE_1EDGE,
              SPI_DATADIRECTION_2LINES_FULLDUPLEX, SPI_NSS_SOFT, 7);
