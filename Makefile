@@ -18,17 +18,22 @@ SOURCES = src/main.c \
  src/delay.c \
  src/debug.c \
  src/joystick.c \
- src/msgprotocol.c \
+ src/data_utils.c \
  src/display.c \
- src/radio.c
+ src/radio.c \
+ src/nokia5110lcd.c \
+ src/nrf24l01p.c
 
 HEADERS = inc/buttons.h \
  inc/delay.h \
  inc/debug.h \
  inc/joystick.h \
- inc/msgprotocol.h \
+ inc/data_utils.h \
  inc/display.h \
- inc/radio.h
+ inc/radio.h \
+ inc/nokia5110lcd.h \
+ inc/nrf24l01p.h \
+ inc/robot_interface.h
 
 OUTPUT_DIR = ./build
 OBJ_FILES = $(addprefix $(OUTPUT_DIR)/, $(notdir $(SOURCES:.c=.rel)))

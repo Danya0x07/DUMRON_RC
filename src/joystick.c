@@ -1,5 +1,5 @@
-#include "joystick.h"
 #include <stm8s.h>
+#include "joystick.h"
 
 #define JOYSTICK_X_CHANNEL   ADC1_CHANNEL_0
 #define JOYSTICK_Y_CHANNEL   ADC1_CHANNEL_1
@@ -9,10 +9,10 @@
 #define JOYSTICK_Y_CALIBRATION_VAL 14
 
 #define adc_select_channel(adc_channel) \
- ADC1_ConversionConfig(ADC1_CONVERSIONMODE_SINGLE, adc_channel, ADC1_ALIGN_RIGHT)
+  ADC1_ConversionConfig(ADC1_CONVERSIONMODE_SINGLE, adc_channel, ADC1_ALIGN_RIGHT)
 
-static JoystickDirection joystick_direction(uint8_t, uint8_t);
-static JoystickAbsDeflection joystick_abs_deflection(uint8_t);
+static JoystickDirection joystick_get_direction(uint8_t, uint8_t);
+static JoystickDeflection joystick_get_deflection(uint8_t);
 
 void joystick_init(void)
 {
@@ -46,46 +46,97 @@ void joystick_update(JoystickData* joystick_data)
     }
 
     if (new_x_available && new_y_available) {
-        joystick_data->direction = joystick_direction(x_buff, y_buff);
-        joystick_data->x_abs = joystick_abs_deflection(x_buff);
-        joystick_data->y_abs = joystick_abs_deflection(y_buff);
+        joystick_data->direction = joystick_get_direction(x_buff, y_buff);
+        joystick_data->x_abs_defl = joystick_get_deflection(x_buff);
+        joystick_data->y_abs_defl = joystick_get_deflection(y_buff);
         new_x_available = new_y_available = FALSE;
     }
 }
 
-static JoystickDirection joystick_direction(uint8_t x, uint8_t y)
+void joystick_data_to_robot_movement(DataToRobot* data, const JoystickData* joystick_data)
 {
-    JoystickDirection direction = MIDDLE;
+    static const uint8_t robot_speeds[3] = {0, 128, 255};
+    /* Вычислить направление */
+    switch (joystick_data->direction) {
+        case JOYSTICK_DIRECTION_UP:
+            data->direction = ROBOT_DIRECTION_FORWARD;
+            break;
+        case JOYSTICK_DIRECTION_DOWN:
+            data->direction = ROBOT_DIRECTION_BACKWARD;
+            break;
+        case JOYSTICK_DIRECTION_LEFT:
+        case JOYSTICK_DIRECTION_LEFTUP:
+        case JOYSTICK_DIRECTION_RIGHTDOWN:
+            data->direction = ROBOT_DIRECTION_LEFTWARD;
+            break;
+        case JOYSTICK_DIRECTION_RIGHT:
+        case JOYSTICK_DIRECTION_RIGHTUP:
+        case JOYSTICK_DIRECTION_LEFTDOWN:
+            data->direction = ROBOT_DIRECTION_RIGHTWARD;
+            break;
+    }
+    /* Вычислить скорости */
+    switch (joystick_data->direction) {
+        case JOYSTICK_DIRECTION_MIDDLE:
+            data->speed_left  = robot_speeds[0];
+            data->speed_right = robot_speeds[0];
+            break;
+        case JOYSTICK_DIRECTION_LEFTUP:
+        case JOYSTICK_DIRECTION_LEFTDOWN:
+            data->speed_left  = robot_speeds[joystick_data->y_abs_defl];
+            data->speed_right = robot_speeds[1];
+            break;
+        case JOYSTICK_DIRECTION_RIGHTUP:
+        case JOYSTICK_DIRECTION_RIGHTDOWN:
+            data->speed_left  = robot_speeds[1];
+            data->speed_right = robot_speeds[joystick_data->y_abs_defl];
+            break;
+        case JOYSTICK_DIRECTION_UP:
+        case JOYSTICK_DIRECTION_DOWN:
+            data->speed_left  = robot_speeds[joystick_data->y_abs_defl];
+            data->speed_right = robot_speeds[joystick_data->y_abs_defl];
+            break;
+        case JOYSTICK_DIRECTION_LEFT:
+        case JOYSTICK_DIRECTION_RIGHT:
+            data->speed_left  = robot_speeds[joystick_data->x_abs_defl];
+            data->speed_right = robot_speeds[joystick_data->x_abs_defl];
+            break;
+    }
+}
+
+static JoystickDirection joystick_get_direction(uint8_t x, uint8_t y)
+{
+    JoystickDirection direction = JOYSTICK_DIRECTION_MIDDLE;
     if (x == 2) {
         if (y > 2)
-            direction = UP;
+            direction = JOYSTICK_DIRECTION_UP;
         else if (y < 2)
-            direction = DOWN;
+            direction = JOYSTICK_DIRECTION_DOWN;
     } else {
         if (x > 2) {
             if (y > 2)
-                direction = RIGHTUP;
+                direction = JOYSTICK_DIRECTION_RIGHTUP;
             else if (y < 2)
-                direction = RIGHTDOWN;
+                direction = JOYSTICK_DIRECTION_RIGHTDOWN;
             else
-                direction = RIGHT;
+                direction = JOYSTICK_DIRECTION_RIGHT;
         } else if (x < 2) {
             if (y > 2)
-                direction = LEFTUP;
+                direction = JOYSTICK_DIRECTION_LEFTUP;
             else if (y < 2)
-                direction = LEFTDOWN;
+                direction = JOYSTICK_DIRECTION_LEFTDOWN;
             else
-                direction = LEFT;
+                direction = JOYSTICK_DIRECTION_LEFT;
         }
     }
     return direction;
 }
 
-static JoystickAbsDeflection joystick_abs_deflection(uint8_t pos)
+static JoystickDeflection joystick_get_deflection(uint8_t pos)
 {
     if(pos < 1 || pos > 3)
-        return HIGH_DEFLECTION;
+        return JOYSTICK_DEFLECTION_HIGH;
     else if(pos < 2 || pos > 2)
-        return LOW_DEFLECTION;
-    else return NO_DEFLECTION;
+        return JOYSTICK_DEFLECTION_LOW;
+    else return JOYSTICK_DEFLECTION_NO;
 }

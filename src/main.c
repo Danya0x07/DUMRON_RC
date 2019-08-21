@@ -1,10 +1,12 @@
 #include <stm8s.h>
 #include "delay.h"
-#include "buttons.h"
 #include "debug.h"
+#include "buttons.h"
+#include "robot_interface.h"
 #include "joystick.h"
-#include "msgprotocol.h"
 #include "display.h"
+#include "data_utils.h"
+#include "radio.h"
 
 JoystickData joystick_data;
 DataToRobot data_to_robot;
@@ -26,51 +28,50 @@ int main(void)
         buttons_update();
         /* button arm up */
         if (buttons_events & BTN_ARMUP_PRESSED) {
-            data_to_robot.periph_state |= ARM_UP;
+            data_to_robot.control_flags |= ROBOT_FLAG_ARM_UP;
             logs("aup\n");
         } else if (buttons_events & BTN_ARMUP_RELEASED) {
-            data_to_robot.periph_state &= ~ARM_UP;
+            data_to_robot.control_flags &= ~ROBOT_FLAG_ARM_UP;
             logs("aur\n");
         }
         /* button arm down */
         if (buttons_events & BTN_ARMDOWN_PRESSED) {
-            data_to_robot.periph_state |= ARM_DOWN;
+            data_to_robot.control_flags |= ROBOT_FLAG_ARM_DOWN;
             logs("adp\n");
         } else if (buttons_events & BTN_ARMDOWN_RELEASED) {
-            data_to_robot.periph_state &= ~ARM_DOWN;
+            data_to_robot.control_flags &= ~ROBOT_FLAG_ARM_DOWN;
             logs("adr\n");
         }
         /* button claw squeeze */
         if (buttons_events & BTN_CLAWSQUEEZE_PRESSED) {
-            data_to_robot.periph_state |= CLAW_SQUEEZE;
+            data_to_robot.control_flags |= ROBOT_FLAG_CLAW_SQUEEZE;
             logs("csp\n");
         } else if (buttons_events & BTN_CLAWSQUEEZE_RELEASED) {
-            data_to_robot.periph_state &= ~CLAW_SQUEEZE;
+            data_to_robot.control_flags &= ~ROBOT_FLAG_CLAW_SQUEEZE;
             logs("csr\n");
         }
         /* button claw release */
         if (buttons_events & BTN_CLAWRELEASE_PRESSED) {
-            data_to_robot.periph_state |= CLAW_RELEASE;
-            /*logs("crp\n");*/
-            logi(joystick_data.direction);
-            logi(joystick_data.x_abs);
-            logi(joystick_data.y_abs);
-            /*logi('\n');*/
-        }/* else if (buttons_events & BTN_CLAWRELEASE_RELEASED) {
-            data_to_robot.periph_state &= ~CLAW_RELEASE;
+            data_to_robot.control_flags |= ROBOT_FLAG_CLAW_RELEASE;
+            logs("crp\n");
+            logi(joystick_data.direction);  logs("\t");
+            logi(joystick_data.x_abs_defl); logs("\t");
+            logi(joystick_data.y_abs_defl); logs("\n");
+        } else if (buttons_events & BTN_CLAWRELEASE_RELEASED) {
+            data_to_robot.control_flags &= ~ROBOT_FLAG_CLAW_RELEASE;
             logs("crr\n");
-        }*/
+        }
         /* button klaxon */
         if (buttons_events & BTN_KLAXON_PRESSED) {
-            data_to_robot.periph_state |= KLAXON_EN;
+            data_to_robot.control_flags |= ROBOT_FLAG_KLAXON_EN;
             logs("kp\n");
         } else if (buttons_events & BTN_KLAXON_RELEASED) {
-            data_to_robot.periph_state &= ~KLAXON_EN;
+            data_to_robot.control_flags &= ~ROBOT_FLAG_KLAXON_EN;
             logs("kr\n");
         }
         /* button togglelights */
         if (buttons_events & BTN_TOGGLELIGHTS_PRESSED) {
-            data_to_robot.periph_state ^= LIGHTS_EN;
+            data_to_robot.control_flags ^= ROBOT_FLAG_LIGHTS_EN;
             logs("tp\n");
         } else if (buttons_events & BTN_TOGGLELIGHTS_PRESSED_2) {
             logs("tp2\n");
@@ -78,10 +79,10 @@ int main(void)
 
         joystick_update(&joystick_data);
         
-        robot_calc_movement(&data_to_robot, &joystick_data);
-        if (robot_data_is_new(&data_to_robot)) {
+        joystick_data_to_robot_movement(&data_to_robot, &joystick_data);
+        if (data_to_robot_is_new(&data_to_robot)) {
             /* TODO: Отправка данных data_to_robot роботу. */
-            robot_data_update_buffer(&data_to_robot);
+            data_to_robot_update_buffer(&data_to_robot);
         }
         
     }
