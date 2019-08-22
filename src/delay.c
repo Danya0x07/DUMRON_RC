@@ -16,7 +16,7 @@ void delay_ms(uint16_t ms)
     while (time_count);
 }
 
-void tim4_interrupt_handler(void) __interrupt(23)
+void delay_interrupt_handler(void) __interrupt(23)
 {
     if (time_count)
         time_count--;

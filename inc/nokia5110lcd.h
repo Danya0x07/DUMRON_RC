@@ -3,4 +3,10 @@
 
 #include <stm8s.h>
 
+void lcd_init(void);
+void lcd_set_position(uint8_t x, uint8_t y);
+void lcd_print_character(char);
+void lcd_print_string(char*);
+void lcd_clear(void);
+
 #endif

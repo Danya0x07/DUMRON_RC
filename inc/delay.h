@@ -5,6 +5,6 @@
 
 void delay_init(void);
 void delay_ms(uint16_t);
-void tim4_interrupt_handler(void) __interrupt(23);
+void delay_interrupt_handler(void) __interrupt(23);
 
 #endif

@@ -18,7 +18,6 @@ SOURCES = src/main.c \
  src/delay.c \
  src/debug.c \
  src/joystick.c \
- src/data_utils.c \
  src/display.c \
  src/radio.c \
  src/nokia5110lcd.c \
@@ -28,7 +27,6 @@ HEADERS = inc/buttons.h \
  inc/delay.h \
  inc/debug.h \
  inc/joystick.h \
- inc/data_utils.h \
  inc/display.h \
  inc/radio.h \
  inc/nokia5110lcd.h \

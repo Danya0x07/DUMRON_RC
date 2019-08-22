@@ -1,8 +1,6 @@
 #include "buttons.h"
 #include "delay.h"
 
-uint16_t buttons_events = 0;
-
 typedef enum {PULLDOWN, PULLUP = !PULLDOWN} ButtonMode;
 
 /*
@@ -68,65 +66,65 @@ void buttons_init(void)
     GPIO_Init(GPIOF, GPIO_PIN_4, GPIO_MODE_IN_FL_NO_IT);
 }
 
-void buttons_update(void)
+void buttons_update(uint16_t* event_register)
 {
-    buttons_events = 0;
+    *event_register = 0;
     
     if (btn_pressed(&btn_armup)) {
         if (btn_armup.mode == ON_PRESS) {
-            buttons_events |= BTN_ARMUP_PRESSED;
+            *event_register |= BTN_ARMUP_PRESSED;
             btn_armup.mode = ON_RELEASE;
         } else {
-            buttons_events |= BTN_ARMUP_RELEASED;
+            *event_register |= BTN_ARMUP_RELEASED;
             btn_armup.mode = ON_PRESS;
         }
     }
 
     if (btn_pressed(&btn_armdown)) {
         if (btn_armdown.mode == ON_PRESS) {
-            buttons_events |= BTN_ARMDOWN_PRESSED;
+            *event_register |= BTN_ARMDOWN_PRESSED;
             btn_armdown.mode = ON_RELEASE;
         } else {
-            buttons_events |= BTN_ARMDOWN_RELEASED;
+            *event_register |= BTN_ARMDOWN_RELEASED;
             btn_armdown.mode = ON_PRESS;
         }
     }
 
     if (btn_pressed(&btn_clawsqueeze)) {
         if (btn_clawsqueeze.mode == ON_PRESS) {
-            buttons_events |= BTN_CLAWSQUEEZE_PRESSED;
+            *event_register |= BTN_CLAWSQUEEZE_PRESSED;
             btn_clawsqueeze.mode = ON_RELEASE;
         } else {
-            buttons_events |= BTN_CLAWSQUEEZE_RELEASED;
+            *event_register |= BTN_CLAWSQUEEZE_RELEASED;
             btn_clawsqueeze.mode = ON_PRESS;
         }
     }
 
     if (btn_pressed(&btn_clawrelease)) {
         if (btn_clawrelease.mode == ON_PRESS) {
-            buttons_events |= BTN_CLAWRELEASE_PRESSED;
+            *event_register |= BTN_CLAWRELEASE_PRESSED;
             btn_clawrelease.mode = ON_RELEASE;
         } else {
-            buttons_events |= BTN_CLAWRELEASE_RELEASED;
+            *event_register |= BTN_CLAWRELEASE_RELEASED;
             btn_clawrelease.mode = ON_PRESS;
         }
     }
 
     if (btn_pressed(&btn_klaxon)) {
         if (btn_klaxon.mode == ON_PRESS) {
-            buttons_events |= BTN_KLAXON_PRESSED;
+            *event_register |= BTN_KLAXON_PRESSED;
             btn_klaxon.mode = ON_RELEASE;
         } else {
-            buttons_events |= BTN_KLAXON_RELEASED;
+            *event_register |= BTN_KLAXON_RELEASED;
             btn_klaxon.mode = ON_PRESS;
         }
     }
 
     if (btn_pressed(&btn_togglelights)) {
         if (btn_pressed_again(&btn_togglelights)) {
-            buttons_events |= BTN_TOGGLELIGHTS_PRESSED_2;
+            *event_register |= BTN_TOGGLELIGHTS_PRESSED_2;
         } else {
-            buttons_events |= BTN_TOGGLELIGHTS_PRESSED;
+            *event_register |= BTN_TOGGLELIGHTS_PRESSED;
         }
     }
 }

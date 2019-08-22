@@ -10,7 +10,7 @@
 #define LCD_PIXELS_X    84
 #define LCD_PIXELS_Y    48
 
-typedef enum {LCD_CMD, LCD_DATA = !LCD_CMD} MeaningOfByte;
+typedef enum {LCD_COMMAND, LCD_DATA} MeaningOfByte;
 
 static const uint8_t ASCII[][5] = {
     {0x00, 0x00, 0x00, 0x00, 0x00},  /* 20   */ 
@@ -111,13 +111,13 @@ static const uint8_t ASCII[][5] = {
     {0x78, 0x46, 0x41, 0x46, 0x78},  /* 7f → */
 };
 
-static void display_write_byte(MeaningOfByte meaning, uint8_t byte);
-static void display_set_position(uint8_t x, uint8_t y);
-static void display_character(char);
-static void display_string(char*);
-static void display_clear(void);
+static void lcd_send_byte(MeaningOfByte meaning, uint8_t byte);
 
-void display_init(void)
+/**
+ * @brief Инициализирует дисплей.
+ * @note  Эта функция платформозависимая.
+ */
+void lcd_init(void)
 {
     GPIO_Init(LCD_GPIO, LCD_PIN_RST | LCD_PIN_CE, GPIO_MODE_OUT_PP_HIGH_FAST);
     GPIO_Init(LCD_GPIO, LCD_PIN_DC | LCD_PIN_BL, GPIO_MODE_OUT_PP_LOW_FAST);
@@ -127,27 +127,67 @@ void display_init(void)
     delay_ms(100);
     GPIO_WriteHigh(LCD_GPIO, LCD_PIN_RST);
     
-    display_write_byte(LCD_CMD, 0x21);
-    display_write_byte(LCD_CMD, 0x13);
-    display_write_byte(LCD_CMD, 0xC2);
-    display_write_byte(LCD_CMD, 0x20);
-    display_write_byte(LCD_CMD, 0x09);
-    display_clear();
-    display_write_byte(LCD_CMD, 0x08);
-    display_write_byte(LCD_CMD, 0x0C);
+    lcd_send_byte(LCD_COMMAND, 0x21);
+    lcd_send_byte(LCD_COMMAND, 0x13);
+    lcd_send_byte(LCD_COMMAND, 0xC2);
+    lcd_send_byte(LCD_COMMAND, 0x20);
+    lcd_send_byte(LCD_COMMAND, 0x09);
+    lcd_clear();
+    lcd_send_byte(LCD_COMMAND, 0x08);
+    lcd_send_byte(LCD_COMMAND, 0x0C);
     delay_ms(100);
 }
 
-void display_test(char* data)
+/**
+ * @brief Устанавливает курсор в указанную символьную позицию.
+ * @note  0 <= x <= 11, отсчёт слева направо;
+ * @note  0 <= y <= 5   отсчёт сверху вниз;
+ */ 
+void lcd_set_position(uint8_t x, uint8_t y)
 {
-    display_set_position(1, 1);
-    display_string(data);
+    x *= 7;
+    if (x > 83 || y > 5)
+        return;
+    lcd_send_byte(LCD_COMMAND, 0x80 | x);
+    lcd_send_byte(LCD_COMMAND, 0x40 | y);
 }
 
-static void display_write_byte(MeaningOfByte meaning, uint8_t byte)
+void lcd_print_character(char ch)
+{
+    uint8_t i;
+    lcd_send_byte(LCD_DATA, 0x00);
+    for (i = 0; i < 5; i++) {
+        lcd_send_byte(LCD_DATA, ASCII[ch - 0x20][i]);
+    }
+    lcd_send_byte(LCD_DATA, 0x00);
+}
+
+void lcd_print_string(char* str)
+{
+    while(*str) {
+        lcd_print_character(*str++);
+    }
+}
+
+void lcd_clear(void)
+{
+    uint16_t i;
+    lcd_set_position(0, 0);
+    for (i = 0; i < LCD_PIXELS_X * LCD_PIXELS_Y / 8; i++) {
+        lcd_send_byte(LCD_DATA, 0x00);
+    }
+}
+
+/**
+ * @brief Отправляет байт дисплею по SPI.
+ * @note  Эта функция платформозависимая.
+ * @param meaning: Значение байта: команда или данные.
+ * @param byte: Байт для передачи.
+ */ 
+static void lcd_send_byte(MeaningOfByte meaning, uint8_t byte)
 {
     GPIO_WriteLow(LCD_GPIO, LCD_PIN_CE);
-    if (meaning == LCD_CMD) {
+    if (meaning == LCD_COMMAND) {
         GPIO_WriteLow(LCD_GPIO, LCD_PIN_DC);
     } else {
         GPIO_WriteHigh(LCD_GPIO, LCD_PIN_DC);
@@ -155,36 +195,4 @@ static void display_write_byte(MeaningOfByte meaning, uint8_t byte)
     while (!SPI_GetFlagStatus(SPI_FLAG_TXE));
     SPI_SendData(byte);
     GPIO_WriteHigh(LCD_GPIO, LCD_PIN_CE);
-}
-
-static void display_set_position(uint8_t x, uint8_t y)
-{
-    display_write_byte(LCD_CMD, 0x80 | x);
-    display_write_byte(LCD_CMD, 0x40 | y);
-}
-
-static void display_character(char ch)
-{
-    uint8_t i;
-    display_write_byte(LCD_DATA, 0x00);
-    for (i = 0; i < 5; i++) {
-        display_write_byte(LCD_DATA, ASCII[ch - 0x20][i]);
-    }
-    display_write_byte(LCD_DATA, 0x00);
-}
-
-static void display_string(char* str)
-{
-    while(*str) {
-        display_character(*str++);
-    }
-}
-
-static void display_clear(void)
-{
-    uint16_t i;
-    display_set_position(0, 0);
-    for (i = 0; i < LCD_PIXELS_X * LCD_PIXELS_Y / 8; i++) {
-        display_write_byte(LCD_DATA, 0x00);
-    }
 }

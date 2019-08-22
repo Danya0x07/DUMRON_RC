@@ -29,6 +29,6 @@ typedef struct {
 
 void joystick_init(void);
 void joystick_update(JoystickData*);
-void joystick_data_to_robot_movement(DataToRobot*, JoystickData*);
+void joystick_data_to_robot_movement(const JoystickData*, DataToRobot*);
 
 #endif

@@ -5,11 +5,12 @@
 #include "robot_interface.h"
 #include "joystick.h"
 #include "display.h"
-#include "data_utils.h"
 #include "radio.h"
 
+uint16_t buttons_events;
 JoystickData joystick_data;
 DataToRobot data_to_robot;
+DataFromRobot data_from_robot;
 
 void setup(void);
 
@@ -22,10 +23,11 @@ int main(void)
     display_init();
     buttons_init();
     joystick_init();
-    display_test("Hello Nokia.");
+    display_test();
     
     while (1) {
-        buttons_update();
+        buttons_update(&buttons_events);
+        joystick_update(&joystick_data);
         /* button arm up */
         if (buttons_events & BTN_ARMUP_PRESSED) {
             data_to_robot.control_flags |= ROBOT_FLAG_ARM_UP;
@@ -77,14 +79,13 @@ int main(void)
             logs("tp2\n");
         }
 
-        joystick_update(&joystick_data);
+        joystick_data_to_robot_movement(&joystick_data, &data_to_robot);
         
-        joystick_data_to_robot_movement(&data_to_robot, &joystick_data);
-        if (data_to_robot_is_new(&data_to_robot)) {
-            /* TODO: Отправка данных data_to_robot роботу. */
-            data_to_robot_update_buffer(&data_to_robot);
+        if (radio_is_time_to_update_io_data() || radio_data_to_robot_is_new(&data_to_robot)) {
+            radio_check_for_incoming(&data_from_robot);
+            radio_send_data(&data_to_robot);
+            display_update(&data_to_robot, &data_from_robot);
         }
-        
     }
 }
 
@@ -108,6 +109,7 @@ void setup(void)
     ADC1_DeInit();
 
     TIM4_DeInit();
+    TIM3_DeInit();
 
     SPI_DeInit();
     GPIO_Init(GPIOC, GPIO_PIN_6, GPIO_MODE_OUT_PP_LOW_FAST);  /* MOSI pin */

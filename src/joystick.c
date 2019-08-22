@@ -9,7 +9,7 @@
 #define JOYSTICK_Y_CALIBRATION_VAL 14
 
 #define adc_select_channel(adc_channel) \
-  ADC1_ConversionConfig(ADC1_CONVERSIONMODE_SINGLE, adc_channel, ADC1_ALIGN_RIGHT)
+    ADC1_ConversionConfig(ADC1_CONVERSIONMODE_SINGLE, adc_channel, ADC1_ALIGN_RIGHT)
 
 static JoystickDirection joystick_get_direction(uint8_t, uint8_t);
 static JoystickDeflection joystick_get_deflection(uint8_t);
@@ -30,14 +30,14 @@ void joystick_update(JoystickData* joystick_data)
     
     if (ADC1_GetFlagStatus(ADC1_FLAG_EOC)) {
         int8_t calibration_val = (channel_to_watch == JOYSTICK_X_CHANNEL) ?
-                                    JOYSTICK_X_CALIBRATION_VAL : JOYSTICK_Y_CALIBRATION_VAL;
-        uint8_t axis_val = (ADC1_GetConversionValue() + calibration_val) * 4 / 1023;
+                                  JOYSTICK_X_CALIBRATION_VAL : JOYSTICK_Y_CALIBRATION_VAL;
+        uint8_t axis_value = (ADC1_GetConversionValue() + calibration_val) * 4 / 1023;
         if (channel_to_watch == JOYSTICK_X_CHANNEL) {
-            x_buff = axis_val;
+            x_buff = axis_value;
             new_x_available = TRUE;
             channel_to_watch = JOYSTICK_Y_CHANNEL;
         } else {  /* channel_to_watch == JOYSTICK_Y_CHANNEL */
-            y_buff = 4 - axis_val;  /* потому что конструкция джойстика */
+            y_buff = 4 - axis_value;  /* потому что конструкция джойстика */
             new_y_available = TRUE;
             channel_to_watch = JOYSTICK_X_CHANNEL;
         }
@@ -53,53 +53,53 @@ void joystick_update(JoystickData* joystick_data)
     }
 }
 
-void joystick_data_to_robot_movement(DataToRobot* data, const JoystickData* joystick_data)
+void joystick_data_to_robot_movement(const JoystickData* joystick_data, DataToRobot* data_to_robot)
 {
     static const uint8_t robot_speeds[3] = {0, 128, 255};
     /* Вычислить направление */
     switch (joystick_data->direction) {
         case JOYSTICK_DIRECTION_UP:
-            data->direction = ROBOT_DIRECTION_FORWARD;
+            data_to_robot->direction = ROBOT_DIRECTION_FORWARD;
             break;
         case JOYSTICK_DIRECTION_DOWN:
-            data->direction = ROBOT_DIRECTION_BACKWARD;
+            data_to_robot->direction = ROBOT_DIRECTION_BACKWARD;
             break;
         case JOYSTICK_DIRECTION_LEFT:
         case JOYSTICK_DIRECTION_LEFTUP:
         case JOYSTICK_DIRECTION_RIGHTDOWN:
-            data->direction = ROBOT_DIRECTION_LEFTWARD;
+            data_to_robot->direction = ROBOT_DIRECTION_LEFTWARD;
             break;
         case JOYSTICK_DIRECTION_RIGHT:
         case JOYSTICK_DIRECTION_RIGHTUP:
         case JOYSTICK_DIRECTION_LEFTDOWN:
-            data->direction = ROBOT_DIRECTION_RIGHTWARD;
+            data_to_robot->direction = ROBOT_DIRECTION_RIGHTWARD;
             break;
     }
     /* Вычислить скорости */
     switch (joystick_data->direction) {
         case JOYSTICK_DIRECTION_MIDDLE:
-            data->speed_left  = robot_speeds[0];
-            data->speed_right = robot_speeds[0];
+            data_to_robot->speed_left  = robot_speeds[0];
+            data_to_robot->speed_right = robot_speeds[0];
             break;
         case JOYSTICK_DIRECTION_LEFTUP:
         case JOYSTICK_DIRECTION_LEFTDOWN:
-            data->speed_left  = robot_speeds[joystick_data->y_abs_defl];
-            data->speed_right = robot_speeds[1];
+            data_to_robot->speed_left  = robot_speeds[joystick_data->y_abs_defl];
+            data_to_robot->speed_right = robot_speeds[1];
             break;
         case JOYSTICK_DIRECTION_RIGHTUP:
         case JOYSTICK_DIRECTION_RIGHTDOWN:
-            data->speed_left  = robot_speeds[1];
-            data->speed_right = robot_speeds[joystick_data->y_abs_defl];
+            data_to_robot->speed_left  = robot_speeds[1];
+            data_to_robot->speed_right = robot_speeds[joystick_data->y_abs_defl];
             break;
         case JOYSTICK_DIRECTION_UP:
         case JOYSTICK_DIRECTION_DOWN:
-            data->speed_left  = robot_speeds[joystick_data->y_abs_defl];
-            data->speed_right = robot_speeds[joystick_data->y_abs_defl];
+            data_to_robot->speed_left  = robot_speeds[joystick_data->y_abs_defl];
+            data_to_robot->speed_right = robot_speeds[joystick_data->y_abs_defl];
             break;
         case JOYSTICK_DIRECTION_LEFT:
         case JOYSTICK_DIRECTION_RIGHT:
-            data->speed_left  = robot_speeds[joystick_data->x_abs_defl];
-            data->speed_right = robot_speeds[joystick_data->x_abs_defl];
+            data_to_robot->speed_left  = robot_speeds[joystick_data->x_abs_defl];
+            data_to_robot->speed_right = robot_speeds[joystick_data->x_abs_defl];
             break;
     }
 }
@@ -132,11 +132,11 @@ static JoystickDirection joystick_get_direction(uint8_t x, uint8_t y)
     return direction;
 }
 
-static JoystickDeflection joystick_get_deflection(uint8_t pos)
+static JoystickDeflection joystick_get_deflection(uint8_t axis_value)
 {
-    if(pos < 1 || pos > 3)
+    if(axis_value < 1 || axis_value > 3)
         return JOYSTICK_DEFLECTION_HIGH;
-    else if(pos < 2 || pos > 2)
+    else if(axis_value < 2 || axis_value > 2)
         return JOYSTICK_DEFLECTION_LOW;
     else return JOYSTICK_DEFLECTION_NO;
 }

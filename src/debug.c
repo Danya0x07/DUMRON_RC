@@ -1,5 +1,6 @@
-#include "debug.h"
+#include <stm8s.h>
 #include <stdlib.h>
+#include "debug.h"
 
 void debug_init(void)
 {
