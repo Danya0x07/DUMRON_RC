@@ -3,10 +3,6 @@
 #include "delay.h"
 #include "debug.h"
 
-/* Буфер для проверки новизны данных. */
-static DataToRobot buffer_to_robot;
-
-static void radio_data_to_robot_update_buffer(const DataToRobot*);
 
 void radio_init(void)
 {
@@ -101,8 +97,6 @@ void radio_send_data(DataToRobot* data_to_robot)
     nrf_ce_1();
     delay_ms(1);
     nrf_ce_0();
-    TIM3_SetCounter(0);
-    radio_data_to_robot_update_buffer(data_to_robot);
 }
 
 void radio_check_for_incoming(DataFromRobot* data_from_robot)
@@ -124,21 +118,26 @@ void radio_check_for_incoming(DataFromRobot* data_from_robot)
 
 bool radio_is_time_to_update_io_data(void)
 {
-    return TIM3_GetCounter() >= 500;
+    bool is_time_to_update_io_data = TIM3_GetCounter() >= 500;
+    if (is_time_to_update_io_data)
+        TIM3_SetCounter(0);
+    return is_time_to_update_io_data;
 }
 
 bool radio_data_to_robot_is_new(const DataToRobot* data_to_robot)
 {
-    return (data_to_robot->direction     != buffer_to_robot.direction   ||
-            data_to_robot->speed_left    != buffer_to_robot.speed_left  ||
-            data_to_robot->speed_right   != buffer_to_robot.speed_right ||
-            data_to_robot->control_flags != buffer_to_robot.control_flags);
-}
-
-static void radio_data_to_robot_update_buffer(const DataToRobot* data_to_robot)
-{
-    buffer_to_robot.direction     = data_to_robot->direction;
-    buffer_to_robot.speed_left    = data_to_robot->speed_left;
-    buffer_to_robot.speed_right   = data_to_robot->speed_right;
-    buffer_to_robot.control_flags = data_to_robot->control_flags;
+    static DataToRobot buffer_to_robot;
+    bool data_is_new = (
+        data_to_robot->direction     != buffer_to_robot.direction   ||
+        data_to_robot->speed_left    != buffer_to_robot.speed_left  ||
+        data_to_robot->speed_right   != buffer_to_robot.speed_right ||
+        data_to_robot->control_flags != buffer_to_robot.control_flags
+    );
+    if (data_is_new) {
+        buffer_to_robot.direction     = data_to_robot->direction;
+        buffer_to_robot.speed_left    = data_to_robot->speed_left;
+        buffer_to_robot.speed_right   = data_to_robot->speed_right;
+        buffer_to_robot.control_flags = data_to_robot->control_flags;
+    }
+    return data_is_new;
 }
