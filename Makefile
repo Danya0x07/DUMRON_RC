@@ -2,7 +2,7 @@ TARGET = main
 CC = sdcc
 MCU = stm8s105k4
 
-CFLAGS = -mstm8 --std-c89
+CFLAGS = -mstm8 --std-c89 --opt-code-speed
 
 DEFINES = -DSTM8S105
 

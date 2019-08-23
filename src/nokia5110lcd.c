@@ -1,3 +1,7 @@
+/*
+ * Здесь функции для управления LCD дисплеем от Nokia 5110.
+ */
+
 #include "nokia5110lcd.h"
 #include "delay.h"
 

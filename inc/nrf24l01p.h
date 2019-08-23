@@ -1,3 +1,7 @@
+/*
+ * Здесь интерфейс для взаимодействия с радиомодулем NRF24L01+.
+ */
+
 #ifndef NRF24L01P_H_INCLUDED
 #define NRF24L01P_H_INCLUDED
 
@@ -187,8 +191,6 @@ void nrf_rmw_byte(NrfRegAddress reg_addr, uint8_t bit_value, BitStatus bit_statu
 #define NRF_GPIO    GPIOC
 #define NRF_PIN_CE  GPIO_PIN_4
 #define NRF_PIN_CSN GPIO_PIN_3
-/* IRQ пока не используется. */
-/* #define NRF_PIN_IRQ GPIO_PIN_2 */
 
 #define nrf_csn_1() GPIO_WriteHigh(NRF_GPIO, NRF_PIN_CSN)
 #define nrf_csn_0() GPIO_WriteLow(NRF_GPIO, NRF_PIN_CSN)

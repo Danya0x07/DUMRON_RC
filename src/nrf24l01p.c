@@ -1,3 +1,8 @@
+/*
+ * Здесь функции для низкоуровневого взаимодействия
+ * с модулем NRF24L01+ по интерфейсной шине SPI.
+ */
+
 #include "nrf24l01p.h"
 #include "debug.h"
 
@@ -16,7 +21,6 @@ void nrf_init(void)
 {
     GPIO_Init(NRF_GPIO, NRF_PIN_CSN, GPIO_MODE_OUT_PP_HIGH_FAST);
     GPIO_Init(NRF_GPIO, NRF_PIN_CE, GPIO_MODE_OUT_PP_LOW_FAST);
-    /* GPIO_Init(NRF_GPIO, NRF_PIN_IRQ, GPIO_MODE_IN_FL_NO_IT); */
 }
 
 /**

@@ -1,3 +1,7 @@
+/*
+ * Здесь интерфейс для управления радиосвязью.
+ */
+
 #ifndef RADIO_H_INCLUDED
 #define RADIO_H_INCLUDED
 

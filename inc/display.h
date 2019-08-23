@@ -1,3 +1,7 @@
+/*
+ * Здесь интерфейс управления графическим интерфейсом.
+ */
+
 #ifndef DISPLAY_H_INCLUDED
 #define DISPLAY_H_INCLUDED
 

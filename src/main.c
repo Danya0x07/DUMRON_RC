@@ -107,6 +107,8 @@ void setup(void)
     GPIO_Init(GPIOC, GPIO_PIN_2, GPIO_MODE_OUT_PP_LOW_SLOW);
     GPIO_Init(GPIOD, GPIO_PIN_7, GPIO_MODE_OUT_PP_LOW_SLOW);
 
+    UART2_DeInit();
+
     ADC1_DeInit();
 
     TIM4_DeInit();

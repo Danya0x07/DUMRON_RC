@@ -1,3 +1,7 @@
+/*
+ * Здесь "бизнес-логика" радиосвязи.
+ */
+
 #include "radio.h"
 #include "nrf24l01p.h"
 #include "delay.h"
