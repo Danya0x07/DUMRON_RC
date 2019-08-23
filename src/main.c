@@ -23,6 +23,7 @@ int main(void)
     display_init();
     buttons_init();
     joystick_init();
+    radio_init();
     display_test();
     
     while (1) {

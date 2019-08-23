@@ -1,6 +1,7 @@
 #include "radio.h"
 #include "nrf24l01p.h"
 #include "delay.h"
+#include "debug.h"
 
 /* Буфер для проверки новизны данных. */
 static DataToRobot buffer_to_robot;
@@ -38,6 +39,7 @@ void radio_init(void)
     
     /* Включаем канал 0 для приёма подтверждений. */
     nrf_overwrite_byte(EN_RXADDR, ERX_P0);
+    nrf_overwrite_byte(EN_AA, ENAA_P0);
     /* Включаем динамическую длину полезной нагрузки на канале 0. */
     nrf_overwrite_byte(DYNPD, DPL_P0);
     
@@ -49,6 +51,35 @@ void radio_init(void)
     nrf_cmd(FLUSH_TX);
     nrf_cmd(FLUSH_RX);
 
+#if 1
+    if (nrf_read_byte(CONFIG) != (PWR_UP | MASK_RX_DR | MASK_TX_DS | MASK_MAX_RT | EN_CRC)) {
+        logs("config failed\n");
+    }
+    if (nrf_read_byte(RF_CH) != 33) {
+        logs("channel failed\n");
+    }
+    if (nrf_read_byte(RF_SETUP) != RF_SETUP_0DBM) {
+        logs("rf_setup failed\n");
+    }
+    if (nrf_read_byte(SETUP_AW) != SETUP_AW_4BYTES_ADDRESS) {
+        logs("setup_aw failed\n");
+    }
+    if (nrf_read_byte(FEATURE) != (EN_DPL | EN_DYN_ACK)) {
+        logs("feature failed\n");
+    }
+    if (nrf_read_byte(EN_RXADDR) != ERX_P0) {
+        logs("en_rxaddr failed\n");
+    }
+    if (nrf_read_byte(EN_AA) != ENAA_P0) {
+        logs("enaa failed\n");
+    }
+    if (nrf_read_byte(DYNPD) != DPL_P0) {
+        logs("dynpd failed\n");
+    }
+    if (nrf_read_byte(SETUP_RETR) != (SETUP_RETR_DELAY_750MKS | SETUP_RETR_UP_TO_5_RETRANSMIT)) {
+        logs("retr failed\n");
+    }
+#endif
     /* Настраиваем таймер на тикание примерно 244 раза в секунду. */
     TIM3_TimeBaseInit(TIM3_PRESCALER_32768, 1000);
     TIM3_Cmd(ENABLE);
@@ -59,11 +90,13 @@ void radio_send_data(DataToRobot* data_to_robot)
     uint8_t status = nrf_get_status();
     if (status & TX_FULL_STATUS)  {
         nrf_cmd(FLUSH_TX);
+        logs("flush tx\n");
     }
     if (status & MAX_RT) {
         nrf_clear_interrupts();
+        logs("max_rt\n");
     }
-    nrf_rw_buff(W_TX_PAYLOAD, (uint8_t*) &data_to_robot,
+    nrf_rw_buff(W_TX_PAYLOAD, (uint8_t*) data_to_robot,
                 sizeof(DataToRobot), NRF_OPERATION_WRITE);
     nrf_ce_1();
     delay_ms(1);
@@ -77,12 +110,14 @@ void radio_check_for_incoming(DataFromRobot* data_from_robot)
     uint8_t fifo_status = nrf_read_byte(FIFO_STATUS);
     if (!(fifo_status & RX_EMPTY)) {
         uint8_t data_size;
+        logs("smth in rx\n");
         nrf_rw_buff(R_RX_PL_WID, &data_size, 1, NRF_OPERATION_READ);
         if (data_size != sizeof(DataFromRobot)) {
             nrf_cmd(FLUSH_RX);
+            logs("size conflict\n");
             return;
         }
-        nrf_rw_buff(R_RX_PAYLOAD, (uint8_t*) &data_from_robot,
+        nrf_rw_buff(R_RX_PAYLOAD, (uint8_t*) data_from_robot,
                     sizeof(DataFromRobot), NRF_OPERATION_READ);  
     }
 }

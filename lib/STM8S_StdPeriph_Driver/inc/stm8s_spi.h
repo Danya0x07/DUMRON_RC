@@ -134,7 +134,7 @@ typedef enum {
   SPI_FLAG_CRCERR = (uint8_t)0x10, /*!< CRC error flag */
   SPI_FLAG_WKUP   = (uint8_t)0x08, /*!< Wake-up flag */
   SPI_FLAG_TXE    = (uint8_t)0x02, /*!< Transmit buffer empty */
-  SPI_FLAG_RXNE   = (uint8_t)0x01  /*!< Receive buffer empty */
+  SPI_FLAG_RXNE   = (uint8_t)0x01  /*!< Receive buffer not empty */
 } SPI_Flag_TypeDef;
 
 /**
