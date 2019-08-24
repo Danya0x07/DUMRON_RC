@@ -17,6 +17,8 @@ void radio_init(void)
     /* Power down --> Standby_1 */
     nrf_overwrite_byte(CONFIG, PWR_UP);
     delay_ms(5);
+
+    /* TODO: Попробовать что-нибудь убрать, чтобы не сломалось. */
     
     /* Включаем проверку контрольной суммы, выключаем прерывания на ноге IRQ
        и переводимся в режим передатчика. */
@@ -47,6 +49,7 @@ void radio_init(void)
     nrf_overwrite_byte(SETUP_RETR, SETUP_RETR_DELAY_750MKS
                        | SETUP_RETR_UP_TO_5_RETRANSMIT);
 
+    /* TODO: Сделать покороче. */
 #if 1
     if (nrf_read_byte(CONFIG) != (PWR_UP | MASK_RX_DR | MASK_TX_DS | MASK_MAX_RT | EN_CRC)) {
         logs("config failed\n");
