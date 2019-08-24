@@ -10,6 +10,7 @@ void debug_init(void)
                UART2_PARITY_NO,
                UART2_SYNCMODE_CLOCK_DISABLE,
                UART2_MODE_TXRX_ENABLE);
+    GPIO_Init(GPIOE, GPIO_PIN_5, GPIO_MODE_OUT_PP_HIGH_SLOW);
 }
 
 void uart_send_byte(uint8_t byte)
