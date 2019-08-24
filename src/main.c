@@ -25,6 +25,9 @@ int main(void)
     joystick_init();
     radio_init();
     display_test();
+
+    logi(sizeof(DataToRobot));
+    logi(sizeof(DataFromRobot));
     
     while (1) {
         buttons_update(&buttons_events);
@@ -106,6 +109,7 @@ void setup(void)
     GPIO_Init(GPIOA, GPIO_PIN_1 | GPIO_PIN_2, GPIO_MODE_IN_PU_NO_IT);
     GPIO_Init(GPIOC, GPIO_PIN_2, GPIO_MODE_OUT_PP_LOW_SLOW);
     GPIO_Init(GPIOD, GPIO_PIN_7, GPIO_MODE_OUT_PP_LOW_SLOW);
+    
 
     UART2_DeInit();
 
@@ -116,8 +120,9 @@ void setup(void)
 
     SPI_DeInit();
     GPIO_Init(GPIOC, GPIO_PIN_6, GPIO_MODE_OUT_PP_LOW_FAST);  /* MOSI pin */
-    GPIO_Init(GPIOC, GPIO_PIN_7, GPIO_MODE_IN_PU_NO_IT);  /* MISO pin */
+    GPIO_Init(GPIOC, GPIO_PIN_7, GPIO_MODE_IN_FL_NO_IT);  /* MISO pin */
     GPIO_Init(GPIOC, GPIO_PIN_5, GPIO_MODE_OUT_PP_LOW_FAST);  /* SCK pin */
+    GPIO_Init(GPIOE, GPIO_PIN_5, GPIO_MODE_OUT_PP_HIGH_FAST);
     SPI_Init(SPI_FIRSTBIT_MSB, SPI_BAUDRATEPRESCALER_16, SPI_MODE_MASTER,
              SPI_CLOCKPOLARITY_LOW, SPI_CLOCKPHASE_1EDGE,
              SPI_DATADIRECTION_2LINES_FULLDUPLEX, SPI_NSS_SOFT, 7);

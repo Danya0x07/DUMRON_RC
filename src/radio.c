@@ -47,10 +47,6 @@ void radio_init(void)
     nrf_overwrite_byte(SETUP_RETR, SETUP_RETR_DELAY_750MKS
                        | SETUP_RETR_UP_TO_5_RETRANSMIT);
 
-    /* Чистим буферы на всякий случай. */
-    nrf_cmd(FLUSH_TX);
-    nrf_cmd(FLUSH_RX);
-
 #if 1
     if (nrf_read_byte(CONFIG) != (PWR_UP | MASK_RX_DR | MASK_TX_DS | MASK_MAX_RT | EN_CRC)) {
         logs("config failed\n");
@@ -80,6 +76,10 @@ void radio_init(void)
         logs("retr failed\n");
     }
 #endif
+
+    /* Чистим буферы на всякий случай. */
+    nrf_cmd(FLUSH_TX);
+    nrf_cmd(FLUSH_RX);
     /* Настраиваем таймер на тикание примерно 244 раза в секунду. */
     TIM3_TimeBaseInit(TIM3_PRESCALER_32768, 1000);
     TIM3_Cmd(ENABLE);

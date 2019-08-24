@@ -5,6 +5,7 @@
 
 #include "nrf24l01p.h"
 #include "debug.h"
+#include "delay.h"
 
 #define nrf_read_to_buffer(reg_addr, buf_addr, size) \
     nrf_rw_buff(R_REGISTER | ((reg_addr) & 0x1F), (buf_addr), (size), NRF_OPERATION_READ)
@@ -114,7 +115,9 @@ void nrf_rw_buff(uint8_t composite_cmd, uint8_t* buff, uint8_t size, NrfOperatio
 static uint8_t nrf_spi_send_recv(uint8_t byte)
 {
     while (!SPI_GetFlagStatus(SPI_FLAG_TXE));
+    delay_ms(1);
     SPI_SendData(byte);
     while (!SPI_GetFlagStatus(SPI_FLAG_RXNE));
-    return SPI_ReceiveData();
+    delay_ms(1);
+    return SPI_ReceiveData(); 
 }
