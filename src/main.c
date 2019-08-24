@@ -26,8 +26,8 @@ int main(void)
     radio_init();
     display_test();
 
-    logi(sizeof(DataToRobot));
-    logi(sizeof(DataFromRobot));
+    logi(sizeof(DataToRobot));   logs("\n");
+    logi(sizeof(DataFromRobot)); logs("\n");
     
     while (1) {
         buttons_update(&buttons_events);

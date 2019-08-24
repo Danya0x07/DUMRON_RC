@@ -60,7 +60,7 @@ void radio_init(void)
     if (nrf_read_byte(SETUP_AW) != SETUP_AW_4BYTES_ADDRESS) {
         logs("setup_aw failed\n");
     }
-    if (nrf_read_byte(FEATURE) != (EN_DPL | EN_DYN_ACK)) {
+    if (nrf_read_byte(FEATURE) != (EN_DPL | EN_DYN_ACK | EN_ACK_PAY)) {
         logs("feature failed\n");
     }
     if (nrf_read_byte(EN_RXADDR) != ERX_P0) {
@@ -93,9 +93,14 @@ void radio_send_data(DataToRobot* data_to_robot)
         logs("flush tx\n");
     }
     if (status & MAX_RT) {
+        nrf_cmd(FLUSH_TX);
         nrf_clear_interrupts();
         logs("max_rt\n");
     }
+    logi(data_to_robot->direction); logs("\t");
+    logi(data_to_robot->speed_left); logs("\t");
+    logi(data_to_robot->speed_right); logs("\t");
+    logi(data_to_robot->control_flags); logs("\n");
     nrf_rw_buff(W_TX_PAYLOAD, (uint8_t*) data_to_robot,
                 sizeof(DataToRobot), NRF_OPERATION_WRITE);
     nrf_ce_1();
@@ -106,7 +111,6 @@ void radio_send_data(DataToRobot* data_to_robot)
 void radio_check_for_incoming(DataFromRobot* data_from_robot)
 {
     uint8_t fifo_status = nrf_read_byte(FIFO_STATUS);
-    logi(fifo_status); logs("\n");
     if (!(fifo_status & RX_EMPTY)) {
         uint8_t data_size;
         logs("smth in rx\n");
@@ -118,9 +122,9 @@ void radio_check_for_incoming(DataFromRobot* data_from_robot)
         }
         nrf_rw_buff(R_RX_PAYLOAD, (uint8_t*) data_from_robot,
                     sizeof(DataFromRobot), NRF_OPERATION_READ);
-        logi(data_from_robot->battery_brains); logs("\n");
-        logi(data_from_robot->battery_motors); logs("\n");
-        logi(data_from_robot->temperature);    logs("\n");
+        logi(data_from_robot->battery_brains); logs("\t");
+        logi(data_from_robot->battery_motors); logs("\t");
+        logi(data_from_robot->temperature);    logs("\t\n");
     }
 }
 
@@ -135,11 +139,12 @@ bool radio_is_time_to_update_io_data(void)
 bool radio_data_to_robot_is_new(const DataToRobot* data_to_robot)
 {
     static DataToRobot buffer_to_robot;
+    
     bool data_is_new = (
-        data_to_robot->direction     != buffer_to_robot.direction   ||
-        data_to_robot->speed_left    != buffer_to_robot.speed_left  ||
-        data_to_robot->speed_right   != buffer_to_robot.speed_right ||
-        data_to_robot->control_flags != buffer_to_robot.control_flags
+        buffer_to_robot.direction     != data_to_robot->direction   ||
+        buffer_to_robot.speed_left    != data_to_robot->speed_left  ||
+        buffer_to_robot.speed_right   != data_to_robot->speed_right ||
+        buffer_to_robot.control_flags != data_to_robot->control_flags
     );
     if (data_is_new) {
         buffer_to_robot.direction     = data_to_robot->direction;
