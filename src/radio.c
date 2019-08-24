@@ -35,7 +35,7 @@ void radio_init(void)
 
     /* Включаем возможность не указывать размер полезной нагрузки
        и отправлять пакеты, не требующие подтверждения. */
-    nrf_overwrite_byte(FEATURE, EN_DPL | EN_DYN_ACK);
+    nrf_overwrite_byte(FEATURE, EN_DPL | EN_DYN_ACK | EN_ACK_PAY);
     
     /* Включаем канал 0 для приёма подтверждений. */
     nrf_overwrite_byte(EN_RXADDR, ERX_P0);
@@ -106,6 +106,7 @@ void radio_send_data(DataToRobot* data_to_robot)
 void radio_check_for_incoming(DataFromRobot* data_from_robot)
 {
     uint8_t fifo_status = nrf_read_byte(FIFO_STATUS);
+    logi(fifo_status); logs("\n");
     if (!(fifo_status & RX_EMPTY)) {
         uint8_t data_size;
         logs("smth in rx\n");
@@ -116,7 +117,10 @@ void radio_check_for_incoming(DataFromRobot* data_from_robot)
             return;
         }
         nrf_rw_buff(R_RX_PAYLOAD, (uint8_t*) data_from_robot,
-                    sizeof(DataFromRobot), NRF_OPERATION_READ);  
+                    sizeof(DataFromRobot), NRF_OPERATION_READ);
+        logi(data_from_robot->battery_brains); logs("\n");
+        logi(data_from_robot->battery_motors); logs("\n");
+        logi(data_from_robot->temperature);    logs("\n");
     }
 }
 
