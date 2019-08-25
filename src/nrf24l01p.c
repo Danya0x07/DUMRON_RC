@@ -17,7 +17,7 @@ static uint8_t nrf_spi_send_recv(uint8_t);
  * @brief  Инициализирует пины радиомодуля.
  * @note   Эта функция платформозависимая.
  */
-void nrf_init(void)
+void nrf_init_gpio(void)
 {
     GPIO_Init(NRF_GPIO, NRF_PIN_CSN, GPIO_MODE_OUT_PP_HIGH_FAST);
     GPIO_Init(NRF_GPIO, NRF_PIN_CE, GPIO_MODE_OUT_PP_LOW_FAST);

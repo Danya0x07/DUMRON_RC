@@ -21,31 +21,25 @@ void radio_init(void)
     const uint8_t setup_aw = SETUP_AW_4BYTES_ADDRESS;
     /* Включаем канал 0 для приёма подтверждений. */
     const uint8_t en_rxaddr = ERX_P0;
-    const uint8_t en_aa = ENAA_P0;
     /* Включаем возможность не указывать размер полезной нагрузки
        и отправлять пакеты, не требующие подтверждения. */
-    const uint8_t feature = EN_DPL | EN_DYN_ACK | EN_ACK_PAY;
+    const uint8_t feature = EN_DPL | EN_ACK_PAY;
     /* Включаем динамическую длину полезной нагрузки на канале 0. */
     const uint8_t dynpd = DPL_P0;
     /* Настраиваем повторную отправку. */
     const uint8_t setup_retr = (SETUP_RETR, SETUP_RETR_DELAY_750MKS
                                 | SETUP_RETR_UP_TO_5_RETRANSMIT);
     /* Подали питание. */
-    nrf_init();
+    nrf_init_gpio();
     delay_ms(100);
-    /* Power down --> Standby_1 */
-    nrf_overwrite_byte(CONFIG, PWR_UP);
-    delay_ms(5);
-
-    /* TODO: Попробовать что-нибудь убрать, чтобы не сломалось. */
 
     /* Записываем настройки в модуль. */
-    nrf_rmw_byte(CONFIG, config, SET);
+    nrf_overwrite_byte(CONFIG,     config);
+    delay_ms(5);  /* Power down --> Standby_1 */
     nrf_overwrite_byte(RF_CH,      rf_ch);
     nrf_overwrite_byte(RF_SETUP,   rf_setup);
     nrf_overwrite_byte(SETUP_AW,   setup_aw);
     nrf_overwrite_byte(EN_RXADDR,  en_rxaddr);
-    nrf_overwrite_byte(EN_AA,      en_aa);
     nrf_overwrite_byte(FEATURE,    feature);
     nrf_overwrite_byte(DYNPD,      dynpd);
     nrf_overwrite_byte(SETUP_RETR, setup_retr);
@@ -68,9 +62,6 @@ void radio_init(void)
     }
     if (nrf_read_byte(EN_RXADDR) != en_rxaddr) {
         logs("en_rxaddr failed\n");
-    }
-    if (nrf_read_byte(EN_AA) != en_aa) {
-        logs("enaa failed\n");
     }
     if (nrf_read_byte(FEATURE) != feature) {
         logs("feature failed\n");

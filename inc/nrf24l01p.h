@@ -177,11 +177,11 @@ typedef enum {
     NRF_OPERATION_WRITE
 } NrfOperation;
 
-void nrf_init(void);
+void nrf_init_gpio(void);
 uint8_t nrf_cmd(NrfCommand cmd);
 uint8_t nrf_read_byte(NrfRegAddress reg_addr);
 void nrf_overwrite_byte(NrfRegAddress reg_addr, uint8_t bit_flags);
-void nrf_rw_buff(uint8_t composite_cmd, uint8_t* buf, uint8_t size, NrfOperation operation);
+void nrf_rw_buff(uint8_t composite_cmd, uint8_t* buff, uint8_t size, NrfOperation operation);
 void nrf_rmw_byte(NrfRegAddress reg_addr, uint8_t bit_value, BitStatus bit_status);
 
 #define nrf_get_status()  nrf_cmd(NOP)
