@@ -25,9 +25,6 @@ int main(void)
     joystick_init();
     radio_init();
     display_test();
-
-    logi(sizeof(DataToRobot));   logs("\n");
-    logi(sizeof(DataFromRobot)); logs("\n");
     
     while (1) {
         buttons_update(&buttons_events);
@@ -35,53 +32,49 @@ int main(void)
         /* button arm up */
         if (buttons_events & BTN_ARMUP_PRESSED) {
             data_to_robot.control_flags |= ROBOT_FLAG_ARM_UP;
-            logs("aup\n");
+            led_on();
         } else if (buttons_events & BTN_ARMUP_RELEASED) {
             data_to_robot.control_flags &= ~ROBOT_FLAG_ARM_UP;
-            logs("aur\n");
+            led_off();
         }
         /* button arm down */
         if (buttons_events & BTN_ARMDOWN_PRESSED) {
             data_to_robot.control_flags |= ROBOT_FLAG_ARM_DOWN;
-            logs("adp\n");
-            led_toggle();
+            led_on();
         } else if (buttons_events & BTN_ARMDOWN_RELEASED) {
             data_to_robot.control_flags &= ~ROBOT_FLAG_ARM_DOWN;
-            logs("adr\n");
+            led_off();
         }
         /* button claw squeeze */
         if (buttons_events & BTN_CLAWSQUEEZE_PRESSED) {
             data_to_robot.control_flags |= ROBOT_FLAG_CLAW_SQUEEZE;
-            logs("csp\n");
+            led_on();
         } else if (buttons_events & BTN_CLAWSQUEEZE_RELEASED) {
             data_to_robot.control_flags &= ~ROBOT_FLAG_CLAW_SQUEEZE;
-            logs("csr\n");
+            led_off();
         }
         /* button claw release */
         if (buttons_events & BTN_CLAWRELEASE_PRESSED) {
             data_to_robot.control_flags |= ROBOT_FLAG_CLAW_RELEASE;
-            logs("crp\n");
-            logi(joystick_data.direction);  logs("\t");
-            logi(joystick_data.x_abs_defl); logs("\t");
-            logi(joystick_data.y_abs_defl); logs("\n");
+            led_on();
         } else if (buttons_events & BTN_CLAWRELEASE_RELEASED) {
             data_to_robot.control_flags &= ~ROBOT_FLAG_CLAW_RELEASE;
-            logs("crr\n");
+            led_off();
         }
         /* button klaxon */
         if (buttons_events & BTN_KLAXON_PRESSED) {
             data_to_robot.control_flags |= ROBOT_FLAG_KLAXON_EN;
-            logs("kp\n");
+            led_on();
         } else if (buttons_events & BTN_KLAXON_RELEASED) {
             data_to_robot.control_flags &= ~ROBOT_FLAG_KLAXON_EN;
-            logs("kr\n");
+            led_off();
         }
         /* button togglelights */
         if (buttons_events & BTN_TOGGLELIGHTS_PRESSED) {
             data_to_robot.control_flags ^= ROBOT_FLAG_LIGHTS_EN;
-            logs("tp\n");
+            led_toggle();
         } else if (buttons_events & BTN_TOGGLELIGHTS_PRESSED_2) {
-            logs("tp2\n");
+            led_toggle();
         }
 
         joystick_data_to_robot_movement(&joystick_data, &data_to_robot);

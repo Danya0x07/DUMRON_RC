@@ -1,4 +1,4 @@
-/*
+/**
  * Здесь "бизнес-логика" радиосвязи.
  */
 
@@ -22,16 +22,15 @@ void radio_init(void)
     /* Включаем канал 0 для приёма подтверждений. */
     const uint8_t en_rxaddr = ERX_P0;
     /* Включаем возможность не указывать размер полезной нагрузки
-       и отправлять пакеты, не требующие подтверждения. */
+       и принимать дополнительные данные вместе с пакетами подтверждения. */
     const uint8_t feature = EN_DPL | EN_ACK_PAY;
     /* Включаем динамическую длину полезной нагрузки на канале 0. */
     const uint8_t dynpd = DPL_P0;
     /* Настраиваем повторную отправку. */
     const uint8_t setup_retr = (SETUP_RETR, SETUP_RETR_DELAY_750MKS
                                 | SETUP_RETR_UP_TO_5_RETRANSMIT);
-    /* Подали питание. */
     nrf_init_gpio();
-    delay_ms(100);
+    delay_ms(100);  /* Ожидание после подачи питания. */
 
     /* Записываем настройки в модуль. */
     nrf_overwrite_byte(CONFIG,     config);
@@ -47,33 +46,11 @@ void radio_init(void)
     nrf_rw_buff(W_REGISTER | TX_ADDR,    address, 4, NRF_OPERATION_WRITE);
     nrf_rw_buff(W_REGISTER | RX_ADDR_P0, address, 4, NRF_OPERATION_WRITE);
 
-    /* Проверяем, что модуль всё понял. */
+    /* Если с модулем что-то не в порядке, то ни один регистр не запишется,
+       поэтому одной проверки должно быть достаточно. */
     if (nrf_read_byte(CONFIG) != config) {
-        logs("config\n");
+        logs("nrf not responding!\n");
     }
-    if (nrf_read_byte(RF_CH) != rf_ch) {
-        logs("rf_ch\n");
-    }
-    if (nrf_read_byte(RF_SETUP) != rf_setup) {
-        logs("rf_setup failed\n");
-    }
-    if (nrf_read_byte(SETUP_AW) != setup_aw) {
-        logs("setup_aw failed\n");
-    }
-    if (nrf_read_byte(EN_RXADDR) != en_rxaddr) {
-        logs("en_rxaddr failed\n");
-    }
-    if (nrf_read_byte(FEATURE) != feature) {
-        logs("feature failed\n");
-    }
-    if (nrf_read_byte(DYNPD) != dynpd) {
-        logs("dynpd failed\n");
-    }
-    if (nrf_read_byte(SETUP_RETR) != setup_retr) {
-        logs("setup_retr\n");
-    }
-    /* Адреса проверять не буду, потому что если ничего из вышеперечисленного
-       не сломалось, значит и они вряд ли сломаются (ага, вряд ли:). */
     
     /* Чистим буферы на всякий случай. */
     nrf_cmd(FLUSH_TX);
@@ -88,12 +65,10 @@ void radio_send_data(DataToRobot* data_to_robot)
     uint8_t status = nrf_get_status();
     if (status & TX_FULL_STATUS)  {
         nrf_cmd(FLUSH_TX);
-        logs("flush tx\n");
     }
     if (status & MAX_RT) {
         nrf_cmd(FLUSH_TX);
         nrf_clear_interrupts();
-        logs("max_rt\n");
     }
     logi(data_to_robot->direction); logs("\t");
     logi(data_to_robot->speed_left); logs("\t");
@@ -111,11 +86,9 @@ void radio_check_for_incoming(DataFromRobot* data_from_robot)
     uint8_t fifo_status = nrf_read_byte(FIFO_STATUS);
     if (!(fifo_status & RX_EMPTY)) {
         uint8_t data_size;
-        logs("smth in rx\n");
         nrf_rw_buff(R_RX_PL_WID, &data_size, 1, NRF_OPERATION_READ);
         if (data_size != sizeof(DataFromRobot)) {
             nrf_cmd(FLUSH_RX);
-            logs("size conflict\n");
             return;
         }
         nrf_rw_buff(R_RX_PAYLOAD, (uint8_t*) data_from_robot,
