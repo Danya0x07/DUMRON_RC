@@ -132,14 +132,12 @@ void lcd_init(void)
     GPIO_WriteHigh(LCD_GPIO, LCD_PIN_RST);
     delay_ms(1);
     
-    lcd_send_byte(LCD_COMMAND, 0x21);
-    lcd_send_byte(LCD_COMMAND, 0x13);
-    lcd_send_byte(LCD_COMMAND, 0xC2);
-    lcd_send_byte(LCD_COMMAND, 0x20);
-    lcd_send_byte(LCD_COMMAND, 0x09);
-    lcd_clear();
-    lcd_send_byte(LCD_COMMAND, 0x08);
-    lcd_send_byte(LCD_COMMAND, 0x0C);
+    lcd_send_byte(LCD_COMMAND, 0x21);  /* Переключиться в режим расширенных команд. */
+    lcd_send_byte(LCD_COMMAND, 0xBA);  /* */
+    lcd_send_byte(LCD_COMMAND, 0x04);  /* */
+    lcd_send_byte(LCD_COMMAND, 0xB9);  /* */
+    lcd_send_byte(LCD_COMMAND, 0x20);  /* Переключиться в режим стандартных команд. */
+    lcd_send_byte(LCD_COMMAND, 0x0C);  /* Перевести дисплей в нормальный режим. */
     delay_ms(100);
 }
 
