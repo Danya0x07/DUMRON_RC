@@ -133,9 +133,9 @@ void lcd_init(void)
     delay_ms(1);
     
     lcd_send_byte(LCD_COMMAND, 0x21);  /* Переключиться в режим расширенных команд. */
-    lcd_send_byte(LCD_COMMAND, 0xBA);  /* */
-    lcd_send_byte(LCD_COMMAND, 0x04);  /* */
-    lcd_send_byte(LCD_COMMAND, 0xB9);  /* */
+    lcd_send_byte(LCD_COMMAND, 0xBF);  /* Установить яркость. */
+    lcd_send_byte(LCD_COMMAND, 0x04);  /* Установить температурный коэффициент 0. */
+    lcd_send_byte(LCD_COMMAND, 0x10);  /* Установить смещение напряжения 1:100. */
     lcd_send_byte(LCD_COMMAND, 0x20);  /* Переключиться в режим стандартных команд. */
     lcd_send_byte(LCD_COMMAND, 0x0C);  /* Перевести дисплей в нормальный режим. */
     delay_ms(100);
