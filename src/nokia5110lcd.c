@@ -128,8 +128,9 @@ void lcd_init(void)
 
     /* Перезагрузка дисплея; */
     GPIO_WriteLow(LCD_GPIO, LCD_PIN_RST);
-    delay_ms(100);
+    delay_ms(1);
     GPIO_WriteHigh(LCD_GPIO, LCD_PIN_RST);
+    delay_ms(1);
     
     lcd_send_byte(LCD_COMMAND, 0x21);
     lcd_send_byte(LCD_COMMAND, 0x13);
@@ -198,5 +199,6 @@ static void lcd_send_byte(MeaningOfByte meaning, uint8_t byte)
     }
     while (!SPI_GetFlagStatus(SPI_FLAG_TXE));
     SPI_SendData(byte);
+    while(SPI_GetFlagStatus(SPI_FLAG_BSY));
     GPIO_WriteHigh(LCD_GPIO, LCD_PIN_CE);
 }

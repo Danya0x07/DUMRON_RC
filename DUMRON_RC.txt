@@ -1,6 +1,6 @@
 Configuration	DUMRON_RC
 STM8CubeMX 	1.4.0
-Date	08/01/2019
+Date	08/27/2019
 MCU	STM8S105K4Tx
 
 
@@ -25,6 +25,7 @@ Pin Nb	PINs	FUNCTIONs	LABELs
 14	PB2	GPIO_Input	btn_armup
 15	PB1	ADC_IN1	joystic_y
 16	PB0	ADC_IN0	joystic_x
+17	PE5	GPIO_Output	led
 18	PC1	GPIO_Input	btn_klaxon
 20	PC3	GPIO_Output	nrf_csn
 21	PC4	GPIO_Output	nrf_ce
