@@ -28,7 +28,8 @@ void display_test(void)
 }
 
 void display_update(const DataToRobot* data_to_robot,
-                    const DataFromRobot* data_from_robot)
+                    const DataFromRobot* data_from_robot,
+                    bool was_conn_error)
 {
     
 }

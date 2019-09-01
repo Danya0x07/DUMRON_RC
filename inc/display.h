@@ -9,6 +9,6 @@
 
 void display_init(void);
 void display_test(void);
-void display_update(const DataToRobot*, const DataFromRobot*);
+void display_update(const DataToRobot*, const DataFromRobot*, bool was_conn_error);
 
 #endif

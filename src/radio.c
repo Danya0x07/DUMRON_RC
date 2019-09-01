@@ -60,25 +60,25 @@ void radio_init(void)
     TIM3_Cmd(ENABLE);
 }
 
-void radio_send_data(DataToRobot* data_to_robot)
+bool radio_send_data(DataToRobot* data_to_robot)
 {
+    bool conn_err_occured = FALSE;
     uint8_t status = nrf_get_status();
-    if (status & TX_FULL_STATUS)  {
-        nrf_cmd(FLUSH_TX);
-    }
     if (status & MAX_RT) {
         nrf_cmd(FLUSH_TX);
         nrf_clear_interrupts();
+        conn_err_occured = TRUE;
     }
     logi(data_to_robot->direction); logs("\t");
     logi(data_to_robot->speed_left); logs("\t");
     logi(data_to_robot->speed_right); logs("\t");
-    logi(data_to_robot->control_flags); logs("\n");
+    logi(data_to_robot->control_reg); logs("\n");
     nrf_rw_buff(W_TX_PAYLOAD, (uint8_t*) data_to_robot,
                 sizeof(DataToRobot), NRF_OPERATION_WRITE);
     nrf_ce_1();
     delay_ms(1);
     nrf_ce_0();
+    return conn_err_occured;
 }
 
 void radio_check_for_incoming(DataFromRobot* data_from_robot)
@@ -93,9 +93,10 @@ void radio_check_for_incoming(DataFromRobot* data_from_robot)
         }
         nrf_rw_buff(R_RX_PAYLOAD, (uint8_t*) data_from_robot,
                     sizeof(DataFromRobot), NRF_OPERATION_READ);
-        logi(data_from_robot->battery_brains); logs("\t");
-        logi(data_from_robot->battery_motors); logs("\t");
-        logi(data_from_robot->temperature);    logs("\t\n");
+        logi(data_from_robot->battery_brains);   logs("\t");
+        logi(data_from_robot->battery_motors);   logs("\t");
+        logi(data_from_robot->temp_manipulator); logs("\t");
+        logi(data_from_robot->temp_environment); logs("\t\n");
     }
 }
 
@@ -115,13 +116,13 @@ bool radio_data_to_robot_is_new(const DataToRobot* data_to_robot)
         buffer_to_robot.direction     != data_to_robot->direction   ||
         buffer_to_robot.speed_left    != data_to_robot->speed_left  ||
         buffer_to_robot.speed_right   != data_to_robot->speed_right ||
-        buffer_to_robot.control_flags != data_to_robot->control_flags
+        buffer_to_robot.control_reg != data_to_robot->control_reg
     );
     if (data_is_new) {
         buffer_to_robot.direction     = data_to_robot->direction;
         buffer_to_robot.speed_left    = data_to_robot->speed_left;
         buffer_to_robot.speed_right   = data_to_robot->speed_right;
-        buffer_to_robot.control_flags = data_to_robot->control_flags;
+        buffer_to_robot.control_reg = data_to_robot->control_reg;
     }
     return data_is_new;
 }

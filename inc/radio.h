@@ -9,7 +9,7 @@
 #include "robot_interface.h"
 
 void radio_init(void);
-void radio_send_data(DataToRobot*);
+bool radio_send_data(DataToRobot*);
 bool radio_data_to_robot_is_new(const DataToRobot*);
 bool radio_is_time_to_update_io_data(void);
 void radio_check_for_incoming(DataFromRobot*);
