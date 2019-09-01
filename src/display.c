@@ -1,21 +1,28 @@
 /**
  * Здесь "биснес-логика"графического интерфейса.
- *
- * На данный момент GUI планируется таким: 
- *
- *             __1___2___3_
- *            |%100 100 100|    1: % заряда аккумулятора силовой части робота;
- *            |            |    2: % заряда батареи мозговой части робота;
- *            |            |    3: % заряда батареи пульта;
- *            |            |
- *            |          ^^|
- *            |          ^^|
- *            TTTTTTTTTTTTTT
  */
 
 #include "display.h"
 #include "nokia5110lcd.h"
 #include "delay.h"
+
+enum {
+    CUSTOM_CHAR_KLAXON,
+    CUSTOM_CHAR_LIGHTS,
+    CUSTOM_CHAR_ARROWUP,
+    CUSTOM_CHAR_ARROWDOWN,
+    CUSTOM_CHAR_CONNECTION,
+    
+    NUMBER_OF_CUSTOM_CHARS
+};
+
+static const uint8_t custom_charset[NUMBER_OF_CUSTOM_CHARS][7] = {
+    {0x0D, 0x34, 0xC6, 0xC6, 0xC6, 0x34, 0x0D},
+    {0x1D, 0x22, 0xC1, 0xC1, 0xC1, 0x22, 0x1D},
+    {0x00, 0x0C, 0x02, 0xFF, 0x02, 0x0C, 0x00},
+    {0x00, 0x30, 0x40, 0xFF, 0x40, 0x30, 0x00},
+    {0x08, 0x14, 0x2A, 0xD6, 0x2A, 0x14, 0x08},
+};
 
 void display_init(void)
 {
