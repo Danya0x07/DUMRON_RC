@@ -24,7 +24,7 @@ int main(void)
     buttons_init();
     joystick_init();
     radio_init();
-    display_test();
+    /*display_test(); */
     
     while (1) {
         buttons_update(&buttons_events);

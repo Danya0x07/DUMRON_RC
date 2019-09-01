@@ -64,15 +64,23 @@ bool radio_send_data(DataToRobot* data_to_robot)
 {
     bool conn_err_occured = FALSE;
     uint8_t status = nrf_get_status();
+    if (status & TX_FULL_STATUS)  {
+        nrf_cmd(FLUSH_TX);
+        conn_err_occured = TRUE;
+        logs("tx full\n");
+    }
     if (status & MAX_RT) {
         nrf_cmd(FLUSH_TX);
         nrf_clear_interrupts();
         conn_err_occured = TRUE;
+        logs("max rt\n");
     }
+    status = nrf_read_byte(OBSERVE_TX);
     logi(data_to_robot->direction); logs("\t");
     logi(data_to_robot->speed_left); logs("\t");
     logi(data_to_robot->speed_right); logs("\t");
     logi(data_to_robot->control_reg); logs("\n");
+    logi(status); logs("\n");
     nrf_rw_buff(W_TX_PAYLOAD, (uint8_t*) data_to_robot,
                 sizeof(DataToRobot), NRF_OPERATION_WRITE);
     nrf_ce_1();
