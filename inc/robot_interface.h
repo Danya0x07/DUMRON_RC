@@ -31,8 +31,9 @@ typedef struct {
     uint8_t battery_brains;
     uint8_t battery_motors;
     uint8_t back_distance;
-    int8_t  temp_manipulator;
     int8_t  temp_environment;
+    int8_t  temp_manipulator;
+    int8_t  temp_motors;
 } DataFromRobot;
 
 #endif

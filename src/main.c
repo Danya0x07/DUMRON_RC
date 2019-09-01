@@ -82,7 +82,7 @@ int main(void)
         if (radio_is_time_to_update_io_data() || radio_data_to_robot_is_new(&data_to_robot)) {
             bool connection_error = radio_send_data(&data_to_robot);
             radio_check_for_incoming(&data_from_robot);
-            display_update(&data_to_robot, &data_from_robot, connection_error);
+            display_update(&data_to_robot, &data_from_robot, connection_error, 97);
         }
     }
 }
