@@ -65,10 +65,12 @@ void radio_send_data(DataToRobot* data_to_robot)
     uint8_t status = nrf_get_status();
     if (status & TX_FULL_STATUS)  {
         nrf_cmd(FLUSH_TX);
+        logs("tx full\n");
     }
     if (status & MAX_RT) {
         nrf_cmd(FLUSH_TX);
         nrf_clear_interrupts();
+        logs("max_rt\n");
     }
     logi(data_to_robot->direction); logs("\t");
     logi(data_to_robot->speed_left); logs("\t");
