@@ -14,8 +14,6 @@
 #define LCD_PIXELS_X    84
 #define LCD_PIXELS_Y    48
 
-typedef enum {LCD_COMMAND, LCD_DATA} MeaningOfByte;
-
 static const uint8_t ASCII[][5] = {
     {0x00, 0x00, 0x00, 0x00, 0x00},  /* 20   */ 
     {0x00, 0x00, 0x5f, 0x00, 0x00},  /* 21 ! */
@@ -115,30 +113,28 @@ static const uint8_t ASCII[][5] = {
     {0x78, 0x46, 0x41, 0x46, 0x78},  /* 7f → */
 };
 
-static void lcd_send_byte(MeaningOfByte meaning, uint8_t byte);
-
 /**
- * @brief Инициализирует дисплей.
+ * @brief Инициализирует пины дисплея.
  * @note  Эта функция платформозависимая.
  */
-void lcd_init(void)
+void lcd_init_gpio(void)
 {
     GPIO_Init(LCD_GPIO, LCD_PIN_RST | LCD_PIN_CE, GPIO_MODE_OUT_PP_HIGH_FAST);
     GPIO_Init(LCD_GPIO, LCD_PIN_DC | LCD_PIN_BL, GPIO_MODE_OUT_PP_LOW_FAST);
+}
 
-    /* Перезагрузка дисплея; */
+/**
+ * @brief Перезагружает дисплей.
+ * @note  Эту функцию НЕОБХОДИМО вызвать не позже чем через
+ *        100 миллисекунд после подачи питания на дисплей.
+ * @note  Эта функция платформозависимая.
+ */
+void lcd_reset(void)
+{
     GPIO_WriteLow(LCD_GPIO, LCD_PIN_RST);
     delay_ms(1);
     GPIO_WriteHigh(LCD_GPIO, LCD_PIN_RST);
     delay_ms(1);
-    
-    lcd_send_byte(LCD_COMMAND, 0x21);  /* Переключиться в режим расширенных команд. */
-    lcd_send_byte(LCD_COMMAND, 0xBF);  /* Установить яркость. */
-    lcd_send_byte(LCD_COMMAND, 0x04);  /* Установить температурный коэффициент 0. */
-    lcd_send_byte(LCD_COMMAND, 0x10);  /* Установить смещение напряжения 1:100. */
-    lcd_send_byte(LCD_COMMAND, 0x20);  /* Переключиться в режим стандартных команд. */
-    lcd_send_byte(LCD_COMMAND, 0x0C);  /* Перевести дисплей в нормальный режим. */
-    delay_ms(100);
 }
 
 /**
@@ -155,7 +151,7 @@ void lcd_set_position(uint8_t x, uint8_t y)
     lcd_send_byte(LCD_COMMAND, 0x40 | y);
 }
 
-void lcd_print_character(char ch)
+void lcd_print_ascii(char ch)
 {
     uint8_t i;
     lcd_send_byte(LCD_DATA, 0x00);
@@ -165,10 +161,18 @@ void lcd_print_character(char ch)
     lcd_send_byte(LCD_DATA, 0x00);
 }
 
+void lcd_print_custom(uint8_t charset[][7], uint8_t symbol)
+{
+    uint8_t i;
+    for (i = 0; i < 7; i++) {
+        lcd_send_byte(LCD_DATA, charset[symbol][i]);
+    }
+}
+
 void lcd_print_string(char* str)
 {
     while(*str) {
-        lcd_print_character(*str++);
+        lcd_print_ascii(*str++);
     }
 }
 
@@ -187,7 +191,7 @@ void lcd_clear(void)
  * @param meaning: Значение байта: команда или данные.
  * @param byte: Байт для передачи.
  */ 
-static void lcd_send_byte(MeaningOfByte meaning, uint8_t byte)
+void lcd_send_byte(MeaningOfByte meaning, uint8_t byte)
 {
     GPIO_WriteLow(LCD_GPIO, LCD_PIN_CE);
     if (meaning == LCD_COMMAND) {

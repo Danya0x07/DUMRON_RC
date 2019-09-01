@@ -15,10 +15,19 @@
 
 #include "display.h"
 #include "nokia5110lcd.h"
+#include "delay.h"
 
 void display_init(void)
 {
-    lcd_init();
+    lcd_init_gpio();
+    lcd_reset();
+    lcd_send_byte(LCD_COMMAND, 0x21);  /* Переключиться в режим расширенных команд. */
+    lcd_send_byte(LCD_COMMAND, 0xBF);  /* Установить яркость. */
+    lcd_send_byte(LCD_COMMAND, 0x04);  /* Установить температурный коэффициент 0. */
+    lcd_send_byte(LCD_COMMAND, 0x10);  /* Установить смещение напряжения 1:100. */
+    lcd_send_byte(LCD_COMMAND, 0x20);  /* Переключиться в режим стандартных команд. */
+    lcd_send_byte(LCD_COMMAND, 0x0C);  /* Перевести дисплей в нормальный режим. */
+    delay_ms(100);
 }
 
 void display_test(void)
