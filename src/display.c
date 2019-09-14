@@ -5,7 +5,9 @@
 #include "display.h"
 #include "nokia5110lcd.h"
 #include "delay.h"
-#include <stdlib.h>
+#include "debug.h"
+
+extern char* itoa(int, unsigned char);
 
 enum {
     CUSTOM_CHAR_KLAXON,
@@ -38,13 +40,6 @@ void display_init(void)
     lcd_send_byte(LCD_COMMAND, 0x20);  /* Переключиться в режим стандартных команд. */
     lcd_send_byte(LCD_COMMAND, 0x0C);  /* Перевести дисплей в нормальный режим. */
     delay_ms(100);
-}
-
-void display_test(void)
-{
-    lcd_set_position(1, 1);
-    lcd_print_string("display test.");
-    delay_ms(5000);
     lcd_clear();
 }
 
@@ -52,14 +47,11 @@ void display_update(const DataToRobot* data_to_robot,
                     const DataFromRobot* data_from_robot,
                     bool was_conn_error, uint8_t battery_lvl)
 {
-    char itoa_result[5];
-    
     /* Рисуем данные пульта. */
 
     /* заряд батареи пульта (%); */
     lcd_set_position(battery_lvl > 99 ? 8 : 9, 0);
-    _itoa(battery_lvl, itoa_result, 10);
-    lcd_print_string(itoa_result);
+    lcd_print_string(itoa(battery_lvl, 10));
     lcd_print_ascii('%');
 
     /* состояние связи (есть/нет); */
@@ -105,7 +97,7 @@ void display_update(const DataToRobot* data_to_robot,
         lcd_print_string("  ");
     }
 
-    /* направление движения робота (вперёд/назад/налево/направо); */
+    /* направление движения робота (вперёд/назад/налево/направо/нет); */
     lcd_set_position(10, 3);
     switch (data_to_robot->direction) {
         case ROBOT_DIRECTION_FORWARD:
@@ -124,7 +116,6 @@ void display_update(const DataToRobot* data_to_robot,
             lcd_print_string("  ");
             break;
     }
-
     /* скорости гусениц (быстро/медленно/нет); */
     lcd_set_position(10, 4);
     lcd_print_ascii(data_to_robot->speed_left  > 128 ? '^' : ' ');
@@ -137,14 +128,12 @@ void display_update(const DataToRobot* data_to_robot,
 
     /* заряд мозговой части (%); */
     lcd_set_position(0, 0);
-    _itoa(data_from_robot->battery_brains, itoa_result, 10);
-    lcd_print_string(itoa_result);
+    lcd_print_string(itoa(data_from_robot->battery_brains, 10));
     lcd_print_string("% ");
     
     /* заряд силовой части (%); */
     lcd_set_position(0, 1);
-    _itoa(data_from_robot->battery_motors, itoa_result, 10);
-    lcd_print_string(itoa_result);
+    lcd_print_string(itoa(data_from_robot->battery_motors, 10));
     lcd_print_string("% ");
     
     /* наличия сзади препятствия или перепада высоты; */
@@ -158,23 +147,14 @@ void display_update(const DataToRobot* data_to_robot,
     }
     
     /* температура окружающей среды (С); */
-    lcd_set_position(0, 3);
-    _itoa(data_from_robot->temp_environment, itoa_result, 10);
-    lcd_print_string(itoa_result);
-    lcd_print_custom(custom_charset, CUSTOM_CHAR_CELSIUS);
-    lcd_print_ascii(' ');
-    
-    /* температура радиатора сервомоторов (С); */
     lcd_set_position(0, 4);
-    _itoa(data_from_robot->temp_manipulator, itoa_result, 10);
-    lcd_print_string(itoa_result);
+    lcd_print_string(itoa(data_from_robot->temp_ambient, 10));
     lcd_print_custom(custom_charset, CUSTOM_CHAR_CELSIUS);
     lcd_print_ascii(' ');
     
-    /* температура радиатора моторов (С); */
+    /* температура радиаторов (С); */
     lcd_set_position(0, 5);
-    _itoa(data_from_robot->temp_motors, itoa_result, 10);
-    lcd_print_string(itoa_result);
+    lcd_print_string(itoa(data_from_robot->temp_radiators, 10));
     lcd_print_custom(custom_charset, CUSTOM_CHAR_CELSIUS);
     lcd_print_ascii(' ');
 }

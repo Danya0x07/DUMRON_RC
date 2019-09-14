@@ -4,7 +4,6 @@
  */
 
 #include "nrf24l01p.h"
-#include "debug.h"
 
 #define nrf_read_to_buffer(reg_addr, buf_addr, size) \
     nrf_rw_buff(R_REGISTER | ((reg_addr) & 0x1F), (buf_addr), (size), NRF_OPERATION_READ)
@@ -72,14 +71,14 @@ void nrf_overwrite_byte(NrfRegAddress reg_addr, uint8_t bit_flags)
  * @param  bit_flags: Битовые флаги для применения к регистру.
  * @param  bit_status: Установить/сбросить указанные флаги.
  */
-void nrf_rmw_byte(NrfRegAddress reg_addr, uint8_t bit_flags, BitStatus bit_status)
+void nrf_bitmask(NrfRegAddress reg_addr, uint8_t bit_mask, BitStatus bit_status)
 {
     uint8_t reg_value;
     nrf_read_to_buffer(reg_addr, &reg_value, 1);
     if (bit_status == SET)
-        reg_value |= bit_flags;
+        reg_value |= bit_mask;
     else 
-        reg_value &= ~bit_flags;
+        reg_value &= ~bit_mask;
     nrf_write_from_buffer(reg_addr, &reg_value, 1);
 }
 
@@ -115,6 +114,6 @@ static uint8_t nrf_spi_send_recv(uint8_t byte)
 {
     while (!SPI_GetFlagStatus(SPI_FLAG_TXE));
     SPI_SendData(byte);
-    while (!SPI_GetFlagStatus(SPI_FLAG_RXNE) || SPI_GetFlagStatus(SPI_FLAG_BSY));
+    while (!SPI_GetFlagStatus(SPI_FLAG_RXNE));
     return SPI_ReceiveData(); 
 }

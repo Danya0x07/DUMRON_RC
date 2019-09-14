@@ -203,5 +203,11 @@ void lcd_send_byte(MeaningOfByte meaning, uint8_t byte)
     while (!SPI_GetFlagStatus(SPI_FLAG_TXE));
     SPI_SendData(byte);
     while(SPI_GetFlagStatus(SPI_FLAG_BSY));
+    /* Поскольку у нас на шине SPI висит ещё и радиомодуль,
+       мы используем обычный режим master вместо transmit-only,
+       поэтому необходимо считать значение приёмного регистра,
+       иначе оно считается во время общения с радиомодулем вместо значения,
+       которое нам послал он. */
+    (void) SPI_ReceiveData();
     GPIO_WriteHigh(LCD_GPIO, LCD_PIN_CE);
 }

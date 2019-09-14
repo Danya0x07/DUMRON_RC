@@ -21,7 +21,8 @@ SOURCES = src/main.c \
  src/display.c \
  src/radio.c \
  src/nokia5110lcd.c \
- src/nrf24l01p.c
+ src/nrf24l01p.c \
+ src/itoa.c
 
 HEADERS = inc/buttons.h \
  inc/delay.h \

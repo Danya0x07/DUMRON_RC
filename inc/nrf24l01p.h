@@ -182,10 +182,10 @@ uint8_t nrf_cmd(NrfCommand cmd);
 uint8_t nrf_read_byte(NrfRegAddress reg_addr);
 void nrf_overwrite_byte(NrfRegAddress reg_addr, uint8_t bit_flags);
 void nrf_rw_buff(uint8_t composite_cmd, uint8_t* buff, uint8_t size, NrfOperation operation);
-void nrf_rmw_byte(NrfRegAddress reg_addr, uint8_t bit_value, BitStatus bit_status);
+void nrf_bitmask(NrfRegAddress reg_addr, uint8_t bit_mask, BitStatus bit_status);
 
 #define nrf_get_status()  nrf_cmd(NOP)
-#define nrf_clear_interrupts()  nrf_rmw_byte(STATUS, 0, RESET)
+#define nrf_clear_interrupts()  nrf_bitmask(STATUS, 0, RESET)
 
 /* Пины модуля */
 #define NRF_GPIO    GPIOC

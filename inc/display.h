@@ -9,7 +9,6 @@
 #include "robot_interface.h"
 
 void display_init(void);
-void display_test(void);
 void display_update(const DataToRobot*, const DataFromRobot*,
                     bool was_conn_error, uint8_t battery_lvl);
 

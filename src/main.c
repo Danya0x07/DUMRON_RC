@@ -7,15 +7,15 @@
 #include "display.h"
 #include "radio.h"
 
-uint16_t buttons_events;
-JoystickData joystick_data;
-DataToRobot data_to_robot;
-DataFromRobot data_from_robot;
-
 void setup(void);
 
 int main(void)
 {
+    static uint16_t buttons_events;
+    static JoystickData joystick_data;
+    static DataToRobot data_to_robot;
+    static DataFromRobot data_from_robot;
+    
     setup();
     delay_init();
     enableInterrupts();
@@ -24,7 +24,6 @@ int main(void)
     buttons_init();
     joystick_init();
     radio_init();
-    /*display_test(); */
     
     while (1) {
         buttons_update(&buttons_events);
