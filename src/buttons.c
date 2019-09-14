@@ -11,22 +11,23 @@ typedef enum {PULLDOWN, PULLUP = !PULLDOWN} ButtonMode;
 #define ON_PRESS   PULLUP
 #define ON_RELEASE PULLDOWN
 
-static struct Button {
+typedef struct {
     GPIO_TypeDef* reg;
     uint8_t pin;
     ButtonMode mode;
     BitStatus last_status;
-} btn_armup,
-  btn_armdown,
-  btn_clawsqueeze,
-  btn_clawrelease,
-  btn_klaxon,
-  btn_togglelights;
+} Button;
 
-static bool btn_pressed(struct Button* btn);
-static bool btn_pressed_again(struct Button* btn);
+static Button btn_armup,
+              btn_armdown,
+              btn_clawsqueeze,
+              btn_clawrelease,
+              btn_klaxon,
+              btn_togglelights;
+
+static bool btn_pressed(Button* btn);
+static bool btn_pressed_again(Button* btn);
  
-
 void buttons_init(void)
 {
     btn_armup.reg = GPIOB;
@@ -129,7 +130,7 @@ void buttons_update(uint16_t* event_register)
     }
 }
 
-static bool btn_pressed(struct Button* btn)
+static bool btn_pressed(Button* btn)
 {
     bool pressed = FALSE;
     BitStatus current_status = GPIO_ReadInputPin(btn->reg, btn->pin);
@@ -144,7 +145,7 @@ static bool btn_pressed(struct Button* btn)
     return pressed;
 }
 
-static bool btn_pressed_again(struct Button* btn)
+static bool btn_pressed_again(Button* btn)
 {
     register uint8_t i;
     for (i = 0; i < 200; i++) {

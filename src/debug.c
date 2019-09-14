@@ -1,6 +1,7 @@
-#include <stm8s.h>
-#include <stdlib.h>
 #include "debug.h"
+#include "delay.h"
+
+extern char* itoa(int, unsigned char);
 
 void debug_init(void)
 {
@@ -29,7 +30,15 @@ void uart_send_str(const char* str)
 
 void uart_send_int(int n)
 {
-    static char itoa_result_buffer[40];
-    _itoa(n, itoa_result_buffer, 10);
-    uart_send_str(itoa_result_buffer);
+    uart_send_str(itoa(n, 10));
+}
+
+void led_blink(uint8_t times, uint16_t delay)
+{
+    while (times--) {
+        led_on();
+        delay_ms(delay);
+        led_off();
+        delay_ms(delay);
+    }
 }
