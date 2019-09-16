@@ -12,6 +12,7 @@ void debug_init(void)
                UART2_SYNCMODE_CLOCK_DISABLE,
                UART2_MODE_TXRX_ENABLE);
     GPIO_Init(GPIOE, GPIO_PIN_5, GPIO_MODE_OUT_PP_HIGH_SLOW);
+    GPIO_Init(GPIOD, GPIO_PIN_7, GPIO_MODE_OUT_PP_LOW_SLOW);
 }
 
 void uart_send_byte(uint8_t byte)
@@ -39,6 +40,16 @@ void led_blink(uint8_t times, uint16_t delay)
         led_on();
         delay_ms(delay);
         led_off();
+        delay_ms(delay);
+    }
+}
+
+void buzzer_peep(uint8_t times, uint8_t delay)
+{
+    while (times--) {
+        buzzer_on();
+        delay_ms(delay);
+        buzzer_off();
         delay_ms(delay);
     }
 }

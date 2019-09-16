@@ -13,7 +13,8 @@ LIBPATHS = -L'/home/danya/Projects/DUMRON_RC/lib/'
 
 STATICLIBS = -lSTM8S_StdPeriph_Driver_optspeed.lib
 
-SOURCES = src/main.c \
+SOURCES = \
+ src/main.c \
  src/buttons.c \
  src/delay.c \
  src/debug.c \
@@ -22,9 +23,11 @@ SOURCES = src/main.c \
  src/radio.c \
  src/nokia5110lcd.c \
  src/nrf24l01p.c \
- src/itoa.c
+ src/itoa.c \
+ src/battery.c
 
-HEADERS = inc/buttons.h \
+HEADERS = \
+ inc/buttons.h \
  inc/delay.h \
  inc/debug.h \
  inc/joystick.h \
@@ -32,7 +35,8 @@ HEADERS = inc/buttons.h \
  inc/radio.h \
  inc/nokia5110lcd.h \
  inc/nrf24l01p.h \
- inc/robot_interface.h
+ inc/robot_interface.h \
+ inc/battery.h
 
 OUTPUT_DIR = ./build
 OBJ_FILES = $(addprefix $(OUTPUT_DIR)/, $(notdir $(SOURCES:.c=.rel)))

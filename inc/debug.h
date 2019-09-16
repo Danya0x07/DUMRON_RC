@@ -14,4 +14,9 @@ void uart_send_int(int);
 #define led_toggle() GPIO_WriteReverse(GPIOE, GPIO_PIN_5)
 void led_blink(uint8_t times, uint16_t delay);
 
+#define buzzer_on()     GPIO_WriteHigh(GPIOD, GPIO_PIN_7)
+#define buzzer_off()    GPIO_WriteLow(GPIOD, GPIO_PIN_7)
+#define buzzer_toggle() GPIO_WriteReverse(GPIOD, GPIO_PIN_7)
+void buzzer_peep(uint8_t times, uint8_t delay);
+
 #endif

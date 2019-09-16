@@ -1,6 +1,6 @@
 Configuration	DUMRON_RC
 STM8CubeMX 	1.4.0
-Date	08/27/2019
+Date	09/16/2019
 MCU	STM8S105K4Tx
 
 
@@ -8,6 +8,7 @@ MCU	STM8S105K4Tx
 PERIPHERALS	MODES	FUNCTIONS	PINS
 ADC	IN0	ADC_IN0	PB0
 ADC	IN1	ADC_IN1	PB1
+ADC	IN2	ADC_IN2	PB2
 SPI	Full-Duplex Master	SPI_MISO	PC7
 SPI	Full-Duplex Master	SPI_MOSI	PC6
 SPI	Full-Duplex Master	SPI_SCK	PC5
@@ -22,11 +23,12 @@ Pin Nb	PINs	FUNCTIONs	LABELs
 11	PB5	GPIO_Input	btn_clawrelease
 12	PB4	GPIO_Input	btn_clawsqueeze
 13	PB3	GPIO_Input	btn_armdown
-14	PB2	GPIO_Input	btn_armup
+14	PB2	ADC_IN2	battery
 15	PB1	ADC_IN1	joystic_y
 16	PB0	ADC_IN0	joystic_x
 17	PE5	GPIO_Output	led
 18	PC1	GPIO_Input	btn_klaxon
+19	PC2	GPIO_Input	btn_armup
 20	PC3	GPIO_Output	nrf_csn
 21	PC4	GPIO_Output	nrf_ce
 22	PC5	SPI_SCK	
