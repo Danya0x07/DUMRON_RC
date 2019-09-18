@@ -45,13 +45,19 @@ void display_init(void)
 
 void display_update(const DataToRobot* data_to_robot,
                     const DataFromRobot* data_from_robot,
-                    bool was_conn_error, uint8_t battery_lvl)
+                    bool was_conn_error, uint8_t battery_voltage)
 {
     /* Рисуем данные пульта. */
 
     /* заряд батареи пульта (%); */
-    lcd_set_position(battery_lvl > 99 ? 8 : 9, 0);
-    lcd_print_string(itoa(battery_lvl, 10));
+    lcd_set_position(8, 0);
+    if (battery_voltage < 100) {
+        lcd_print_ascii(' ');
+    }
+    if (battery_voltage < 10) {
+        lcd_print_ascii(' ');
+    }
+    lcd_print_string(itoa(battery_voltage, 10));
     lcd_print_ascii('%');
 
     /* состояние связи (есть/нет); */

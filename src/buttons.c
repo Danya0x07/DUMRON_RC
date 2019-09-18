@@ -30,11 +30,11 @@ static bool btn_pressed_again(Button* btn);
  
 void buttons_init(void)
 {
-    btn_armup.reg = GPIOB;
+    btn_armup.reg = GPIOC;
     btn_armup.pin = GPIO_PIN_2;
     btn_armup.mode = PULLUP;
     btn_armup.last_status = RESET;
-    GPIO_Init(GPIOB, GPIO_PIN_2, GPIO_MODE_IN_FL_NO_IT);
+    GPIO_Init(GPIOC, GPIO_PIN_2, GPIO_MODE_IN_FL_NO_IT);
 
     btn_armdown.reg = GPIOB;
     btn_armdown.pin = GPIO_PIN_3;

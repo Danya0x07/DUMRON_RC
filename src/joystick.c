@@ -16,9 +16,6 @@ static JoystickDeflection joystick_get_deflection(uint8_t);
 
 void joystick_init(void)
 {
-    ADC1_ConversionConfig(ADC1_CONVERSIONMODE_SINGLE, JOYSTICK_X_CHANNEL, ADC1_ALIGN_RIGHT);
-    ADC1_PrescalerConfig(ADC1_PRESSEL_FCPU_D10);
-    ADC1_Cmd(ENABLE);
     ADC1_StartConversion();
 }
 

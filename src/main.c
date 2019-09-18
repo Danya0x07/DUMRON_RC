@@ -6,6 +6,7 @@
 #include "joystick.h"
 #include "display.h"
 #include "radio.h"
+#include "battery.h"
 
 void setup(void);
 
@@ -23,6 +24,7 @@ int main(void)
     display_init();
     buttons_init();
     joystick_init();
+    battery_init();
     radio_init();
     
     while (1) {
@@ -79,9 +81,10 @@ int main(void)
         joystick_data_to_robot_movement(&joystick_data, &data_to_robot);
         
         if (radio_is_time_to_update_io_data() || radio_data_to_robot_is_new(&data_to_robot)) {
+            uint8_t battery_voltage = battery_get_voltage();
             bool connection_error = radio_send_data(&data_to_robot);
             radio_check_for_incoming(&data_from_robot);
-            display_update(&data_to_robot, &data_from_robot, connection_error, 97);
+            display_update(&data_to_robot, &data_from_robot, connection_error, battery_voltage);
         }
     }
 }
@@ -100,14 +103,22 @@ void setup(void)
     GPIO_DeInit(GPIOF);
     /* Неиспользуемые пока пины */
     GPIO_Init(GPIOA, GPIO_PIN_1 | GPIO_PIN_2, GPIO_MODE_IN_PU_NO_IT);
-    GPIO_Init(GPIOC, GPIO_PIN_2, GPIO_MODE_OUT_PP_LOW_SLOW);
 
     UART2_DeInit();
 
-    ADC1_DeInit();
-
-    TIM4_DeInit();
+    TIM2_DeInit();
     TIM3_DeInit();
+    TIM4_DeInit();
+
+    ADC1_DeInit();
+    /*ADC1_Init(ADC1_CONVERSIONMODE_SINGLE,
+              ADC1_CHANNEL_0, ADC1_PRESSEL_FCPU_D10,
+              ADC1_EXTTRIG_GPIO, DISABLE,
+              ADC1_ALIGN_RIGHT,
+              ADC1_SCHMITTTRIG_CHANNEL0, DISABLE); */
+    ADC1_ConversionConfig(ADC1_CONVERSIONMODE_SINGLE, ADC1_CHANNEL_0, ADC1_ALIGN_RIGHT);
+    ADC1_PrescalerConfig(ADC1_PRESSEL_FCPU_D10);
+    ADC1_Cmd(ENABLE);
 
     SPI_DeInit();
     GPIO_Init(GPIOC, GPIO_PIN_6, GPIO_MODE_OUT_PP_LOW_FAST);  /* MOSI pin */
