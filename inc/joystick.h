@@ -27,7 +27,7 @@ typedef struct {
     JoystickDeflection y_abs_defl;  /* Абсолютное отклонение по y */
 } JoystickData;
 
-void joystick_init(void);
+void joystick_start(void);
 void joystick_update(JoystickData*);
 void joystick_data_to_robot_movement(const JoystickData*, DataToRobot*);
 

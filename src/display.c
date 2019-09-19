@@ -5,7 +5,6 @@
 #include "display.h"
 #include "nokia5110lcd.h"
 #include "delay.h"
-#include "debug.h"
 
 extern char* itoa(int, unsigned char);
 

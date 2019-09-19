@@ -14,7 +14,7 @@
 static JoystickDirection joystick_get_direction(uint8_t, uint8_t);
 static JoystickDeflection joystick_get_deflection(uint8_t);
 
-void joystick_init(void)
+void joystick_start(void)
 {
     ADC1_StartConversion();
 }

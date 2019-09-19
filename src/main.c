@@ -18,14 +18,12 @@ int main(void)
     static DataFromRobot data_from_robot;
     
     setup();
-    delay_init();
-    enableInterrupts();
+    
     debug_init();
     display_init();
     buttons_init();
-    joystick_init();
-    battery_init();
     radio_init();
+    joystick_start();
     
     while (1) {
         buttons_update(&buttons_events);
@@ -103,28 +101,43 @@ void setup(void)
     GPIO_DeInit(GPIOF);
     /* Неиспользуемые пока пины */
     GPIO_Init(GPIOA, GPIO_PIN_1 | GPIO_PIN_2, GPIO_MODE_IN_PU_NO_IT);
-
+    /* Пины SPI (MOSI & SCK) */
+    GPIO_Init(GPIOC, GPIO_PIN_6 | GPIO_PIN_5, GPIO_MODE_OUT_PP_LOW_FAST); 
+    /* UART для отладки */
     UART2_DeInit();
-
+    UART2_Init(9600,
+               UART2_WORDLENGTH_8D,
+               UART2_STOPBITS_1,
+               UART2_PARITY_NO,
+               UART2_SYNCMODE_CLOCK_DISABLE,
+               UART2_MODE_TXRX_ENABLE);
+    /* Таймер для регулярного измерения батарейки */
     TIM2_DeInit();
+    TIM2_TimeBaseInit(TIM2_PRESCALER_32768, 60000);
+    TIM2_Cmd(ENABLE);
+    /* Таймер для регулярной посылки радиосообщения */
     TIM3_DeInit();
+    TIM3_TimeBaseInit(TIM3_PRESCALER_32768, 1000);
+    TIM3_Cmd(ENABLE);
+    /* Таймер для delay ms*/
     TIM4_DeInit();
-
+    TIM4_TimeBaseInit(TIM4_PRESCALER_64, 124);
+    TIM4_ClearFlag(TIM4_FLAG_UPDATE);
+    TIM4_ITConfig(TIM4_IT_UPDATE, ENABLE);
+    TIM4_Cmd(ENABLE);
+    /* АЦП для измерения джойстика и батарейки */
     ADC1_DeInit();
-    /*ADC1_Init(ADC1_CONVERSIONMODE_SINGLE,
+    ADC1_Init(ADC1_CONVERSIONMODE_SINGLE,
               ADC1_CHANNEL_0, ADC1_PRESSEL_FCPU_D10,
-              ADC1_EXTTRIG_GPIO, DISABLE,
+              ADC1_EXTTRIG_TIM, DISABLE,
               ADC1_ALIGN_RIGHT,
-              ADC1_SCHMITTTRIG_CHANNEL0, DISABLE); */
-    ADC1_ConversionConfig(ADC1_CONVERSIONMODE_SINGLE, ADC1_CHANNEL_0, ADC1_ALIGN_RIGHT);
-    ADC1_PrescalerConfig(ADC1_PRESSEL_FCPU_D10);
-    ADC1_Cmd(ENABLE);
-
+              ADC1_SCHMITTTRIG_CHANNEL0, DISABLE); 
+    /* SPI для общения с радиомодулем и дисплеем. */
     SPI_DeInit();
-    GPIO_Init(GPIOC, GPIO_PIN_6, GPIO_MODE_OUT_PP_LOW_FAST);  /* MOSI pin */
-    GPIO_Init(GPIOC, GPIO_PIN_5, GPIO_MODE_OUT_PP_LOW_FAST);  /* SCK pin */
     SPI_Init(SPI_FIRSTBIT_MSB, SPI_BAUDRATEPRESCALER_16, SPI_MODE_MASTER,
              SPI_CLOCKPOLARITY_LOW, SPI_CLOCKPHASE_1EDGE,
              SPI_DATADIRECTION_2LINES_FULLDUPLEX, SPI_NSS_SOFT, 7);
     SPI_Cmd(ENABLE);
+    /* Разрешаем прерывания */
+    enableInterrupts();
 }

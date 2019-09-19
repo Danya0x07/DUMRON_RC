@@ -1,3 +1,7 @@
+/*
+ * Собственный itoa: ходят слухи, что _itoa из стандартной библиотеки
+ * SDCC работает криво и ломает память.
+ */
 #define MAX_NUMBER_OF_DIGITS 16
 
 char* itoa(int value, unsigned char radix)

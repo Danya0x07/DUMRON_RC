@@ -55,9 +55,6 @@ void radio_init(void)
     /* Чистим буферы на всякий случай. */
     nrf_cmd(FLUSH_TX);
     nrf_cmd(FLUSH_RX);
-    /* Настраиваем таймер на тикание примерно 244 раза в секунду. */
-    TIM3_TimeBaseInit(TIM3_PRESCALER_32768, 1000);
-    TIM3_Cmd(ENABLE);
 }
 
 bool radio_send_data(DataToRobot* data_to_robot)

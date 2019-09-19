@@ -5,12 +5,6 @@ extern char* itoa(int, unsigned char);
 
 void debug_init(void)
 {
-    UART2_Init(9600,
-               UART2_WORDLENGTH_8D,
-               UART2_STOPBITS_1,
-               UART2_PARITY_NO,
-               UART2_SYNCMODE_CLOCK_DISABLE,
-               UART2_MODE_TXRX_ENABLE);
     GPIO_Init(GPIOE, GPIO_PIN_5, GPIO_MODE_OUT_PP_HIGH_SLOW);
     GPIO_Init(GPIOD, GPIO_PIN_7, GPIO_MODE_OUT_PP_LOW_SLOW);
 }
