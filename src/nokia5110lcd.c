@@ -15,7 +15,7 @@
 #define LCD_PIXELS_Y    48
 
 static const uint8_t ASCII[][5] = {
-    {0x00, 0x00, 0x00, 0x00, 0x00},  /* 20   */ 
+    {0x00, 0x00, 0x00, 0x00, 0x00},  /* 20   */
     {0x00, 0x00, 0x5f, 0x00, 0x00},  /* 21 ! */
     {0x00, 0x07, 0x00, 0x07, 0x00},  /* 22 " */
     {0x14, 0x7f, 0x14, 0x7f, 0x14},  /* 23 # */
@@ -41,7 +41,7 @@ static const uint8_t ASCII[][5] = {
     {0x01, 0x71, 0x09, 0x05, 0x03},  /* 37 7 */
     {0x36, 0x49, 0x49, 0x49, 0x36},  /* 38 8 */
     {0x06, 0x49, 0x49, 0x29, 0x1e},  /* 39 9 */
-    {0x00, 0x36, 0x36, 0x00, 0x00},  /* 3a : */ 
+    {0x00, 0x36, 0x36, 0x00, 0x00},  /* 3a : */
     {0x00, 0x56, 0x36, 0x00, 0x00},  /* 3b ; */
     {0x08, 0x14, 0x22, 0x41, 0x00},  /* 3c < */
     {0x14, 0x14, 0x14, 0x14, 0x14},  /* 3d = */
@@ -79,8 +79,8 @@ static const uint8_t ASCII[][5] = {
     {0x00, 0x41, 0x41, 0x7f, 0x00},  /* 5d ] */
     {0x04, 0x02, 0x01, 0x02, 0x04},  /* 5e ^ */
     {0x40, 0x40, 0x40, 0x40, 0x40},  /* 5f _ */
-    {0x00, 0x01, 0x02, 0x04, 0x00},  /* 60 ` */ 
-    {0x20, 0x54, 0x54, 0x54, 0x78},  /* 61 a */ 
+    {0x00, 0x01, 0x02, 0x04, 0x00},  /* 60 ` */
+    {0x20, 0x54, 0x54, 0x54, 0x78},  /* 61 a */
     {0x7f, 0x48, 0x44, 0x44, 0x38},  /* 62 b */
     {0x38, 0x44, 0x44, 0x44, 0x20},  /* 63 c */
     {0x38, 0x44, 0x44, 0x48, 0x7f},  /* 64 d */
@@ -142,7 +142,7 @@ void lcd_reset(void)
  * @brief Устанавливает курсор в указанную символьную позицию.
  * @note  0 <= x <= 11, отсчёт слева направо;
  * @note  0 <= y <= 5   отсчёт сверху вниз;
- */ 
+ */
 void lcd_set_position(uint8_t x, uint8_t y)
 {
     x *= 7;
@@ -191,7 +191,7 @@ void lcd_clear(void)
  * @note  Эта функция платформозависимая.
  * @param meaning: Значение байта: команда или данные.
  * @param byte: Байт для передачи.
- */ 
+ */
 void lcd_send_byte(MeaningOfByte meaning, uint8_t byte)
 {
     GPIO_WriteLow(LCD_GPIO, LCD_PIN_CE);
@@ -203,11 +203,6 @@ void lcd_send_byte(MeaningOfByte meaning, uint8_t byte)
     while (!SPI_GetFlagStatus(SPI_FLAG_TXE));
     SPI_SendData(byte);
     while(SPI_GetFlagStatus(SPI_FLAG_BSY));
-    /* Поскольку у нас на шине SPI висит ещё и радиомодуль,
-       мы используем обычный режим master вместо transmit-only,
-       поэтому необходимо считать значение приёмного регистра,
-       иначе оно считается во время общения с радиомодулем вместо значения,
-       которое нам послал он. */
     (void) SPI_ReceiveData();
     GPIO_WriteHigh(LCD_GPIO, LCD_PIN_CE);
 }

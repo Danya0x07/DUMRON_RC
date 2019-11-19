@@ -16,15 +16,15 @@ int main(void)
     static JoystickData joystick_data;
     static DataToRobot data_to_robot;
     static DataFromRobot data_from_robot;
-    
+
     setup();
-    
+
     debug_init();
     display_init();
     buttons_init();
     radio_init();
     joystick_start();
-    
+
     while (1) {
         buttons_update(&buttons_events);
         joystick_update(&joystick_data);
@@ -77,7 +77,7 @@ int main(void)
         }
 
         joystick_data_to_robot_movement(&joystick_data, &data_to_robot);
-        
+
         if (radio_is_time_to_update_io_data() || radio_data_to_robot_is_new(&data_to_robot)) {
             uint8_t battery_voltage = battery_get_voltage();
             bool connection_error = radio_send_data(&data_to_robot);
@@ -102,7 +102,7 @@ void setup(void)
     /* Неиспользуемые пока пины */
     GPIO_Init(GPIOA, GPIO_PIN_1 | GPIO_PIN_2, GPIO_MODE_IN_PU_NO_IT);
     /* Пины SPI (MOSI & SCK) */
-    GPIO_Init(GPIOC, GPIO_PIN_6 | GPIO_PIN_5, GPIO_MODE_OUT_PP_LOW_FAST); 
+    GPIO_Init(GPIOC, GPIO_PIN_6 | GPIO_PIN_5, GPIO_MODE_OUT_PP_LOW_FAST);
     /* UART для отладки */
     UART2_DeInit();
     UART2_Init(9600,
@@ -131,7 +131,7 @@ void setup(void)
               ADC1_CHANNEL_0, ADC1_PRESSEL_FCPU_D10,
               ADC1_EXTTRIG_TIM, DISABLE,
               ADC1_ALIGN_RIGHT,
-              ADC1_SCHMITTTRIG_CHANNEL0, DISABLE); 
+              ADC1_SCHMITTTRIG_CHANNEL0, DISABLE);
     /* SPI для общения с радиомодулем и дисплеем. */
     SPI_DeInit();
     SPI_Init(SPI_FIRSTBIT_MSB, SPI_BAUDRATEPRESCALER_16, SPI_MODE_MASTER,

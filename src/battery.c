@@ -20,10 +20,10 @@ static uint8_t battery_measure(void)
 {
     ADC1_Channel_TypeDef prev_channel = ADC1->CSR & 0x0F;
     uint8_t voltage;
-    
+
     while (!ADC1_GetFlagStatus(ADC1_FLAG_EOC));
     (void) ADC1_GetConversionValue();
-    
+
     ADC1_ConversionConfig(ADC1_CONVERSIONMODE_SINGLE, BATTERY_CHANNEL, ADC1_ALIGN_RIGHT);
     ADC1_StartConversion();
     while (!ADC1_GetFlagStatus(ADC1_FLAG_EOC));
@@ -31,6 +31,6 @@ static uint8_t battery_measure(void)
 
     ADC1_ConversionConfig(ADC1_CONVERSIONMODE_SINGLE, prev_channel, ADC1_ALIGN_RIGHT);
     ADC1_StartConversion();
-    
+
     return voltage;
 }

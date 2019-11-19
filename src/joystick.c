@@ -5,8 +5,8 @@
 #define JOYSTICK_Y_CHANNEL   ADC1_CHANNEL_1
 
 /* Подгонка для осей джойстика. */
-#define JOYSTICK_X_CALIBRATION_VAL 0
-#define JOYSTICK_Y_CALIBRATION_VAL 14
+#define JOYSTICK_X_CALIBRATION_VAL (15)
+#define JOYSTICK_Y_CALIBRATION_VAL (20)
 
 #define adc_select_channel(adc_channel) \
     ADC1_ConversionConfig(ADC1_CONVERSIONMODE_SINGLE, adc_channel, ADC1_ALIGN_RIGHT)
@@ -24,7 +24,7 @@ void joystick_update(JoystickData* joystick_data)
     static ADC1_Channel_TypeDef channel_to_watch = JOYSTICK_X_CHANNEL;
     static bool new_x_available = FALSE, new_y_available = FALSE;
     static uint8_t x_buff, y_buff;
-    
+
     if (ADC1_GetFlagStatus(ADC1_FLAG_EOC)) {
         int8_t calibration_val = (channel_to_watch == JOYSTICK_X_CHANNEL) ?
                                   JOYSTICK_X_CALIBRATION_VAL : JOYSTICK_Y_CALIBRATION_VAL;
@@ -55,6 +55,9 @@ void joystick_data_to_robot_movement(const JoystickData* joystick_data, DataToRo
     static const uint8_t robot_speeds[3] = {0, 128, 255};
     /* Вычислить направление */
     switch (joystick_data->direction) {
+        case JOYSTICK_DIRECTION_MIDDLE:
+            data_to_robot->direction = ROBOT_DIRECTION_NONE;
+            break;
         case JOYSTICK_DIRECTION_UP:
             data_to_robot->direction = ROBOT_DIRECTION_FORWARD;
             break;
@@ -80,13 +83,13 @@ void joystick_data_to_robot_movement(const JoystickData* joystick_data, DataToRo
             break;
         case JOYSTICK_DIRECTION_LEFTUP:
         case JOYSTICK_DIRECTION_LEFTDOWN:
-            data_to_robot->speed_left  = robot_speeds[joystick_data->y_abs_defl];
-            data_to_robot->speed_right = robot_speeds[1];
+            data_to_robot->speed_left  = robot_speeds[1];
+            data_to_robot->speed_right = robot_speeds[joystick_data->y_abs_defl];
             break;
         case JOYSTICK_DIRECTION_RIGHTUP:
         case JOYSTICK_DIRECTION_RIGHTDOWN:
-            data_to_robot->speed_left  = robot_speeds[1];
-            data_to_robot->speed_right = robot_speeds[joystick_data->y_abs_defl];
+            data_to_robot->speed_left  = robot_speeds[joystick_data->y_abs_defl];
+            data_to_robot->speed_right = robot_speeds[1];
             break;
         case JOYSTICK_DIRECTION_UP:
         case JOYSTICK_DIRECTION_DOWN:
