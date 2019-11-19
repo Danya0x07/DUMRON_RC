@@ -11,7 +11,6 @@ uint8_t battery_get_voltage(void)
     if (TIM2_GetCounter() > 300) {
         TIM2_SetCounter(0);
         voltage = battery_measure();
-        /*led_blink(1, 200);*/
     }
     return voltage;
 }
@@ -24,6 +23,7 @@ static uint8_t battery_measure(void)
     while (!ADC1_GetFlagStatus(ADC1_FLAG_EOC));
     (void) ADC1_GetConversionValue();
 
+    /* Почему-то корректно работает только так. */
     ADC1_Init(ADC1_CONVERSIONMODE_SINGLE,
               BATTERY_CHANNEL, ADC1_PRESSEL_FCPU_D10,
               ADC1_EXTTRIG_TIM, DISABLE,

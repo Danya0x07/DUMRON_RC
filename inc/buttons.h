@@ -20,6 +20,6 @@
 #define BTN_TOGGLELIGHTS_PRESSED_2 (1 << 11)
 
 void buttons_init(void);
-void buttons_update(uint16_t*);
+uint16_t buttons_get_events(void);
 
 #endif

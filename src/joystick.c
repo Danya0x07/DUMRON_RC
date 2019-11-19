@@ -34,7 +34,7 @@ void joystick_update(JoystickData* joystick_data)
             new_x_available = TRUE;
             channel_to_watch = JOYSTICK_Y_CHANNEL;
         } else {  /* channel_to_watch == JOYSTICK_Y_CHANNEL */
-            y_buff = 4 - axis_value;  /* потому что конструкция джойстика */
+            y_buff = 4 - axis_value;  /* из-за конструкции джойстика */
             new_y_available = TRUE;
             channel_to_watch = JOYSTICK_X_CHANNEL;
         }

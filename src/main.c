@@ -8,15 +8,18 @@
 #include "radio.h"
 #include "battery.h"
 
+
+#define MAX_SAFE_TO_FALL_DISTANCE_CM   22
+
+static uint16_t buttons_events;
+static JoystickData joystick_data;
+static DataToRobot data_to_robot;
+static DataFromRobot data_from_robot;
+
 void setup(void);
 
 int main(void)
 {
-    static uint16_t buttons_events;
-    static JoystickData joystick_data;
-    static DataToRobot data_to_robot;
-    static DataFromRobot data_from_robot;
-
     setup();
 
     debug_init();
@@ -26,7 +29,7 @@ int main(void)
     joystick_start();
 
     while (1) {
-        buttons_update(&buttons_events);
+        buttons_events = buttons_get_events();
         joystick_update(&joystick_data);
         /* button arm up */
         if (buttons_events & BTN_ARMUP_PRESSED) {
@@ -79,9 +82,18 @@ int main(void)
         joystick_data_to_robot_movement(&joystick_data, &data_to_robot);
 
         if (radio_is_time_to_update_io_data() || radio_data_to_robot_is_new(&data_to_robot)) {
+            static bool was_beep = FALSE;
             uint8_t battery_voltage = battery_get_voltage();
             bool connection_error = radio_send_data(&data_to_robot);
             radio_check_for_incoming(&data_from_robot);
+
+            if (data_from_robot.back_distance > MAX_SAFE_TO_FALL_DISTANCE_CM && !was_beep) {
+                buzzer_peep(1, 80);
+                was_beep = TRUE;
+            } else {
+                was_beep = FALSE;
+            }
+
             display_update(&data_to_robot, &data_from_robot, connection_error, battery_voltage);
         }
     }

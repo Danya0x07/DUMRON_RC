@@ -15,7 +15,7 @@ enum {
     CUSTOM_CHAR_ARROWDOWN,
     CUSTOM_CHAR_CONNECTION,
     CUSTOM_CHAR_CELSIUS,
-    
+
     NUMBER_OF_CUSTOM_CHARS
 };
 
@@ -135,28 +135,28 @@ void display_update(const DataToRobot* data_to_robot,
     lcd_set_position(0, 0);
     lcd_print_string(itoa(data_from_robot->battery_brains, 10));
     lcd_print_string("% ");
-    
+
     /* заряд силовой части (%); */
     lcd_set_position(0, 1);
     lcd_print_string(itoa(data_from_robot->battery_motors, 10));
     lcd_print_string("% ");
-    
+
     /* наличия сзади препятствия или перепада высоты; */
     lcd_set_position(5, 2);
     if (data_from_robot->back_distance > 22) {
         lcd_print_ascii('O');
-    } else if (data_from_robot->back_distance < 10) {
-        lcd_print_ascii('T');
+    } else if (data_from_robot->back_distance < 7) {
+        lcd_print_ascii('|');
     } else {
         lcd_print_ascii(' ');
     }
-    
+
     /* температура окружающей среды (С); */
     lcd_set_position(0, 4);
     lcd_print_string(itoa(data_from_robot->temp_ambient, 10));
     lcd_print_custom(custom_charset, CUSTOM_CHAR_CELSIUS);
     lcd_print_ascii(' ');
-    
+
     /* температура радиаторов (С); */
     lcd_set_position(0, 5);
     lcd_print_string(itoa(data_from_robot->temp_radiators, 10));
