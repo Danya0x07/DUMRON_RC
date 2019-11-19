@@ -6,7 +6,7 @@
 
 /* Подгонка для осей джойстика. */
 #define JOYSTICK_X_CALIBRATION_VAL (15)
-#define JOYSTICK_Y_CALIBRATION_VAL (20)
+#define JOYSTICK_Y_CALIBRATION_VAL (17)
 
 #define adc_select_channel(adc_channel) \
     ADC1_ConversionConfig(ADC1_CONVERSIONMODE_SINGLE, adc_channel, ADC1_ALIGN_RIGHT)

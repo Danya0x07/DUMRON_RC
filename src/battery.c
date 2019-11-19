@@ -24,10 +24,15 @@ static uint8_t battery_measure(void)
     while (!ADC1_GetFlagStatus(ADC1_FLAG_EOC));
     (void) ADC1_GetConversionValue();
 
-    ADC1_ConversionConfig(ADC1_CONVERSIONMODE_SINGLE, BATTERY_CHANNEL, ADC1_ALIGN_RIGHT);
+    ADC1_Init(ADC1_CONVERSIONMODE_SINGLE,
+              BATTERY_CHANNEL, ADC1_PRESSEL_FCPU_D10,
+              ADC1_EXTTRIG_TIM, DISABLE,
+              ADC1_ALIGN_RIGHT,
+              ADC1_SCHMITTTRIG_CHANNEL2, DISABLE);
     ADC1_StartConversion();
+
     while (!ADC1_GetFlagStatus(ADC1_FLAG_EOC));
-    voltage = ADC1_GetConversionValue() * 100 / 1023;
+    voltage = (uint32_t) ADC1_GetConversionValue() * 100 / 1023;
 
     ADC1_ConversionConfig(ADC1_CONVERSIONMODE_SINGLE, prev_channel, ADC1_ALIGN_RIGHT);
     ADC1_StartConversion();
