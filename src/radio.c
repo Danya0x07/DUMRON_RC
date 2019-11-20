@@ -14,7 +14,7 @@ void radio_init(void)
        и переводимся в режим передатчика. */
     const uint8_t config = PWR_UP | EN_CRC | MASK_TX_DS | MASK_RX_DR | MASK_MAX_RT;
     /* Выбираем частотный канал. */
-    const uint8_t rf_ch = 112;  
+    const uint8_t rf_ch = 112;
     /* Выбираем скорость работы 1 Мбит/с и мощность 0 dbm. */
     const uint8_t rf_setup = 0 | RF_SETUP_0DBM;
     /* Выбираем длину адреса в 4 байта. */
@@ -51,7 +51,7 @@ void radio_init(void)
     if (nrf_read_byte(CONFIG) != config) {
         led_blink(3, 300);
     }
-    
+
     /* Чистим буферы на всякий случай. */
     nrf_cmd(FLUSH_TX);
     nrf_cmd(FLUSH_RX);
@@ -99,7 +99,7 @@ void radio_check_for_incoming(DataFromRobot* data_from_robot)
 
 bool radio_is_time_to_update_io_data(void)
 {
-    bool is_time_to_update_io_data = TIM3_GetCounter() >= 500;
+    bool is_time_to_update_io_data = TIM3_GetCounter() >= 122;
     if (is_time_to_update_io_data)
         TIM3_SetCounter(0);
     return is_time_to_update_io_data;
@@ -108,7 +108,7 @@ bool radio_is_time_to_update_io_data(void)
 bool radio_data_to_robot_is_new(const DataToRobot* data_to_robot)
 {
     static DataToRobot buffer_to_robot;
-    
+
     bool data_is_new = (
         buffer_to_robot.direction   != data_to_robot->direction   ||
         buffer_to_robot.speed_left  != data_to_robot->speed_left  ||
