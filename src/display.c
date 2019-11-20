@@ -44,7 +44,7 @@ void display_init(void)
 
 void display_update(const DataToRobot* data_to_robot,
                     const DataFromRobot* data_from_robot,
-                    bool was_conn_error, uint8_t battery_voltage)
+                    bool ack_received, uint8_t battery_voltage)
 {
     /* Рисуем данные пульта. */
 
@@ -61,10 +61,10 @@ void display_update(const DataToRobot* data_to_robot,
 
     /* состояние связи (есть/нет); */
     lcd_set_position(7, 2);
-    if (was_conn_error) {
-        lcd_print_ascii(' ');
-    } else {
+    if (ack_received) {
         lcd_print_custom(custom_charset, CUSTOM_CHAR_CONNECTION);
+    } else {
+        lcd_print_ascii(' ');
     }
 
     /* состояние фар (вкл/выкл); */
@@ -145,7 +145,7 @@ void display_update(const DataToRobot* data_to_robot,
     lcd_set_position(5, 2);
     if (data_from_robot->back_distance > 22) {
         lcd_print_ascii('O');
-    } else if (data_from_robot->back_distance < 7) {
+    } else if (data_from_robot->back_distance < 6) {
         lcd_print_ascii('|');
     } else {
         lcd_print_ascii(' ');

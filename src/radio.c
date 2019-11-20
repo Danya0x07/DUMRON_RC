@@ -57,9 +57,8 @@ void radio_init(void)
     nrf_cmd(FLUSH_RX);
 }
 
-bool radio_send_data(DataToRobot* data_to_robot)
+void radio_send_data(DataToRobot* data_to_robot)
 {
-    bool conn_err_occured = FALSE;
     uint8_t status = nrf_get_status();
     if (status & TX_FULL_STATUS)  {
         nrf_cmd(FLUSH_TX);
@@ -67,18 +66,17 @@ bool radio_send_data(DataToRobot* data_to_robot)
     if (status & MAX_RT) {
         nrf_cmd(FLUSH_TX);
         nrf_clear_interrupts();
-        conn_err_occured = TRUE;
     }
     nrf_rw_buff(W_TX_PAYLOAD, (uint8_t*) data_to_robot,
                 sizeof(DataToRobot), NRF_OPERATION_WRITE);
     nrf_ce_1();
     delay_ms(1);
     nrf_ce_0();
-    return conn_err_occured;
 }
 
-void radio_check_for_incoming(DataFromRobot* data_from_robot)
+bool radio_check_for_incoming(DataFromRobot* data_from_robot)
 {
+    bool ack_received = FALSE;
     uint8_t status = nrf_get_status();
     if (status & RX_DR) {
         uint8_t fifo_status, data_size;
@@ -92,9 +90,11 @@ void radio_check_for_incoming(DataFromRobot* data_from_robot)
             nrf_rw_buff(R_RX_PAYLOAD, (uint8_t*) data_from_robot,
                         sizeof(DataFromRobot), NRF_OPERATION_READ);
             nrf_clear_interrupts();
+            ack_received = TRUE;
             fifo_status = nrf_read_byte(FIFO_STATUS);
         } while (!(fifo_status & RX_EMPTY));
     }
+    return ack_received;
 }
 
 bool radio_is_time_to_update_io_data(void)

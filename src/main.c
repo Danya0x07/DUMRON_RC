@@ -83,9 +83,11 @@ int main(void)
 
         if (radio_is_time_to_update_io_data() || radio_data_to_robot_is_new(&data_to_robot)) {
             static bool was_beep = FALSE;
+            bool ack_received;
             uint8_t battery_voltage = battery_get_voltage();
-            bool connection_error = radio_send_data(&data_to_robot);
-            radio_check_for_incoming(&data_from_robot);
+
+            radio_send_data(&data_to_robot);
+            ack_received = radio_check_for_incoming(&data_from_robot);
 
             if (data_from_robot.back_distance > MAX_SAFE_TO_FALL_DISTANCE) {
                 if (!was_beep) {
@@ -96,7 +98,7 @@ int main(void)
                 was_beep = FALSE;
             }
 
-            display_update(&data_to_robot, &data_from_robot, connection_error, battery_voltage);
+            display_update(&data_to_robot, &data_from_robot, ack_received, battery_voltage);
         }
     }
 }
