@@ -28,6 +28,7 @@ void radio_init(void)
     const uint8_t dynpd = DPL_P0;
     /* Настраиваем повторную отправку. */
     const uint8_t setup_retr = SETUP_RETR_DELAY_1000MKS | SETUP_RETR_UP_TO_3_RETRANSMIT;
+    
     nrf_init_gpio();
     delay_ms(100);  /* Ожидание после подачи питания. */
 
