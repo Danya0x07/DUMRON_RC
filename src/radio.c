@@ -27,8 +27,7 @@ void radio_init(void)
     /* Включаем динамическую длину полезной нагрузки на канале 0. */
     const uint8_t dynpd = DPL_P0;
     /* Настраиваем повторную отправку. */
-    const uint8_t setup_retr = (SETUP_RETR, SETUP_RETR_DELAY_750MKS
-                                | SETUP_RETR_UP_TO_5_RETRANSMIT);
+    const uint8_t setup_retr = SETUP_RETR_DELAY_1000MKS | SETUP_RETR_UP_TO_3_RETRANSMIT;
     nrf_init_gpio();
     delay_ms(100);  /* Ожидание после подачи питания. */
 
@@ -85,7 +84,7 @@ bool radio_check_for_incoming(DataFromRobot* data_from_robot)
             if (data_size != sizeof(DataFromRobot)) {
                 nrf_cmd(FLUSH_RX);
                 nrf_clear_interrupts();
-                return;
+                break;
             }
             nrf_rw_buff(R_RX_PAYLOAD, (uint8_t*) data_from_robot,
                         sizeof(DataFromRobot), NRF_OPERATION_READ);

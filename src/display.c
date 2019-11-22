@@ -155,11 +155,11 @@ void display_update(const DataToRobot* data_to_robot,
     lcd_set_position(0, 4);
     lcd_print_string(itoa(data_from_robot->temp_ambient, 10));
     lcd_print_custom(custom_charset, CUSTOM_CHAR_CELSIUS);
-    lcd_print_ascii(' ');
+    lcd_print_string("  ");
 
     /* температура радиаторов (С); */
     lcd_set_position(0, 5);
     lcd_print_string(itoa(data_from_robot->temp_radiators, 10));
     lcd_print_custom(custom_charset, CUSTOM_CHAR_CELSIUS);
-    lcd_print_ascii(' ');
+    lcd_print_string("  ");
 }
