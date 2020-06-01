@@ -8,9 +8,6 @@
 #include "radio.h"
 #include "battery.h"
 
-
-#define MAX_SAFE_TO_FALL_DISTANCE   12
-
 static uint16_t buttons_events;
 static JoystickData joystick_data;
 static DataToRobot data_to_robot;
@@ -89,7 +86,7 @@ int main(void)
             radio_send_data(&data_to_robot);
             ack_received = radio_check_for_incoming(&data_from_robot);
 
-            if (data_from_robot.back_distance > MAX_SAFE_TO_FALL_DISTANCE) {
+            if (data_from_robot.status & ROBOT_SFLAG_CLIFF) {
                 if (!was_beep) {
                     buzzer_peep(1, 80);
                     was_beep = TRUE;

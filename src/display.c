@@ -143,9 +143,9 @@ void display_update(const DataToRobot* data_to_robot,
 
     /* наличия сзади препятствия или перепада высоты; */
     lcd_set_position(5, 2);
-    if (data_from_robot->back_distance > 22) {
+    if (data_from_robot->status & ROBOT_SFLAG_CLIFF) {
         lcd_print_ascii('O');
-    } else if (data_from_robot->back_distance < 6) {
+    } else if (data_from_robot->status & ROBOT_SFLAG_OBSTACLE) {
         lcd_print_ascii('|');
     } else {
         lcd_print_ascii(' ');

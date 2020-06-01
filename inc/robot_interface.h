@@ -11,6 +11,13 @@ typedef enum {
     ROBOT_DIRECTION_RIGHTWARD
 } RobotDirection;
 
+typedef struct {
+    RobotDirection direction;
+    uint8_t speed_left;
+    uint8_t speed_right;
+    uint8_t control_reg;  /* control register */
+} DataToRobot;
+
 /* control flags */
 #define ROBOT_CFLAG_ARM_DOWN (1 << 0)
 #define ROBOT_CFLAG_ARM_UP   (1 << 1)
@@ -21,18 +28,14 @@ typedef enum {
 #define ROBOT_CFLAG_KLAXON_EN (1 << 6)
 
 typedef struct {
-    RobotDirection direction;
-    uint8_t speed_left;
-    uint8_t speed_right;
-    uint8_t control_reg;  /* control register */
-} DataToRobot;
-
-typedef struct {
+    uint8_t status;
     uint8_t battery_brains;
     uint8_t battery_motors;
-    uint8_t back_distance;
     int8_t  temp_ambient;
     int8_t  temp_radiators;
 } DataFromRobot;
+
+#define ROBOT_SFLAG_CLIFF   (1 << 0)
+#define ROBOT_SFLAG_OBSTACLE    (1 << 1)
 
 #endif
