@@ -1,3 +1,2 @@
 build
-*.geany
-*.ioc8
+.pio

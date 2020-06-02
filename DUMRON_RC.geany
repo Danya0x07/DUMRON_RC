@@ -1,0 +1,63 @@
+[editor]
+line_wrapping=false
+line_break_column=80
+auto_continue_multiline=true
+
+[file_prefs]
+final_new_line=true
+ensure_convert_new_lines=true
+strip_trailing_spaces=true
+replace_tabs=false
+
+[indentation]
+indent_width=4
+indent_type=0
+indent_hard_tab_width=8
+detect_indent=false
+detect_indent_width=false
+indent_mode=2
+
+[project]
+name=DUMRON_RC
+base_path=/home/danya/Projects/DUMRON_RC/
+description=
+file_patterns=
+
+[long line marker]
+long_line_behaviour=1
+long_line_column=80
+
+[files]
+current_page=0
+FILE_NAME_0=194;Conf;0;EUTF-8;0;1;0;%2Fhome%2Fdanya%2FProjects%2FDUMRON_RC%2Fplatformio.ini;0;4
+FILE_NAME_1=0;C;0;EUTF-8;0;1;0;%2Fhome%2Fdanya%2FProjects%2FDUMRON_RC%2Fsrc%2Fmain.c;0;4
+FILE_NAME_2=10;None;0;EUTF-8;0;1;0;%2Fhome%2Fdanya%2FProjects%2FDUMRON_RC%2F.gitignore;0;4
+FILE_NAME_3=0;Conf;0;EUTF-8;0;1;0;%2Fhome%2Fdanya%2FProjects%2FUV_LightingAutomation%2Fplatformio.ini;0;4
+
+[VTE]
+last_dir=/home/danya/Projects/DUMRON_RC
+
+[prjorg]
+source_patterns=*.c;*.C;*.cpp;*.cxx;*.c++;*.cc;*.m;
+header_patterns=*.h;*.H;*.hpp;*.hxx;*.h++;*.hh;
+ignored_dirs_patterns=.*;CVS;
+ignored_file_patterns=*.o;*.obj;*.a;*.lib;*.so;*.dll;*.lo;*.la;*.class;*.jar;*.pyc;*.mo;*.gmo;
+generate_tag_prefs=0
+external_dirs=
+
+[build-menu]
+EX_00_LB=build
+EX_00_CM=pio run
+EX_00_WD=%p
+EX_01_LB=upload
+EX_01_CM=pio run -t upload
+EX_01_WD=%p
+EX_02_LB=clean
+EX_02_CM=pio run -t clean
+EX_02_WD=%p
+EX_03_LB=test
+EX_03_CM=pio test -e desktop
+EX_03_WD=%p
+EX_04_LB=check
+EX_04_CM=pio check
+EX_04_WD=
