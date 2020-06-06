@@ -69,14 +69,14 @@ void display_update(const DataToRobot* data_to_robot,
 
     /* состояние фар (вкл/выкл); */
     lcd_set_position(10, 2);
-    if (data_to_robot->control_reg & ROBOT_CFLAG_LIGHTS_EN) {
+    if (data_to_robot->ctrl.bf.lightsEn) {
         lcd_print_custom(custom_charset, CUSTOM_CHAR_LIGHTS);
     } else {
         lcd_print_ascii(' ');
     }
 
     /* состояние бибики (вкл/выкл); */
-    if (data_to_robot->control_reg & ROBOT_CFLAG_KLAXON_EN) {
+    if (data_to_robot->ctrl.bf.buzzerEn) {
         lcd_print_custom(custom_charset, CUSTOM_CHAR_KLAXON);
     } else {
         lcd_print_ascii(' ');
@@ -84,42 +84,50 @@ void display_update(const DataToRobot* data_to_robot,
 
     /* направление вертикального перемещения манипулятора (вверх/вниз/нет); */
     lcd_set_position(8, 3);
-    if (data_to_robot->control_reg & ROBOT_CFLAG_ARM_UP) {
+    switch (data_to_robot->ctrl.bf.armCtrl)
+    {
+    case ARM_UP:
         lcd_print_custom(custom_charset, CUSTOM_CHAR_ARROWUP);
-    } else if (data_to_robot->control_reg & ROBOT_CFLAG_ARM_DOWN) {
+        break;
+    case ARM_DOWN:
         lcd_print_custom(custom_charset, CUSTOM_CHAR_ARROWDOWN);
-    } else {
+        break;
+    case ARM_STOP:
         lcd_print_ascii(' ');
     }
 
     /* направление движения клешни (сжимается/разжимается/нет); */
     lcd_set_position(7, 4);
-    if (data_to_robot->control_reg & ROBOT_CFLAG_CLAW_SQUEEZE) {
+    switch (data_to_robot->ctrl.bf.clawCtrl)
+    {
+    case CLAW_SQUEESE:
         lcd_print_string("><");
-    } else if (data_to_robot->control_reg & ROBOT_CFLAG_CLAW_RELEASE) {
+        break;
+    case CLAW_RELEASE:
         lcd_print_string("<>");
-    } else {
+        break;
+    case CLAW_STOP:
         lcd_print_string("  ");
     }
 
     /* направление движения робота (вперёд/назад/налево/направо/нет); */
     lcd_set_position(10, 3);
-    switch (data_to_robot->direction) {
-        case ROBOT_DIRECTION_FORWARD:
-            lcd_print_string("/\\");
-            break;
-        case ROBOT_DIRECTION_BACKWARD:
-            lcd_print_string("\\/");
-            break;
-        case ROBOT_DIRECTION_LEFTWARD:
-            lcd_print_string("<-");
-            break;
-        case ROBOT_DIRECTION_RIGHTWARD:
-            lcd_print_string("->");
-            break;
-        case ROBOT_DIRECTION_NONE:
-            lcd_print_string("  ");
-            break;
+    switch (data_to_robot->ctrl.bf.moveDir)
+    {
+    case MOVEDIR_FORWARD:
+        lcd_print_string("/\\");
+        break;
+    case MOVEDIR_BACKWARD:
+        lcd_print_string("\\/");
+        break;
+    case MOVEDIR_LEFTWARD:
+        lcd_print_string("<-");
+        break;
+    case MOVEDIR_RIGHTWARD:
+        lcd_print_string("->");
+        break;
+    case MOVEDIR_NONE:
+        lcd_print_string("  ");
     }
     /* скорости гусениц (быстро/медленно/нет); */
     lcd_set_position(10, 4);
@@ -143,11 +151,18 @@ void display_update(const DataToRobot* data_to_robot,
 
     /* наличия сзади препятствия или перепада высоты; */
     lcd_set_position(5, 2);
-    if (data_from_robot->status & ROBOT_SFLAG_CLIFF) {
+    switch (data_from_robot->status.bf.backDistance)
+    {
+    case DIST_CLIFF:
         lcd_print_ascii('O');
-    } else if (data_from_robot->status & ROBOT_SFLAG_OBSTACLE) {
+        break;
+    case DIST_OBSTACLE:
         lcd_print_ascii('|');
-    } else {
+        break;
+    case DIST_ERROR:
+        lcd_print_ascii('E');
+        break;
+    case DIST_NOTHING:
         lcd_print_ascii(' ');
     }
 

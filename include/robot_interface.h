@@ -1,41 +1,77 @@
-#ifndef ROBOT_INTERFACE_H_INCLUDED
-#define ROBOT_INTERFACE_H_INCLUDED
+/**
+ * Протокол общения пульта с роботом.
+ */
 
-#include <stm8s.h>
+#ifndef PROTOCOL_H
+#define PROTOCOL_H
 
+#include <stdint.h>
+
+/** Возможные направления вращения моторов робота. */
 typedef enum {
-    ROBOT_DIRECTION_NONE,
-    ROBOT_DIRECTION_FORWARD,
-    ROBOT_DIRECTION_BACKWARD,
-    ROBOT_DIRECTION_LEFTWARD,
-    ROBOT_DIRECTION_RIGHTWARD
-} RobotDirection;
+    MOVEDIR_NONE = 0,  // в никуда
+    MOVEDIR_FORWARD,   // оба вперёд
+    MOVEDIR_BACKWARD,  // оба назад
+    MOVEDIR_LEFTWARD,  // левый назад, правый вперёд
+    MOVEDIR_RIGHTWARD  // левый вперёд, правый назад
+} MoveDirection;
 
+/** Возможные состояния плеча манипулятора. */
+typedef enum {
+    ARM_STOP = 0,
+    ARM_UP,
+    ARM_DOWN
+} ArmControl;
+
+/** Возможные состояние клешни манипулятора. */
+typedef enum {
+    CLAW_STOP = 0,
+    CLAW_SQUEESE,
+    CLAW_RELEASE
+} ClawControl;
+
+/**
+ * Структура пакетов, идущих от пульта к роботу.
+ */
 typedef struct {
-    RobotDirection direction;
+    union {
+        struct {
+            uint8_t moveDir :3;
+            uint8_t armCtrl  :2;
+            uint8_t clawCtrl :2;
+            uint8_t lightsEn :1;
+
+            uint8_t _extra   :7;
+            uint8_t buzzerEn :1;
+        } bf;
+        uint16_t reg;
+    } ctrl;
     uint8_t speed_left;
     uint8_t speed_right;
-    uint8_t control_reg;  /* control register */
 } DataToRobot;
 
-/* control flags */
-#define ROBOT_CFLAG_ARM_DOWN (1 << 0)
-#define ROBOT_CFLAG_ARM_UP   (1 << 1)
-#define ROBOT_CFLAG_CLAW_SQUEEZE (1 << 2)
-#define ROBOT_CFLAG_CLAW_RELEASE (1 << 3)
-/* #define ROBOT_CFLAG_ARM_FOLD  (1 << 4) */
-#define ROBOT_CFLAG_LIGHTS_EN (1 << 5)
-#define ROBOT_CFLAG_KLAXON_EN (1 << 6)
+/** Возможные реалии расстояния от кормы робота до поверхности. */
+typedef enum {
+    DIST_NOTHING = 0,
+    DIST_CLIFF,
+    DIST_OBSTACLE,
+    DIST_ERROR  // если сонар сорвало
+} Distance;
 
+/**
+ * Структура пакетов, идущих от робота к пульту.
+ */
 typedef struct {
-    uint8_t status;
+    union {
+        struct {
+            uint8_t backDistance :2;
+        } bf;
+        uint8_t reg;
+    } status;
     uint8_t battery_brains;
     uint8_t battery_motors;
     int8_t  temp_ambient;
     int8_t  temp_radiators;
 } DataFromRobot;
 
-#define ROBOT_SFLAG_CLIFF   (1 << 0)
-#define ROBOT_SFLAG_OBSTACLE    (1 << 1)
-
-#endif
+#endif /* PROTOCOL_H */

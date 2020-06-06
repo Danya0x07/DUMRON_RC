@@ -56,23 +56,23 @@ void joystick_data_to_robot_movement(const JoystickData* joystick_data, DataToRo
     /* Вычислить направление */
     switch (joystick_data->direction) {
         case JOYSTICK_DIRECTION_MIDDLE:
-            data_to_robot->direction = ROBOT_DIRECTION_NONE;
+            data_to_robot->ctrl.bf.moveDir = MOVEDIR_NONE;
             break;
         case JOYSTICK_DIRECTION_UP:
-            data_to_robot->direction = ROBOT_DIRECTION_FORWARD;
+            data_to_robot->ctrl.bf.moveDir = MOVEDIR_FORWARD;
             break;
         case JOYSTICK_DIRECTION_DOWN:
-            data_to_robot->direction = ROBOT_DIRECTION_BACKWARD;
+            data_to_robot->ctrl.bf.moveDir = MOVEDIR_BACKWARD;
             break;
         case JOYSTICK_DIRECTION_LEFT:
         case JOYSTICK_DIRECTION_LEFTUP:
         case JOYSTICK_DIRECTION_RIGHTDOWN:
-            data_to_robot->direction = ROBOT_DIRECTION_LEFTWARD;
+            data_to_robot->ctrl.bf.moveDir = MOVEDIR_LEFTWARD;
             break;
         case JOYSTICK_DIRECTION_RIGHT:
         case JOYSTICK_DIRECTION_RIGHTUP:
         case JOYSTICK_DIRECTION_LEFTDOWN:
-            data_to_robot->direction = ROBOT_DIRECTION_RIGHTWARD;
+            data_to_robot->ctrl.bf.moveDir = MOVEDIR_RIGHTWARD;
             break;
     }
     /* Вычислить скорости */

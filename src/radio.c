@@ -110,16 +110,14 @@ bool radio_data_to_robot_is_new(const DataToRobot* data_to_robot)
     static DataToRobot buffer_to_robot;
 
     bool data_is_new = (
-        buffer_to_robot.direction   != data_to_robot->direction   ||
+        buffer_to_robot.ctrl.reg    != data_to_robot->ctrl.reg   ||
         buffer_to_robot.speed_left  != data_to_robot->speed_left  ||
-        buffer_to_robot.speed_right != data_to_robot->speed_right ||
-        buffer_to_robot.control_reg != data_to_robot->control_reg
+        buffer_to_robot.speed_right != data_to_robot->speed_right
     );
     if (data_is_new) {
-        buffer_to_robot.direction   = data_to_robot->direction;
+        buffer_to_robot.ctrl.reg    = data_to_robot->ctrl.reg;
         buffer_to_robot.speed_left  = data_to_robot->speed_left;
         buffer_to_robot.speed_right = data_to_robot->speed_right;
-        buffer_to_robot.control_reg = data_to_robot->control_reg;
     }
     return data_is_new;
 }
