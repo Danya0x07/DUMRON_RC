@@ -2,8 +2,8 @@
  * Протокол общения пульта с роботом.
  */
 
-#ifndef PROTOCOL_H
-#define PROTOCOL_H
+#ifndef _PROTOCOL_H
+#define _PROTOCOL_H
 
 #include <stdint.h>
 
@@ -41,8 +41,8 @@ typedef struct {
             uint8_t clawCtrl :2;
             uint8_t lightsEn :1;
 
-            uint8_t _extra   :7;
             uint8_t buzzerEn :1;
+            uint8_t _extra   :7;  /* резервируем байт на будущее */
         } bf;
         uint16_t reg;
     } ctrl;
@@ -59,12 +59,18 @@ typedef enum {
 } Distance;
 
 /**
+ * Невозможное для датчика температуры значение, свидетельствующее об ошибке.
+ */
+#define TEMPERATURE_ERROR_VALUE     (-128)
+
+/**
  * Структура пакетов, идущих от робота к пульту.
  */
 typedef struct {
     union {
         struct {
             uint8_t backDistance :2;
+            uint8_t _extra :6;  /* резервируем байт на будущее */
         } bf;
         uint8_t reg;
     } status;
@@ -74,4 +80,4 @@ typedef struct {
     int8_t  temp_radiators;
 } DataFromRobot;
 
-#endif /* PROTOCOL_H */
+#endif /* _PROTOCOL_H */

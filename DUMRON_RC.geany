@@ -28,11 +28,18 @@ long_line_behaviour=1
 long_line_column=80
 
 [files]
-current_page=0
+current_page=3
 FILE_NAME_0=194;Conf;0;EUTF-8;0;1;0;%2Fhome%2Fdanya%2FProjects%2FDUMRON_RC%2Fplatformio.ini;0;4
-FILE_NAME_1=0;C;0;EUTF-8;0;1;0;%2Fhome%2Fdanya%2FProjects%2FDUMRON_RC%2Fsrc%2Fmain.c;0;4
-FILE_NAME_2=10;None;0;EUTF-8;0;1;0;%2Fhome%2Fdanya%2FProjects%2FDUMRON_RC%2F.gitignore;0;4
-FILE_NAME_3=0;Conf;0;EUTF-8;0;1;0;%2Fhome%2Fdanya%2FProjects%2FUV_LightingAutomation%2Fplatformio.ini;0;4
+FILE_NAME_1=2729;C;0;EUTF-8;0;1;0;%2Fhome%2Fdanya%2FProjects%2FDUMRON_RC%2Fsrc%2Fmain.c;0;4
+FILE_NAME_2=5756;C;0;EUTF-8;0;1;0;%2Fhome%2Fdanya%2FProjects%2FDUMRON_RC%2Fsrc%2Fdisplay.c;0;4
+FILE_NAME_3=0;C++;0;EUTF-8;0;1;0;%2Fhome%2Fdanya%2FDownloads%2Fcrc_agl%2FCRC_TINY.C;0;4
+FILE_NAME_4=0;C;0;EUTF-8;0;1;0;%2Fhome%2Fdanya%2FProjects%2FDUMRON_RC%2Fsrc%2Fitoa.c;0;4
+FILE_NAME_5=0;C++;0;EUTF-8;0;1;0;%2Fhome%2Fdanya%2FProjects%2FDUMRON_RC%2Finclude%2Fradio.h;0;4
+FILE_NAME_6=3667;C;0;EUTF-8;0;1;0;%2Fhome%2Fdanya%2FProjects%2FDUMRON_RC%2Fsrc%2Fradio.c;0;4
+FILE_NAME_7=3202;C;0;EUTF-8;0;1;0;%2Fhome%2Fdanya%2FProjects%2FDUMRON_RC%2Fsrc%2Fjoystick.c;0;4
+FILE_NAME_8=1438;C++;0;EUTF-8;0;1;0;%2Fhome%2Fdanya%2FProjects%2FDUMRON_RC%2Finclude%2Frobot_interface.h;0;4
+FILE_NAME_9=10;None;0;EUTF-8;0;1;0;%2Fhome%2Fdanya%2FProjects%2FDUMRON_RC%2F.gitignore;0;4
+FILE_NAME_10=0;Conf;0;EUTF-8;0;1;0;%2Fhome%2Fdanya%2FProjects%2FUV_LightingAutomation%2Fplatformio.ini;0;4
 
 [VTE]
 last_dir=/home/danya/Projects/DUMRON_RC
