@@ -29,15 +29,18 @@ long_line_column=80
 
 [files]
 current_page=4
-FILE_NAME_0=194;Conf;0;EUTF-8;0;1;0;%2Fhome%2Fdanya%2FProjects%2FDUMRON_RC%2Fplatformio.ini;0;4
-FILE_NAME_1=2893;C;0;EUTF-8;0;1;0;%2Fhome%2Fdanya%2FProjects%2FDUMRON_RC%2Fsrc%2Fmain.c;0;4
+FILE_NAME_0=12;Conf;0;EUTF-8;0;1;0;%2Fhome%2Fdanya%2FProjects%2FDUMRON_RC%2Fplatformio.ini;0;4
+FILE_NAME_1=3023;C;0;EUTF-8;0;1;0;%2Fhome%2Fdanya%2FProjects%2FDUMRON_RC%2Fsrc%2Fmain.c;0;4
 FILE_NAME_2=5756;C;0;EUTF-8;0;1;0;%2Fhome%2Fdanya%2FProjects%2FDUMRON_RC%2Fsrc%2Fdisplay.c;0;4
-FILE_NAME_3=0;C++;0;EUTF-8;0;1;0;%2Fhome%2Fdanya%2FProjects%2FDUMRON_RC%2Finclude%2Fradio.h;0;4
-FILE_NAME_4=1666;C;0;EUTF-8;0;1;0;%2Fhome%2Fdanya%2FProjects%2FDUMRON_RC%2Fsrc%2Fradio.c;0;4
-FILE_NAME_5=3202;C;0;EUTF-8;0;1;0;%2Fhome%2Fdanya%2FProjects%2FDUMRON_RC%2Fsrc%2Fjoystick.c;0;4
-FILE_NAME_6=546;C++;0;EUTF-8;0;1;0;%2Fhome%2Fdanya%2FProjects%2FDUMRON_RC%2Finclude%2Frobot_interface.h;0;4
-FILE_NAME_7=10;None;0;EUTF-8;0;1;0;%2Fhome%2Fdanya%2FProjects%2FDUMRON_RC%2F.gitignore;0;4
-FILE_NAME_8=0;Conf;0;EUTF-8;0;1;0;%2Fhome%2Fdanya%2FProjects%2FUV_LightingAutomation%2Fplatformio.ini;0;4
+FILE_NAME_3=173;C++;0;EUTF-8;0;1;0;%2Fhome%2Fdanya%2FProjects%2FDUMRON_RC%2Finclude%2Fradio.h;0;4
+FILE_NAME_4=1079;C;0;EUTF-8;0;1;0;%2Fhome%2Fdanya%2FProjects%2FDUMRON_RC%2Fsrc%2Fradio.c;0;4
+FILE_NAME_5=3228;C++;0;EUTF-8;0;1;0;%2Fhome%2Fdanya%2FProjects%2FDUMRON_RC%2Flib%2Fnrf24l01%2Fnrf24l01.h;0;4
+FILE_NAME_6=2314;C++;0;EUTF-8;0;1;0;%2Fhome%2Fdanya%2FProjects%2FDUMRON_RC%2Flib%2Fnrf24l01%2Fnrf24l01_port.h;0;4
+FILE_NAME_7=0;C;0;EUTF-8;0;1;0;%2Fhome%2Fdanya%2FProjects%2FDUMRON_RC%2Flib%2Fnrf24l01%2Fnrf24l01.c;0;4
+FILE_NAME_8=9698;C++;0;EUTF-8;0;1;0;%2Fhome%2Fdanya%2FProjects%2FDUMRON_RC%2Flib%2FSTM8S_StdPeriph_Driver%2Fsrc%2Fstm8s.h;0;4
+FILE_NAME_9=3202;C;0;EUTF-8;0;1;0;%2Fhome%2Fdanya%2FProjects%2FDUMRON_RC%2Fsrc%2Fjoystick.c;0;4
+FILE_NAME_10=135;C++;0;EUTF-8;0;1;0;%2Fhome%2Fdanya%2FProjects%2FDUMRON_RC%2Finclude%2Frobot_interface.h;0;4
+FILE_NAME_11=10;None;0;EUTF-8;0;1;0;%2Fhome%2Fdanya%2FProjects%2FDUMRON_RC%2F.gitignore;0;4
 
 [VTE]
 last_dir=/home/danya/Projects/DUMRON_RC

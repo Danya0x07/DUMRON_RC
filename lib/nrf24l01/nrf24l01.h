@@ -15,11 +15,6 @@
 extern "C" {
 #endif
 
-//~#include <stdint.h>
-//~#include <stddef.h>
-//~#include <stdbool.h>
-#include <stm8s.h>
-
 #include "nrf24l01_conf.h"
 
 #ifndef NRF24L01_PLUS

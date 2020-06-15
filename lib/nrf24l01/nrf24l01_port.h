@@ -15,8 +15,6 @@
 
 #include <stm8s.h>
 #include <../../include/delay.h>
-#include <stddef.h>
-typedef uint8_t uint_fast8_t;
 
 /* Пины модуля */
 #define NRF_GPIO    GPIOC
