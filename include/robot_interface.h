@@ -5,7 +5,7 @@
 #ifndef _PROTOCOL_H
 #define _PROTOCOL_H
 
-#include <stdint.h>
+#include <stm8s.h>
 
 /** Возможные направления вращения моторов робота. */
 typedef enum {
@@ -36,7 +36,7 @@ typedef enum {
 typedef struct {
     union {
         struct {
-            uint8_t moveDir :3;
+            uint8_t moveDir  :3;
             uint8_t armCtrl  :2;
             uint8_t clawCtrl :2;
             uint8_t lightsEn :1;

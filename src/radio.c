@@ -3,98 +3,74 @@
  */
 
 #include "radio.h"
-#include "nrf24l01p.h"
 #include "delay.h"
 #include "debug.h"
 
+#include <nrf24l01.h>
+
+/* Пины модуля */
+#define NRF_GPIO    GPIOC
+#define NRF_PIN_CE  GPIO_PIN_4
+#define NRF_PIN_CSN GPIO_PIN_3
+
 void radio_init(void)
 {
-    static uint8_t address[4] = {0xC7, 0x68, 0xAC, 0x35};
-    /* Включаем проверку контрольной суммы, выключаем прерывания на ноге IRQ
-       и переводимся в режим передатчика. */
-    const uint8_t config = PWR_UP | EN_CRC | MASK_TX_DS | MASK_RX_DR | MASK_MAX_RT;
-    /* Выбираем частотный канал. */
-    const uint8_t rf_ch = 112;
-    /* Выбираем скорость работы 1 Мбит/с и мощность 0 dbm. */
-    const uint8_t rf_setup = 0 | RF_SETUP_0DBM;
-    /* Выбираем длину адреса в 4 байта. */
-    const uint8_t setup_aw = SETUP_AW_4BYTES_ADDRESS;
-    /* Включаем канал 0 для приёма подтверждений. */
-    const uint8_t en_rxaddr = ERX_P0;
-    /* Включаем возможность не указывать размер полезной нагрузки
-       и принимать дополнительные данные вместе с пакетами подтверждения. */
-    const uint8_t feature = EN_DPL | EN_ACK_PAY;
-    /* Включаем динамическую длину полезной нагрузки на канале 0. */
-    const uint8_t dynpd = DPL_P0;
-    /* Настраиваем повторную отправку. */
-    const uint8_t setup_retr = SETUP_RETR_DELAY_1000MKS | SETUP_RETR_UP_TO_3_RETRANSMIT;
+    uint8_t tgtaddress[4] = {0xC7, 0x68, 0xAC, 0x35};
 
-    nrf_init_gpio();
+    struct nrf24l01_tx_config config = {
+        .address = tgtaddress,
+        .addr_size = NRF24L01_ADDRS_4BYTE,
+        .crc_mode = NRF24L01_CRC_1BYTE,
+        .datarate = NRF24L01_DATARATE_1MBPS,
+        .power = NRF24L01_POWER_0DBM,
+        .retr_delay = NRF24L01_RETR_DELAY_1000US,
+        .retr_count = NRF24L01_RETR_COUNT_3,
+        .mode = NRF24L01_TX_MODE_ACK_PAYLOAD,
+        .en_irq = 0,
+        .rf_channel = 112
+    };
+
+    GPIO_Init(NRF_GPIO, NRF_PIN_CSN, GPIO_MODE_OUT_PP_HIGH_FAST);
+    GPIO_Init(NRF_GPIO, NRF_PIN_CE, GPIO_MODE_OUT_PP_LOW_FAST);
+
     delay_ms(100);  /* Ожидание после подачи питания. */
 
-    /* Записываем настройки в модуль. */
-    nrf_overwrite_byte(CONFIG,     config);
-    delay_ms(5);  /* Power down --> Standby_1 */
-    nrf_overwrite_byte(RF_CH,      rf_ch);
-    nrf_overwrite_byte(RF_SETUP,   rf_setup);
-    nrf_overwrite_byte(SETUP_AW,   setup_aw);
-    nrf_overwrite_byte(EN_RXADDR,  en_rxaddr);
-    nrf_overwrite_byte(FEATURE,    feature);
-    nrf_overwrite_byte(DYNPD,      dynpd);
-    nrf_overwrite_byte(SETUP_RETR, setup_retr);
-    /* Записываем адрес канала. */
-    nrf_rw_buff(W_REGISTER | TX_ADDR,    address, 4, NRF_OPERATION_WRITE);
-    nrf_rw_buff(W_REGISTER | RX_ADDR_P0, address, 4, NRF_OPERATION_WRITE);
-
-    /* Если с модулем что-то не в порядке, то ни один регистр не запишется,
-       поэтому одной проверки должно быть достаточно. */
-    if (nrf_read_byte(CONFIG) != config) {
+    if (nrf24l01_tx_configure(&config) < 0) {
         led_blink(3, 300);
     }
-
-    /* Чистим буферы на всякий случай. */
-    nrf_cmd(FLUSH_TX);
-    nrf_cmd(FLUSH_RX);
 }
 
 void radio_send_data(DataToRobot* data_to_robot)
 {
-    uint8_t status = nrf_get_status();
-    if (status & TX_FULL_STATUS)  {
-        nrf_cmd(FLUSH_TX);
+    if (nrf24l01_full_tx_fifo())  {
+        nrf24l01_flush_tx_fifo();
     }
-    if (status & MAX_RT) {
-        nrf_cmd(FLUSH_TX);
-        nrf_clear_interrupts();
+    if (nrf24l01_get_interrupts() & NRF24L01_IRQ_MAX_RT) {
+        nrf24l01_flush_tx_fifo();
+        nrf24l01_clear_interrupts(NRF24L01_IRQ_MAX_RT);
     }
-    nrf_rw_buff(W_TX_PAYLOAD, (uint8_t*) data_to_robot,
-                sizeof(DataToRobot), NRF_OPERATION_WRITE);
-    nrf_ce_1();
-    delay_ms(1);
-    nrf_ce_0();
+    nrf24l01_tx_write_pld(data_to_robot, sizeof(DataToRobot));
+    nrf24l01_tx_transmit();
 }
 
 bool radio_check_for_incoming(DataFromRobot* data_from_robot)
 {
-    bool ack_received = FALSE;
-    uint8_t status = nrf_get_status();
-    if (status & RX_DR) {
-        uint8_t fifo_status, data_size;
+    bool conn_ok = FALSE;
+    if (nrf24l01_get_interrupts() & NRF24L01_IRQ_RX_DR) {
+        uint8_t pld_size;
         do {
-            nrf_rw_buff(R_RX_PL_WID, &data_size, 1, NRF_OPERATION_READ);
-            if (data_size != sizeof(DataFromRobot)) {
-                nrf_cmd(FLUSH_RX);
-                nrf_clear_interrupts();
+            pld_size = nrf24l01_read_pld_size();
+            if (pld_size != sizeof(DataFromRobot)) {
+                nrf24l01_flush_rx_fifo();
+                nrf24l01_clear_interrupts(NRF24L01_IRQ_RX_DR);
                 break;
             }
-            nrf_rw_buff(R_RX_PAYLOAD, (uint8_t*) data_from_robot,
-                        sizeof(DataFromRobot), NRF_OPERATION_READ);
-            nrf_clear_interrupts();
-            ack_received = TRUE;
-            fifo_status = nrf_read_byte(FIFO_STATUS);
-        } while (!(fifo_status & RX_EMPTY));
+            nrf24l01_read_pld(data_from_robot, sizeof(DataFromRobot));
+            nrf24l01_clear_interrupts(NRF24L01_IRQ_RX_DR);
+            conn_ok = TRUE;
+        } while (nrf24l01_data_in_rx_fifo());
     }
-    return ack_received;
+    return conn_ok;
 }
 
 bool radio_is_time_to_update_io_data(void)
