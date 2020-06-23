@@ -1,7 +1,7 @@
 #include "buttons.h"
 #include "delay.h"
 
-typedef enum {PULLDOWN, PULLUP = !PULLDOWN} ButtonMode;
+typedef enum {PULLDOWN, PULLUP} button_mode_e;
 
 /*
  * Если кнопка btnx подтянута резистором к vcc,
@@ -12,144 +12,155 @@ typedef enum {PULLDOWN, PULLUP = !PULLDOWN} ButtonMode;
 #define ON_RELEASE PULLDOWN
 
 typedef struct {
-    GPIO_TypeDef* reg;
+    GPIO_TypeDef *reg;
     uint8_t pin;
-    ButtonMode mode;
+    button_mode_e mode;
     BitStatus last_status;
-} Button;
+} button_s;
 
-static Button btn_armup,
-              btn_armdown,
-              btn_clawsqueeze,
-              btn_clawrelease,
-              btn_klaxon,
-              btn_togglelights;
+static button_s btn_armup = {
+    .reg = GPIOC,
+    .pin = GPIO_PIN_2,
+    .mode = PULLUP,
+    .last_status = RESET
+};
 
-static bool btn_pressed(Button* btn);
-static bool btn_pressed_again(Button* btn);
+static button_s btn_armdown = {
+    .reg = GPIOB,
+    .pin = GPIO_PIN_3,
+    .mode = PULLUP,
+    .last_status = RESET
+};
 
-void buttons_init(void)
+static button_s btn_clawsqueeze = {
+    .reg = GPIOB,
+    .pin = GPIO_PIN_4,
+    .mode = PULLUP,
+    .last_status = RESET
+};
+
+static button_s btn_clawrelease = {
+    .reg = GPIOB,
+    .pin = GPIO_PIN_5,
+    .mode = PULLUP,
+    .last_status = RESET
+};
+
+static button_s btn_klaxon = {
+    .reg = GPIOC,
+    .pin = GPIO_PIN_1,
+    .mode = PULLUP,
+    .last_status = RESET
+};
+
+static button_s btn_togglelights = {
+    .reg = GPIOF,
+    .pin = GPIO_PIN_4,
+    .mode = PULLUP,
+    .last_status = RESET
+};
+
+static bool btn_pressed(button_s* btn);
+static bool btn_pressed_again(button_s* btn);
+
+void buttons_get_events(btn_events_s *ev)
 {
-    btn_armup.reg = GPIOC;
-    btn_armup.pin = GPIO_PIN_2;
-    btn_armup.mode = PULLUP;
-    btn_armup.last_status = RESET;
-    GPIO_Init(GPIOC, GPIO_PIN_2, GPIO_MODE_IN_FL_NO_IT);
-
-    btn_armdown.reg = GPIOB;
-    btn_armdown.pin = GPIO_PIN_3;
-    btn_armdown.mode = PULLUP;
-    btn_armdown.last_status = RESET;
-    GPIO_Init(GPIOB, GPIO_PIN_3, GPIO_MODE_IN_FL_NO_IT);
-
-    btn_clawsqueeze.reg = GPIOB;
-    btn_clawsqueeze.pin = GPIO_PIN_4;
-    btn_clawsqueeze.mode = PULLUP;
-    btn_clawsqueeze.last_status = RESET;
-    GPIO_Init(GPIOB, GPIO_PIN_4, GPIO_MODE_IN_FL_NO_IT);
-
-    btn_clawrelease.reg = GPIOB;
-    btn_clawrelease.pin = GPIO_PIN_5;
-    btn_clawrelease.mode = PULLUP;
-    btn_clawrelease.last_status = RESET;
-    GPIO_Init(GPIOB, GPIO_PIN_5, GPIO_MODE_IN_FL_NO_IT);
-
-    btn_klaxon.reg = GPIOC;
-    btn_klaxon.pin = GPIO_PIN_1;
-    btn_klaxon.mode = PULLUP;
-    btn_klaxon.last_status = RESET;
-    GPIO_Init(GPIOC, GPIO_PIN_1, GPIO_MODE_IN_FL_NO_IT);
-
-    btn_togglelights.reg = GPIOF;
-    btn_togglelights.pin = GPIO_PIN_4;
-    btn_togglelights.mode = PULLUP;
-    btn_togglelights.last_status = RESET;
-    GPIO_Init(GPIOF, GPIO_PIN_4, GPIO_MODE_IN_FL_NO_IT);
-}
-
-uint16_t buttons_get_events(void)
-{
-    uint16_t buttons_events = 0;
 
     if (btn_pressed(&btn_armup)) {
         if (btn_armup.mode == ON_PRESS) {
-            buttons_events |= BTN_ARMUP_PRESSED;
+            ev->arm_up = BTN_EV_PRESSED;
             btn_armup.mode = ON_RELEASE;
         } else {
-            buttons_events |= BTN_ARMUP_RELEASED;
+            ev->arm_up = BTN_EV_RELEASED;
             btn_armup.mode = ON_PRESS;
         }
+    } else {
+        ev->arm_up = BTN_EV_NONE;
     }
 
     if (btn_pressed(&btn_armdown)) {
         if (btn_armdown.mode == ON_PRESS) {
-            buttons_events |= BTN_ARMDOWN_PRESSED;
+            ev->arm_down = BTN_EV_PRESSED;
             btn_armdown.mode = ON_RELEASE;
         } else {
-            buttons_events |= BTN_ARMDOWN_RELEASED;
+            ev->arm_down = BTN_EV_RELEASED;
             btn_armdown.mode = ON_PRESS;
         }
+    } else {
+        ev->arm_down = BTN_EV_NONE;
     }
 
     if (btn_pressed(&btn_clawsqueeze)) {
         if (btn_clawsqueeze.mode == ON_PRESS) {
-            buttons_events |= BTN_CLAWSQUEEZE_PRESSED;
+            ev->claw_squeeze = BTN_EV_PRESSED;
             btn_clawsqueeze.mode = ON_RELEASE;
         } else {
-            buttons_events |= BTN_CLAWSQUEEZE_RELEASED;
+            ev->claw_squeeze = BTN_EV_RELEASED;
             btn_clawsqueeze.mode = ON_PRESS;
         }
+    } else {
+        ev->claw_squeeze = BTN_EV_NONE;
     }
 
     if (btn_pressed(&btn_clawrelease)) {
         if (btn_clawrelease.mode == ON_PRESS) {
-            buttons_events |= BTN_CLAWRELEASE_PRESSED;
+            ev->claw_release = BTN_EV_PRESSED;
             btn_clawrelease.mode = ON_RELEASE;
         } else {
-            buttons_events |= BTN_CLAWRELEASE_RELEASED;
+            ev->claw_release = BTN_EV_RELEASED;
             btn_clawrelease.mode = ON_PRESS;
         }
+    } else {
+        ev->claw_release = BTN_EV_NONE;
     }
 
     if (btn_pressed(&btn_klaxon)) {
         if (btn_klaxon.mode == ON_PRESS) {
-            buttons_events |= BTN_KLAXON_PRESSED;
+            ev->buzzer = BTN_EV_PRESSED;
             btn_klaxon.mode = ON_RELEASE;
         } else {
-            buttons_events |= BTN_KLAXON_RELEASED;
+            ev->buzzer = BTN_EV_RELEASED;
             btn_klaxon.mode = ON_PRESS;
         }
+    } else {
+        ev->buzzer = BTN_EV_NONE;
     }
 
     if (btn_pressed(&btn_togglelights)) {
         if (btn_pressed_again(&btn_togglelights)) {
-            buttons_events |= BTN_TOGGLELIGHTS_PRESSED_2;
+            ev->toggle_lights = BTN_EV_DOUBLE_PRESSED;
         } else {
-            buttons_events |= BTN_TOGGLELIGHTS_PRESSED;
+            ev->toggle_lights = BTN_EV_PRESSED;
         }
+    } else {
+        ev->toggle_lights = BTN_EV_NONE;
     }
-
-    return buttons_events;
 }
 
-static bool btn_pressed(Button* btn)
+static bool btn_pressed(button_s *btn)
 {
     bool pressed = FALSE;
     BitStatus current_status = GPIO_ReadInputPin(btn->reg, btn->pin);
+
     if (btn->last_status != current_status) {
         delay_ms(5);
         current_status = GPIO_ReadInputPin(btn->reg, btn->pin);
     }
 
-    if (!btn->last_status && current_status) pressed = !(bool)btn->mode;
-    else if (btn->last_status && !current_status) pressed = (bool)btn->mode;
+    if (!btn->last_status && current_status)
+        pressed = !(bool)btn->mode;
+    else if (btn->last_status && !current_status)
+        pressed = (bool)btn->mode;
+
     btn->last_status = current_status;
+
     return pressed;
 }
 
-static bool btn_pressed_again(Button* btn)
+static bool btn_pressed_again(button_s *btn)
 {
     register uint8_t i;
+
     for (i = 0; i < 200; i++) {
         delay_ms(1);
         if (btn_pressed(btn)) {

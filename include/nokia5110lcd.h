@@ -9,7 +9,6 @@
 
 typedef enum {LCD_COMMAND, LCD_DATA} MeaningOfByte;
 
-void lcd_init_gpio(void);
 void lcd_reset(void);
 void lcd_send_byte(MeaningOfByte meaning, uint8_t byte);
 void lcd_set_position(uint8_t x, uint8_t y);

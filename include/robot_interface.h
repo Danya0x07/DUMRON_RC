@@ -14,21 +14,21 @@ typedef enum {
     MOVEDIR_BACKWARD,  // оба назад
     MOVEDIR_LEFTWARD,  // левый назад, правый вперёд
     MOVEDIR_RIGHTWARD  // левый вперёд, правый назад
-} MoveDirection;
+} move_direction_e;
 
 /** Возможные состояния плеча манипулятора. */
 typedef enum {
     ARM_STOP = 0,
     ARM_UP,
     ARM_DOWN
-} ArmControl;
+} arm_control_e;
 
 /** Возможные состояние клешни манипулятора. */
 typedef enum {
     CLAW_STOP = 0,
     CLAW_SQUEESE,
     CLAW_RELEASE
-} ClawControl;
+} claw_control_e;
 
 /**
  * Структура пакетов, идущих от пульта к роботу.
@@ -48,7 +48,7 @@ typedef struct {
     } ctrl;
     uint8_t speed_left;
     uint8_t speed_right;
-} DataToRobot;
+} data_to_robot_s;
 
 /** Возможные реалии расстояния от кормы робота до поверхности. */
 typedef enum {
@@ -56,7 +56,7 @@ typedef enum {
     DIST_CLIFF,
     DIST_OBSTACLE,
     DIST_ERROR  // если сонар сорвало
-} Distance;
+} distance_e;
 
 /**
  * Невозможное для датчика температуры значение, свидетельствующее об ошибке.
@@ -78,6 +78,6 @@ typedef struct {
     uint8_t battery_motors;
     int8_t  temp_ambient;
     int8_t  temp_radiators;
-} DataFromRobot;
+} data_from_robot_s;
 
 #endif /* _PROTOCOL_H */

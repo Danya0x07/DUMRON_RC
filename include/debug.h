@@ -1,22 +1,19 @@
-#ifndef DEBUG_H_INCLUDED
-#define DEBUG_H_INCLUDED
+/**
+ * Модуль отладочного вывода.
+ * В production версии прошивки отладочный вывод не используется.
+ */
 
-#include <stm8s.h>
+#ifndef _DEBUG_H
+#define _DEBUG_H
 
-void debug_init(void);
-void uart_send_str(const char*);
-void uart_send_int(int);
-#define logs(str)   uart_send_str(str)
-#define logi(n)     uart_send_int(n)
-
-#define led_on()    GPIO_WriteLow(GPIOE, GPIO_PIN_5)
-#define led_off()   GPIO_WriteHigh(GPIOE, GPIO_PIN_5)
-#define led_toggle() GPIO_WriteReverse(GPIOE, GPIO_PIN_5)
-void led_blink(uint8_t times, uint16_t delay);
-
-#define buzzer_on()     GPIO_WriteHigh(GPIOD, GPIO_PIN_7)
-#define buzzer_off()    GPIO_WriteLow(GPIOD, GPIO_PIN_7)
-#define buzzer_toggle() GPIO_WriteReverse(GPIOD, GPIO_PIN_7)
-void buzzer_peep(uint8_t times, uint8_t delay);
-
+#ifdef DEBUG
+void debug_logs(const char *str);
+void debug_logi(int n);
+void debug_logx(int n);
+#else
+static inline void debug_logs(const char *str) { }
+static inline void debug_logi(int n) { }
+static inline void debug_logx(int n) { }
 #endif
+
+#endif  /* _DEBUG_H */

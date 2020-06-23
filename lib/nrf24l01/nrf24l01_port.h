@@ -15,20 +15,17 @@
 
 #include <stm8s.h>
 #include <../../include/delay.h>
+#include <../../include/config.h>
 
-/* Пины модуля */
-#define NRF_GPIO    GPIOC
-#define NRF_PIN_CE  GPIO_PIN_4
-#define NRF_PIN_CSN GPIO_PIN_3
 
 /**
  * @name    Макросы для управления выводами трансивера.
  * @{
  */
-#define _csn_high() GPIO_WriteHigh(NRF_GPIO, NRF_PIN_CSN)
-#define _csn_low()  GPIO_WriteLow(NRF_GPIO, NRF_PIN_CSN)
-#define _ce_high()  GPIO_WriteHigh(NRF_GPIO, NRF_PIN_CE)
-#define _ce_low()   GPIO_WriteLow(NRF_GPIO, NRF_PIN_CE)
+#define _csn_high() GPIO_WriteHigh(RADIO_GPORT, RADIO_CSN_GPIN)
+#define _csn_low()  GPIO_WriteLow(RADIO_GPORT, RADIO_CSN_GPIN)
+#define _ce_high()  GPIO_WriteHigh(RADIO_GPORT, RADIO_CE_GPIN)
+#define _ce_low()   GPIO_WriteLow(RADIO_GPORT, RADIO_CE_GPIN)
 /** @} */
 
 /**

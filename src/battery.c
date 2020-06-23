@@ -1,19 +1,6 @@
 #include "battery.h"
-#include "debug.h"
 
 #define BATTERY_CHANNEL ADC1_CHANNEL_2
-
-static uint8_t battery_measure(void);
-
-uint8_t battery_get_voltage(void)
-{
-    static uint8_t voltage = 100;
-    if (TIM2_GetCounter() > 300) {
-        TIM2_SetCounter(0);
-        voltage = battery_measure();
-    }
-    return voltage;
-}
 
 static uint8_t battery_measure(void)
 {
@@ -37,5 +24,16 @@ static uint8_t battery_measure(void)
     ADC1_ConversionConfig(ADC1_CONVERSIONMODE_SINGLE, prev_channel, ADC1_ALIGN_RIGHT);
     ADC1_StartConversion();
 
+    return voltage;
+}
+
+uint8_t battery_get_charge(void)
+{
+    static uint8_t voltage = 100;
+
+    if (TIM2_GetCounter() > 300) {
+        TIM2_SetCounter(0);
+        voltage = battery_measure();
+    }
     return voltage;
 }

@@ -4,10 +4,10 @@ line_break_column=80
 auto_continue_multiline=true
 
 [file_prefs]
-final_new_line=true
+final_new_line=false
 ensure_convert_new_lines=true
 strip_trailing_spaces=true
-replace_tabs=false
+replace_tabs=true
 
 [indentation]
 indent_width=4
@@ -19,7 +19,7 @@ indent_mode=2
 
 [project]
 name=DUMRON_RC
-base_path=/home/danya/Projects/DUMRON_RC/
+base_path=C:\\Users\\1\\projects\\DUMRON_RC
 description=
 file_patterns=
 
@@ -28,19 +28,24 @@ long_line_behaviour=1
 long_line_column=80
 
 [files]
-current_page=4
-FILE_NAME_0=12;Conf;0;EUTF-8;0;1;0;%2Fhome%2Fdanya%2FProjects%2FDUMRON_RC%2Fplatformio.ini;0;4
-FILE_NAME_1=3023;C;0;EUTF-8;0;1;0;%2Fhome%2Fdanya%2FProjects%2FDUMRON_RC%2Fsrc%2Fmain.c;0;4
-FILE_NAME_2=5756;C;0;EUTF-8;0;1;0;%2Fhome%2Fdanya%2FProjects%2FDUMRON_RC%2Fsrc%2Fdisplay.c;0;4
-FILE_NAME_3=173;C++;0;EUTF-8;0;1;0;%2Fhome%2Fdanya%2FProjects%2FDUMRON_RC%2Finclude%2Fradio.h;0;4
-FILE_NAME_4=1079;C;0;EUTF-8;0;1;0;%2Fhome%2Fdanya%2FProjects%2FDUMRON_RC%2Fsrc%2Fradio.c;0;4
-FILE_NAME_5=3228;C++;0;EUTF-8;0;1;0;%2Fhome%2Fdanya%2FProjects%2FDUMRON_RC%2Flib%2Fnrf24l01%2Fnrf24l01.h;0;4
-FILE_NAME_6=2314;C++;0;EUTF-8;0;1;0;%2Fhome%2Fdanya%2FProjects%2FDUMRON_RC%2Flib%2Fnrf24l01%2Fnrf24l01_port.h;0;4
-FILE_NAME_7=0;C;0;EUTF-8;0;1;0;%2Fhome%2Fdanya%2FProjects%2FDUMRON_RC%2Flib%2Fnrf24l01%2Fnrf24l01.c;0;4
-FILE_NAME_8=9698;C++;0;EUTF-8;0;1;0;%2Fhome%2Fdanya%2FProjects%2FDUMRON_RC%2Flib%2FSTM8S_StdPeriph_Driver%2Fsrc%2Fstm8s.h;0;4
-FILE_NAME_9=3202;C;0;EUTF-8;0;1;0;%2Fhome%2Fdanya%2FProjects%2FDUMRON_RC%2Fsrc%2Fjoystick.c;0;4
-FILE_NAME_10=135;C++;0;EUTF-8;0;1;0;%2Fhome%2Fdanya%2FProjects%2FDUMRON_RC%2Finclude%2Frobot_interface.h;0;4
-FILE_NAME_11=10;None;0;EUTF-8;0;1;0;%2Fhome%2Fdanya%2FProjects%2FDUMRON_RC%2F.gitignore;0;4
+current_page=16
+FILE_NAME_0=3421;C;0;EUTF-8;0;1;0;C%3A%5CUsers%5C1%5Cprojects%5CDUMRON_RC%5Csrc%5Cmain.c;0;4
+FILE_NAME_1=60;C;0;EUTF-8;0;1;0;C%3A%5CUsers%5C1%5Cprojects%5CDUMRON_RC%5Cinclude%5Cdebug.h;0;4
+FILE_NAME_2=0;C;0;EUTF-8;0;1;0;C%3A%5CUsers%5C1%5Cprojects%5CDUMRON_RC%5Cinclude%5Cdelay.h;0;4
+FILE_NAME_3=0;C;0;EUTF-8;0;1;0;C%3A%5CUsers%5C1%5Cprojects%5CDUMRON_RC%5Cinclude%5Cdisplay.h;0;4
+FILE_NAME_4=0;C;0;EUTF-8;0;1;0;C%3A%5CUsers%5C1%5Cprojects%5CDUMRON_RC%5Cinclude%5Cjoystick.h;0;4
+FILE_NAME_5=0;C;0;EUTF-8;0;1;0;C%3A%5CUsers%5C1%5Cprojects%5CDUMRON_RC%5Cinclude%5Cnokia5110lcd.h;0;4
+FILE_NAME_6=0;C;0;EUTF-8;0;1;0;C%3A%5CUsers%5C1%5Cprojects%5CDUMRON_RC%5Cinclude%5Cradio.h;0;4
+FILE_NAME_7=16;C;0;EUTF-8;0;1;0;C%3A%5CUsers%5C1%5Cprojects%5CDUMRON_RC%5Csrc%5Cbuttons.c;0;4
+FILE_NAME_8=228;C;0;EUTF-8;0;1;0;C%3A%5CUsers%5C1%5Cprojects%5CDUMRON_RC%5Csrc%5Cdebug.c;0;4
+FILE_NAME_9=0;C;0;EUTF-8;0;1;0;C%3A%5CUsers%5C1%5Cprojects%5CDUMRON_RC%5Csrc%5Cdelay.c;0;4
+FILE_NAME_10=0;C;0;EUTF-8;0;1;0;C%3A%5CUsers%5C1%5Cprojects%5CDUMRON_RC%5Csrc%5Cdisplay.c;0;4
+FILE_NAME_11=607;C;0;EUTF-8;0;1;0;C%3A%5CUsers%5C1%5Cprojects%5CDUMRON_RC%5Csrc%5Cjoystick.c;0;4
+FILE_NAME_12=0;C;0;EUTF-8;0;1;0;C%3A%5CUsers%5C1%5Cprojects%5CDUMRON_RC%5Csrc%5Cnokia5110lcd.c;0;4
+FILE_NAME_13=758;C;0;EUTF-8;0;1;0;C%3A%5CUsers%5C1%5Cprojects%5CDUMRON_RC%5Csrc%5Cradio.c;0;4
+FILE_NAME_14=41;C;0;EUTF-8;0;1;0;C%3A%5CUsers%5C1%5Cprojects%5CDUMRON_RC%5Csrc%5Cemitters.c;0;4
+FILE_NAME_15=237;C;0;EUTF-8;0;1;0;C%3A%5CUsers%5C1%5Cprojects%5CDUMRON_RC%5Cinclude%5Cemitters.h;0;4
+FILE_NAME_16=60;C;0;EUTF-8;0;1;0;C%3A%5CUsers%5C1%5Cprojects%5CDUMRON_RC%5Cinclude%5Cconfig.h;0;4
 
 [VTE]
 last_dir=/home/danya/Projects/DUMRON_RC

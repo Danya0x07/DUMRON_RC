@@ -30,7 +30,6 @@ static const uint8_t custom_charset[NUMBER_OF_CUSTOM_CHARS][7] = {
 
 void display_init(void)
 {
-    lcd_init_gpio();
     lcd_reset();
     lcd_send_byte(LCD_COMMAND, 0x21);  /* Переключиться в режим расширенных команд. */
     lcd_send_byte(LCD_COMMAND, 0xBF);  /* Установить яркость. */
@@ -42,8 +41,8 @@ void display_init(void)
     lcd_clear();
 }
 
-void display_update(const DataToRobot* data_to_robot,
-                    const DataFromRobot* data_from_robot,
+void display_update(const data_to_robot_s* data_to_robot,
+                    const data_from_robot_s* data_from_robot,
                     bool ack_received, uint8_t battery_voltage)
 {
     /* Рисуем данные пульта. */

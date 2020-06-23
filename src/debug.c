@@ -1,49 +1,26 @@
-#include "debug.h"
-#include "delay.h"
+#include <stm8s.h>
 
-extern char* itoa(int, unsigned char);
+extern char *itoa(int, unsigned char);
 
-void debug_init(void)
-{
-    GPIO_Init(GPIOE, GPIO_PIN_5, GPIO_MODE_OUT_PP_HIGH_SLOW);
-    GPIO_Init(GPIOD, GPIO_PIN_7, GPIO_MODE_OUT_PP_LOW_SLOW);
-}
-
-void uart_send_byte(uint8_t byte)
+static inline void uart_send_byte(uint8_t byte)
 {
     while (!UART2_GetFlagStatus(UART2_FLAG_TXE));
     UART2_SendData8(byte);
 }
 
-void uart_send_str(const char* str)
+void debug_logs(const char *str)
 {
     while (*str) {
-        while (!UART2_GetFlagStatus(UART2_FLAG_TXE));
-        UART2_SendData8(*str++);
+        uart_send_byte(*str++);
     }
 }
 
-void uart_send_int(int n)
+void debug_logi(int n)
 {
-    uart_send_str(itoa(n, 10));
+    debug_logs(itoa(n, 10));
 }
 
-void led_blink(uint8_t times, uint16_t delay)
+void debug_logx(int n)
 {
-    while (times--) {
-        led_on();
-        delay_ms(delay);
-        led_off();
-        delay_ms(delay);
-    }
-}
-
-void buzzer_peep(uint8_t times, uint8_t delay)
-{
-    while (times--) {
-        buzzer_on();
-        delay_ms(delay);
-        buzzer_off();
-        delay_ms(delay);
-    }
+    debug_logs(itoa(n, 16));
 }

@@ -1,6 +1,9 @@
 #include <stm8s.h>
+
+#include "config.h"
 #include "delay.h"
 #include "debug.h"
+#include "emitters.h"
 #include "buttons.h"
 #include "robot_interface.h"
 #include "joystick.h"
@@ -8,104 +11,92 @@
 #include "radio.h"
 #include "battery.h"
 
-static uint16_t buttons_events;
-static JoystickData joystick_data;
-static DataToRobot data_to_robot;
-static DataFromRobot data_from_robot;
-
-void setup(void);
+void initialize(void);
 
 int main(void)
 {
-    setup();
+    joystick_data_s joystick_data;
+    data_to_robot_s data_to_robot;
+    data_from_robot_s data_from_robot;
+    btn_events_s btn_events;
 
-    debug_init();
+    initialize();
+
     display_init();
-    buttons_init();
     radio_init();
     joystick_start();
 
-    while (1) {
-        buttons_events = buttons_get_events();
+    for (;;) {
+        buttons_get_events(&btn_events);
         joystick_update(&joystick_data);
 
-        /* button arm up */
-        if (buttons_events & BTN_ARMUP_PRESSED) {
+        // button arm up
+        if (btn_events.arm_up == BTN_EV_PRESSED) {
             data_to_robot.ctrl.bf.armCtrl = ARM_UP;
-            led_on();
-        } else if (buttons_events & BTN_ARMUP_RELEASED) {
+        }
+        else if (btn_events.arm_up == BTN_EV_RELEASED) {
             data_to_robot.ctrl.bf.armCtrl = ARM_STOP;
-            led_off();
         }
 
-        /* button arm down */
-        if (buttons_events & BTN_ARMDOWN_PRESSED) {
+        // button arm down
+        if (btn_events.arm_down == BTN_EV_PRESSED) {
             data_to_robot.ctrl.bf.armCtrl = ARM_DOWN;
-            led_on();
-        } else if (buttons_events & BTN_ARMDOWN_RELEASED) {
+        }
+        else if (btn_events.arm_down == BTN_EV_RELEASED) {
             data_to_robot.ctrl.bf.armCtrl = ARM_STOP;
-            led_off();
         }
 
-        /* button claw squeeze */
-        if (buttons_events & BTN_CLAWSQUEEZE_PRESSED) {
+        // button claw squeeze
+        if (btn_events.claw_squeeze == BTN_EV_PRESSED) {
             data_to_robot.ctrl.bf.clawCtrl = CLAW_SQUEESE;
-            led_on();
-        } else if (buttons_events & BTN_CLAWSQUEEZE_RELEASED) {
+        }
+        else if (btn_events.claw_squeeze == BTN_EV_RELEASED) {
             data_to_robot.ctrl.bf.clawCtrl = CLAW_STOP;
-            led_off();
         }
 
-        /* button claw release */
-        if (buttons_events & BTN_CLAWRELEASE_PRESSED) {
+        // button claw release
+        if (btn_events.claw_release == BTN_EV_PRESSED) {
             data_to_robot.ctrl.bf.clawCtrl = CLAW_RELEASE;
-            led_on();
-        } else if (buttons_events & BTN_CLAWRELEASE_RELEASED) {
+        }
+        else if (btn_events.claw_release == BTN_EV_RELEASED) {
             data_to_robot.ctrl.bf.clawCtrl = CLAW_STOP;
-            led_off();
         }
 
-        /* button klaxon */
-        if (buttons_events & BTN_KLAXON_PRESSED) {
-            data_to_robot.ctrl.bf.buzzerEn = 1;
-            led_on();
-        } else if (buttons_events & BTN_KLAXON_RELEASED) {
-            data_to_robot.ctrl.bf.buzzerEn = 0;
-            led_off();
-        }
-        /* button togglelights */
-        if (buttons_events & BTN_TOGGLELIGHTS_PRESSED) {
+        // button buzzer
+        data_to_robot.ctrl.bf.buzzerEn = btn_events.buzzer == BTN_EV_PRESSED;
+
+        // button togglelights
+        if (btn_events.toggle_lights == BTN_EV_PRESSED) {
             data_to_robot.ctrl.bf.lightsEn = !data_to_robot.ctrl.bf.lightsEn;
-            led_toggle();
-        } else if (buttons_events & BTN_TOGGLELIGHTS_PRESSED_2) {
-            led_toggle();
         }
 
         joystick_data_to_robot_movement(&joystick_data, &data_to_robot);
 
-        if (radio_is_time_to_update_io_data() || radio_data_to_robot_is_new(&data_to_robot)) {
+        if (radio_is_time_to_update_io_data() ||
+                radio_data_to_robot_is_new(&data_to_robot)) {
             static bool was_beep = FALSE;
             bool ack_received;
-            uint8_t battery_voltage = battery_get_voltage();
+            uint8_t battery_voltage = battery_get_charge();
 
             radio_send_data(&data_to_robot);
             ack_received = radio_check_for_incoming(&data_from_robot);
 
             if (data_from_robot.status.bf.backDistance == DIST_CLIFF) {
                 if (!was_beep) {
-                    buzzer_peep(1, 80);
+                    buzzer_beep(1, 80);
                     was_beep = TRUE;
                 }
             } else {
                 was_beep = FALSE;
             }
 
-            display_update(&data_to_robot, &data_from_robot, ack_received, battery_voltage);
+            display_update(&data_to_robot, &data_from_robot, ack_received,
+                           battery_voltage);
         }
     }
 }
 
-void setup(void)
+void initialize(void)
 {
     CLK_DeInit();
     CLK_SYSCLKConfig(CLK_PRESCALER_CPUDIV1);
@@ -117,11 +108,35 @@ void setup(void)
     GPIO_DeInit(GPIOD);
     GPIO_DeInit(GPIOE);
     GPIO_DeInit(GPIOF);
-    /* Неиспользуемые пока пины */
-    GPIO_Init(GPIOA, GPIO_PIN_1 | GPIO_PIN_2, GPIO_MODE_IN_PU_NO_IT);
-    /* Пины SPI (MOSI & SCK) */
+
+    // Пины SPI (MOSI & SCK).
     GPIO_Init(GPIOC, GPIO_PIN_6 | GPIO_PIN_5, GPIO_MODE_OUT_PP_LOW_FAST);
-    /* UART для отладки */
+
+    // Пины излучателей (buzzer & lights).
+    GPIO_Init(LED_GPORT, LED_GPIN, GPIO_MODE_OUT_PP_HIGH_SLOW);
+    GPIO_Init(BUZZER_GPORT, BUZZER_GPIN, GPIO_MODE_OUT_PP_LOW_SLOW);
+
+    // Пины дисплея.
+    GPIO_Init(LCD_GPORT, LCD_RST_GPIN | LCD_CE_GPIN, GPIO_MODE_OUT_PP_HIGH_FAST);
+    GPIO_Init(LCD_GPORT, LCD_DC_GPIN | LCD_BL_GPIN, GPIO_MODE_OUT_PP_LOW_FAST);
+    GPIO_WriteHigh(LCD_GPORT, LCD_BL_GPIN);
+
+    // Пины кнопок.
+    GPIO_Init(BTN_ARMUP_GPORT, BTN_ARMUP_GPIN, GPIO_MODE_IN_FL_NO_IT);
+    GPIO_Init(BTN_ARMDOWN_GPORT, BTN_ARMDOWN_GPIN, GPIO_MODE_IN_FL_NO_IT);
+    GPIO_Init(BTN_CLAWSQUEEZE_GPORT, BTN_CLAWSQUEEZE_GPIN, GPIO_MODE_IN_FL_NO_IT);
+    GPIO_Init(BTN_CLAWRELEASE_GPORT, BTN_CLAWRELEASE_GPIN, GPIO_MODE_IN_FL_NO_IT);
+    GPIO_Init(BTN_BUZZER_GPORT, BTN_BUZZER_GPIN, GPIO_MODE_IN_FL_NO_IT);
+    GPIO_Init(BTN_TOGGLELIGHTS_GPORT, BTN_TOGGLELIGHTS_GPIN, GPIO_MODE_IN_FL_NO_IT);
+
+    // Пины радиомодуля.
+    GPIO_Init(RADIO_GPORT, RADIO_CSN_GPIN, GPIO_MODE_OUT_PP_HIGH_FAST);
+    GPIO_Init(RADIO_GPORT, RADIO_CE_GPIN, GPIO_MODE_OUT_PP_LOW_FAST);
+
+    // Не используемые пока пины.
+    GPIO_Init(GPIOA, GPIO_PIN_1 | GPIO_PIN_2, GPIO_MODE_IN_PU_NO_IT);
+
+    // UART для отладки.
     UART2_DeInit();
     UART2_Init(9600,
                UART2_WORDLENGTH_8D,
@@ -129,33 +144,39 @@ void setup(void)
                UART2_PARITY_NO,
                UART2_SYNCMODE_CLOCK_DISABLE,
                UART2_MODE_TXRX_ENABLE);
-    /* Таймер для регулярного измерения батарейки */
+
+    // Таймер для регулярного измерения батарейки.
     TIM2_DeInit();
     TIM2_TimeBaseInit(TIM2_PRESCALER_32768, 60000);
     TIM2_Cmd(ENABLE);
-    /* Таймер для регулярной посылки радиосообщения */
+
+    // Таймер для регулярной посылки радиосообщения.
     TIM3_DeInit();
     TIM3_TimeBaseInit(TIM3_PRESCALER_32768, 1000);
     TIM3_Cmd(ENABLE);
-    /* Таймер для delay ms*/
+
+    // Таймер для delay_ms.
     TIM4_DeInit();
     TIM4_TimeBaseInit(TIM4_PRESCALER_64, 124);
     TIM4_ClearFlag(TIM4_FLAG_UPDATE);
     TIM4_ITConfig(TIM4_IT_UPDATE, ENABLE);
     TIM4_Cmd(ENABLE);
-    /* АЦП для измерения джойстика и батарейки */
+
+    // АЦП для измерения джойстика и батарейки.
     ADC1_DeInit();
     ADC1_Init(ADC1_CONVERSIONMODE_SINGLE,
               ADC1_CHANNEL_0, ADC1_PRESSEL_FCPU_D10,
               ADC1_EXTTRIG_TIM, DISABLE,
               ADC1_ALIGN_RIGHT,
               ADC1_SCHMITTTRIG_CHANNEL0, DISABLE);
-    /* SPI для общения с радиомодулем и дисплеем. */
+
+    // SPI для общения с радиомодулем и дисплеем.
     SPI_DeInit();
     SPI_Init(SPI_FIRSTBIT_MSB, SPI_BAUDRATEPRESCALER_16, SPI_MODE_MASTER,
              SPI_CLOCKPOLARITY_LOW, SPI_CLOCKPHASE_1EDGE,
              SPI_DATADIRECTION_2LINES_FULLDUPLEX, SPI_NSS_SOFT, 7);
     SPI_Cmd(ENABLE);
-    /* Разрешаем прерывания */
+
+    // Разрешаем прерывания.
     enableInterrupts();
 }

@@ -4,12 +4,7 @@
 
 #include "nokia5110lcd.h"
 #include "delay.h"
-
-#define LCD_GPIO    GPIOD
-#define LCD_PIN_RST GPIO_PIN_3
-#define LCD_PIN_CE  GPIO_PIN_2
-#define LCD_PIN_DC  GPIO_PIN_0
-#define LCD_PIN_BL  GPIO_PIN_4
+#include "config.h"
 
 #define LCD_PIXELS_X    84
 #define LCD_PIXELS_Y    48
@@ -114,17 +109,6 @@ static const uint8_t ASCII[][5] = {
 };
 
 /**
- * @brief Инициализирует пины дисплея.
- * @note  Эта функция платформозависимая.
- */
-void lcd_init_gpio(void)
-{
-    GPIO_Init(LCD_GPIO, LCD_PIN_RST | LCD_PIN_CE, GPIO_MODE_OUT_PP_HIGH_FAST);
-    GPIO_Init(LCD_GPIO, LCD_PIN_DC | LCD_PIN_BL, GPIO_MODE_OUT_PP_LOW_FAST);
-    GPIO_WriteHigh(LCD_GPIO, LCD_PIN_BL);
-}
-
-/**
  * @brief Перезагружает дисплей.
  * @note  Эту функцию НЕОБХОДИМО вызвать не позже чем через
  *        100 миллисекунд после подачи питания на дисплей.
@@ -132,9 +116,9 @@ void lcd_init_gpio(void)
  */
 void lcd_reset(void)
 {
-    GPIO_WriteLow(LCD_GPIO, LCD_PIN_RST);
+    GPIO_WriteLow(LCD_GPORT, LCD_RST_GPIN);
     delay_ms(1);
-    GPIO_WriteHigh(LCD_GPIO, LCD_PIN_RST);
+    GPIO_WriteHigh(LCD_GPORT, LCD_RST_GPIN);
     delay_ms(1);
 }
 
@@ -194,15 +178,15 @@ void lcd_clear(void)
  */
 void lcd_send_byte(MeaningOfByte meaning, uint8_t byte)
 {
-    GPIO_WriteLow(LCD_GPIO, LCD_PIN_CE);
+    GPIO_WriteLow(LCD_GPORT, LCD_CE_GPIN);
     if (meaning == LCD_COMMAND) {
-        GPIO_WriteLow(LCD_GPIO, LCD_PIN_DC);
+        GPIO_WriteLow(LCD_GPORT, LCD_DC_GPIN);
     } else {
-        GPIO_WriteHigh(LCD_GPIO, LCD_PIN_DC);
+        GPIO_WriteHigh(LCD_GPORT, LCD_DC_GPIN);
     }
     while (!SPI_GetFlagStatus(SPI_FLAG_TXE));
     SPI_SendData(byte);
     while(SPI_GetFlagStatus(SPI_FLAG_BSY));
     (void) SPI_ReceiveData();
-    GPIO_WriteHigh(LCD_GPIO, LCD_PIN_CE);
+    GPIO_WriteHigh(LCD_GPORT, LCD_CE_GPIN);
 }
