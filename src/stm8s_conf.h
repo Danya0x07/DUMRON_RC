@@ -17,7 +17,7 @@
   *
   * <h2><center>&copy; COPYRIGHT 2011 STMicroelectronics</center></h2>
   ******************************************************************************
-  */ 
+  */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef __STM8S_CONF_H
@@ -29,7 +29,7 @@
 /* Uncomment the line below to enable peripheral header file inclusion */
 #if defined(STM8S105) || defined(STM8S005) || defined(STM8S103) || defined(STM8S003) ||\
     defined(STM8S903) || defined (STM8AF626x)
-#include "stm8s_adc1.h" 
+#include "stm8s_adc1.h"
 #endif /* (STM8S105) ||(STM8S103) || (STM8S903) || STM8AF626x*/
 #if defined(STM8S208) || defined(STM8S207) || defined(STM8S007) || defined (STM8AF52Ax) ||\
     defined (STM8AF62Ax)
@@ -56,7 +56,7 @@
 #if defined(STM8S208) || defined(STM8S207) || defined(STM8S007) ||defined(STM8S105) ||\
     defined(STM8S005) ||  defined (STM8AF52Ax) || defined (STM8AF62Ax) || defined (STM8AF626x)
  #include "stm8s_tim3.h"
-#endif /* (STM8S208) ||defined(STM8S207) || defined(STM8S007) ||defined(STM8S105) */ 
+#endif /* (STM8S208) ||defined(STM8S207) || defined(STM8S007) ||defined(STM8S105) */
 #ifndef STM8S903
  #include "stm8s_tim4.h"
 #endif /* STM8S903 */
@@ -74,14 +74,14 @@
 #if defined(STM8S208) ||defined(STM8S207) || defined(STM8S007) || defined (STM8AF52Ax) ||\
     defined (STM8AF62Ax)
  #include "stm8s_uart3.h"
-#endif /* STM8S208 || STM8S207 || STM8AF52Ax || STM8AF62Ax */ 
+#endif /* STM8S208 || STM8S207 || STM8AF52Ax || STM8AF62Ax */
 #include "stm8s_wwdg.h"
 
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/
 /* Uncomment the line below to expanse the "assert_param" macro in the
    Standard Peripheral Library drivers code */
-/*#define USE_FULL_ASSERT    (1)*/ 
+/*#define USE_FULL_ASSERT    (1)*/
 
 /* Exported macro ------------------------------------------------------------*/
 #ifdef  USE_FULL_ASSERT

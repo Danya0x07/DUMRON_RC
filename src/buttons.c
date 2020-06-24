@@ -65,8 +65,8 @@ static button_s btn_togglelights = {
     .last_status = RESET
 };
 
-static bool btn_pressed(button_s* btn);
-static bool btn_pressed_again(button_s* btn);
+static bool btn_pressed(button_s *btn);
+static bool btn_pressed_again(button_s *btn);
 
 void buttons_get_events(btn_events_s *ev)
 {

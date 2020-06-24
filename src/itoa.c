@@ -11,12 +11,12 @@ char* itoa(int value, unsigned char radix)
     const char hex_digit[] = "0123456789ABCDEF";
     char* pstr = string;
     char* pbuff = buffer;
-    
+
     if (value < 0) {
         *pstr++ = '-';
         value = -value;
     }
-    
+
     *pbuff++ = '\0';
 
     /* заполняем buffer строчным представлением числа в обратном порядке; */
@@ -29,6 +29,6 @@ char* itoa(int value, unsigned char radix)
     do {
         *pstr++ = *--pbuff;
     } while (*pbuff != '\0');
-    
+
     return string;
 }

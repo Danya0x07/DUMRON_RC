@@ -87,8 +87,7 @@ int main(void)
                 was_beep = FALSE;
             }
 
-            display_update(&out_data, &in_data, ack_received,
-                           battery_charge);
+            display_update(&out_data, &in_data, ack_received, battery_charge);
         }
     }
 }
