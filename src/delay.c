@@ -1,16 +1,21 @@
 #include "delay.h"
 
-static volatile uint16_t time_count = 0;
+static void delay_ms_8bit(uint8_t ms)
+{
+    TIM4_SetCounter(0);
+    while (TIM4_GetCounter() < ms)
+        ;
+}
 
 void delay_ms(uint16_t ms)
 {
-    time_count = ms;
-    while (time_count);
-}
+    uint8_t ms_msb = ms >> 8;
+    uint8_t ms_lsb = ms & 0xFF;
+    uint8_t ovf = ms_msb;
 
-void delay_interrupt_handler(void) __interrupt(23)
-{
-    if (time_count)
-        time_count--;
-    TIM4_ClearITPendingBit(TIM4_IT_UPDATE);
+    while (ms_msb--)
+        delay_ms_8bit(0xFF);
+
+    delay_ms_8bit(ovf);
+    delay_ms_8bit(ms_lsb);
 }

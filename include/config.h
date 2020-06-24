@@ -1,5 +1,5 @@
 /**
- * Макросы пинов и всяких опций.
+ * Макросы для ножек МК.
  */
 
 #ifndef _CONFIG_H
@@ -27,16 +27,20 @@
 #define BTN_TOGGLELIGHTS_GPORT  GPIOF
 #define BTN_TOGGLELIGHTS_GPIN   GPIO_PIN_4
 
-/* Пины радиомодуля */
+/* Радиомодуль. */
 #define RADIO_GPORT     GPIOC
 #define RADIO_CE_GPIN   GPIO_PIN_4
 #define RADIO_CSN_GPIN  GPIO_PIN_3
 
-/* Пины дисплея. */
+/* Дисплей. */
 #define LCD_GPORT    GPIOD
 #define LCD_RST_GPIN GPIO_PIN_3
 #define LCD_CE_GPIN  GPIO_PIN_2
 #define LCD_DC_GPIN  GPIO_PIN_0
 #define LCD_BL_GPIN  GPIO_PIN_4
+
+/* Джойстик. */
+#define JOYSTICK_X_ADC_CH   ADC1_CHANNEL_0
+#define JOYSTICK_Y_ADC_CH   ADC1_CHANNEL_1
 
 #endif /* _CONFIG_H */

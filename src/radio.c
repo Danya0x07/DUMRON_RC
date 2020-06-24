@@ -1,7 +1,3 @@
-/**
- * Здесь "бизнес-логика" радиосвязи.
- */
-
 #include "radio.h"
 #include "delay.h"
 #include "emitters.h"
@@ -10,10 +6,10 @@
 
 void radio_init(void)
 {
-    uint8_t tgtaddress[4] = {0xC7, 0x68, 0xAC, 0x35};
+    uint8_t address[4] = {0xC7, 0x68, 0xAC, 0x35};
 
     struct nrf24l01_tx_config config = {
-        .address = tgtaddress,
+        .address = address,
         .addr_size = NRF24L01_ADDRS_4BYTE,
         .crc_mode = NRF24L01_CRC_1BYTE,
         .datarate = NRF24L01_DATARATE_1MBPS,
@@ -25,14 +21,14 @@ void radio_init(void)
         .rf_channel = 112
     };
 
-    delay_ms(100);  /* Ожидание после подачи питания. */
+    delay_ms(NRF24L01_PWR_ON_DELAY_MS);
 
     if (nrf24l01_tx_configure(&config) < 0) {
         led_blink(3, 300);
     }
 }
 
-void radio_send_data(data_to_robot_s* data_to_robot)
+void radio_send(data_to_robot_s *outcoming)
 {
     if (nrf24l01_full_tx_fifo())  {
         nrf24l01_flush_tx_fifo();
@@ -41,23 +37,22 @@ void radio_send_data(data_to_robot_s* data_to_robot)
         nrf24l01_flush_tx_fifo();
         nrf24l01_clear_interrupts(NRF24L01_IRQ_MAX_RT);
     }
-    nrf24l01_tx_write_pld(data_to_robot, sizeof(data_to_robot_s));
+    nrf24l01_tx_write_pld(outcoming, sizeof(data_to_robot_s));
     nrf24l01_tx_transmit();
 }
 
-bool radio_check_for_incoming(data_from_robot_s* data_from_robot)
+bool radio_check_ack(data_from_robot_s *incoming)
 {
     bool conn_ok = FALSE;
+
     if (nrf24l01_get_interrupts() & NRF24L01_IRQ_RX_DR) {
-        uint8_t pld_size;
         do {
-            pld_size = nrf24l01_read_pld_size();
-            if (pld_size != sizeof(data_from_robot_s)) {
+            if (nrf24l01_read_pld_size() != sizeof(data_from_robot_s)) {
                 nrf24l01_flush_rx_fifo();
                 nrf24l01_clear_interrupts(NRF24L01_IRQ_RX_DR);
                 break;
             }
-            nrf24l01_read_pld(data_from_robot, sizeof(data_from_robot_s));
+            nrf24l01_read_pld(incoming, sizeof(data_from_robot_s));
             nrf24l01_clear_interrupts(NRF24L01_IRQ_RX_DR);
             conn_ok = TRUE;
         } while (nrf24l01_data_in_rx_fifo());
@@ -65,27 +60,30 @@ bool radio_check_for_incoming(data_from_robot_s* data_from_robot)
     return conn_ok;
 }
 
-bool radio_is_time_to_update_io_data(void)
+bool radio_is_time_to_communicate(void)
 {
-    bool is_time_to_update_io_data = TIM3_GetCounter() >= 122;
-    if (is_time_to_update_io_data)
+    bool time_to_communicate = TIM3_GetCounter() >= 122;
+
+    if (time_to_communicate)
         TIM3_SetCounter(0);
-    return is_time_to_update_io_data;
+
+    return time_to_communicate;
 }
 
-bool radio_data_to_robot_is_new(const data_to_robot_s* data_to_robot)
+bool radio_out_data_is_new(const data_to_robot_s *outcoming)
 {
-    static data_to_robot_s buffer_to_robot;
+    static data_to_robot_s cache;
 
     bool data_is_new = (
-        buffer_to_robot.ctrl.reg    != data_to_robot->ctrl.reg   ||
-        buffer_to_robot.speed_left  != data_to_robot->speed_left  ||
-        buffer_to_robot.speed_right != data_to_robot->speed_right
+        cache.ctrl.reg    != outcoming->ctrl.reg   ||
+        cache.speed_left  != outcoming->speed_left ||
+        cache.speed_right != outcoming->speed_right
     );
     if (data_is_new) {
-        buffer_to_robot.ctrl.reg    = data_to_robot->ctrl.reg;
-        buffer_to_robot.speed_left  = data_to_robot->speed_left;
-        buffer_to_robot.speed_right = data_to_robot->speed_right;
+        cache.ctrl.reg    = outcoming->ctrl.reg;
+        cache.speed_left  = outcoming->speed_left;
+        cache.speed_right = outcoming->speed_right;
     }
+
     return data_is_new;
 }

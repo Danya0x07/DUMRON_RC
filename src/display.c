@@ -1,12 +1,10 @@
-/**
- * Здесь "биснес-логика"графического интерфейса.
- */
+#include <stm8s.h>
 
 #include "display.h"
 #include "nokia5110lcd.h"
 #include "delay.h"
 
-extern char* itoa(int, unsigned char);
+extern char *itoa(int, unsigned char);
 
 enum {
     CUSTOM_CHAR_KLAXON,
@@ -41,21 +39,20 @@ void display_init(void)
     lcd_clear();
 }
 
-void display_update(const data_to_robot_s* data_to_robot,
-                    const data_from_robot_s* data_from_robot,
-                    bool ack_received, uint8_t battery_voltage)
+void display_update(const data_to_robot_s *dtr, const data_from_robot_s *dfr,
+                    bool ack_received, uint8_t battery_charge)
 {
     /* Рисуем данные пульта. */
 
     /* заряд батареи пульта (%); */
     lcd_set_position(8, 0);
-    if (battery_voltage < 100) {
+    if (battery_charge < 100) {
         lcd_print_ascii(' ');
     }
-    if (battery_voltage < 10) {
+    if (battery_charge < 10) {
         lcd_print_ascii(' ');
     }
-    lcd_print_string(itoa(battery_voltage, 10));
+    lcd_print_string(itoa(battery_charge, 10));
     lcd_print_ascii('%');
 
     /* состояние связи (есть/нет); */
@@ -68,14 +65,14 @@ void display_update(const data_to_robot_s* data_to_robot,
 
     /* состояние фар (вкл/выкл); */
     lcd_set_position(10, 2);
-    if (data_to_robot->ctrl.bf.lightsEn) {
+    if (dtr->ctrl.bf.lights_en) {
         lcd_print_custom(custom_charset, CUSTOM_CHAR_LIGHTS);
     } else {
         lcd_print_ascii(' ');
     }
 
     /* состояние бибики (вкл/выкл); */
-    if (data_to_robot->ctrl.bf.buzzerEn) {
+    if (dtr->ctrl.bf.buzzer_en) {
         lcd_print_custom(custom_charset, CUSTOM_CHAR_KLAXON);
     } else {
         lcd_print_ascii(' ');
@@ -83,7 +80,7 @@ void display_update(const data_to_robot_s* data_to_robot,
 
     /* направление вертикального перемещения манипулятора (вверх/вниз/нет); */
     lcd_set_position(8, 3);
-    switch (data_to_robot->ctrl.bf.armCtrl)
+    switch (dtr->ctrl.bf.arm_ctrl)
     {
     case ARM_UP:
         lcd_print_custom(custom_charset, CUSTOM_CHAR_ARROWUP);
@@ -97,7 +94,7 @@ void display_update(const data_to_robot_s* data_to_robot,
 
     /* направление движения клешни (сжимается/разжимается/нет); */
     lcd_set_position(7, 4);
-    switch (data_to_robot->ctrl.bf.clawCtrl)
+    switch (dtr->ctrl.bf.claw_ctrl)
     {
     case CLAW_SQUEESE:
         lcd_print_string("><");
@@ -111,7 +108,7 @@ void display_update(const data_to_robot_s* data_to_robot,
 
     /* направление движения робота (вперёд/назад/налево/направо/нет); */
     lcd_set_position(10, 3);
-    switch (data_to_robot->ctrl.bf.moveDir)
+    switch (dtr->ctrl.bf.move_dir)
     {
     case MOVEDIR_FORWARD:
         lcd_print_string("/\\");
@@ -130,27 +127,27 @@ void display_update(const data_to_robot_s* data_to_robot,
     }
     /* скорости гусениц (быстро/медленно/нет); */
     lcd_set_position(10, 4);
-    lcd_print_ascii(data_to_robot->speed_left  > 128 ? '^' : ' ');
-    lcd_print_ascii(data_to_robot->speed_right > 128 ? '^' : ' ');
+    lcd_print_ascii(dtr->speed_left  > 128 ? '^' : ' ');
+    lcd_print_ascii(dtr->speed_right > 128 ? '^' : ' ');
     lcd_set_position(10, 5);
-    lcd_print_ascii(data_to_robot->speed_left  > 0 ? '^' : ' ');
-    lcd_print_ascii(data_to_robot->speed_right > 0 ? '^' : ' ');
+    lcd_print_ascii(dtr->speed_left  > 0 ? '^' : ' ');
+    lcd_print_ascii(dtr->speed_right > 0 ? '^' : ' ');
 
     /* Печатаем данные робота. */
 
     /* заряд мозговой части (%); */
     lcd_set_position(0, 0);
-    lcd_print_string(itoa(data_from_robot->battery_brains, 10));
+    lcd_print_string(itoa(dfr->battery_brains, 10));
     lcd_print_string("% ");
 
     /* заряд силовой части (%); */
     lcd_set_position(0, 1);
-    lcd_print_string(itoa(data_from_robot->battery_motors, 10));
+    lcd_print_string(itoa(dfr->battery_motors, 10));
     lcd_print_string("% ");
 
     /* наличия сзади препятствия или перепада высоты; */
     lcd_set_position(5, 2);
-    switch (data_from_robot->status.bf.backDistance)
+    switch (dfr->status.bf.back_distance)
     {
     case DIST_CLIFF:
         lcd_print_ascii('O');
@@ -165,15 +162,23 @@ void display_update(const data_to_robot_s* data_to_robot,
         lcd_print_ascii(' ');
     }
 
-    /* температура окружающей среды (С); */
+    /* температура окружающей среды; */
     lcd_set_position(0, 4);
-    lcd_print_string(itoa(data_from_robot->temp_ambient, 10));
-    lcd_print_custom(custom_charset, CUSTOM_CHAR_CELSIUS);
+    if (dfr->temp_ambient != TEMPERATURE_ERROR_VALUE) {
+        lcd_print_string(itoa(dfr->temp_ambient, 10));
+        lcd_print_custom(custom_charset, CUSTOM_CHAR_CELSIUS);
+    } else {
+        lcd_print_string("E ");
+    }
     lcd_print_string("  ");
 
-    /* температура радиаторов (С); */
+    /* и температура радиаторов. */
     lcd_set_position(0, 5);
-    lcd_print_string(itoa(data_from_robot->temp_radiators, 10));
-    lcd_print_custom(custom_charset, CUSTOM_CHAR_CELSIUS);
+    if (dfr->temp_radiators != TEMPERATURE_ERROR_VALUE) {
+        lcd_print_string(itoa(dfr->temp_radiators, 10));
+        lcd_print_custom(custom_charset, CUSTOM_CHAR_CELSIUS);
+    } else {
+        lcd_print_string("E ");
+    }
     lcd_print_string("  ");
 }

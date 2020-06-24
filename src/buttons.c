@@ -1,5 +1,10 @@
+#include <stm8s.h>
+
 #include "buttons.h"
 #include "delay.h"
+
+typedef GPIO_TypeDef *gpio_port_t;
+typedef uint8_t gpio_pin_t;
 
 typedef enum {PULLDOWN, PULLUP} button_mode_e;
 
@@ -12,50 +17,50 @@ typedef enum {PULLDOWN, PULLUP} button_mode_e;
 #define ON_RELEASE PULLDOWN
 
 typedef struct {
-    GPIO_TypeDef *reg;
-    uint8_t pin;
+    gpio_port_t gport;
+    gpio_pin_t gpin;
     button_mode_e mode;
     BitStatus last_status;
 } button_s;
 
 static button_s btn_armup = {
-    .reg = GPIOC,
-    .pin = GPIO_PIN_2,
+    .gport = GPIOC,
+    .gpin = GPIO_PIN_2,
     .mode = PULLUP,
     .last_status = RESET
 };
 
 static button_s btn_armdown = {
-    .reg = GPIOB,
-    .pin = GPIO_PIN_3,
+    .gport = GPIOB,
+    .gpin = GPIO_PIN_3,
     .mode = PULLUP,
     .last_status = RESET
 };
 
 static button_s btn_clawsqueeze = {
-    .reg = GPIOB,
-    .pin = GPIO_PIN_4,
+    .gport = GPIOB,
+    .gpin = GPIO_PIN_4,
     .mode = PULLUP,
     .last_status = RESET
 };
 
 static button_s btn_clawrelease = {
-    .reg = GPIOB,
-    .pin = GPIO_PIN_5,
+    .gport = GPIOB,
+    .gpin = GPIO_PIN_5,
     .mode = PULLUP,
     .last_status = RESET
 };
 
-static button_s btn_klaxon = {
-    .reg = GPIOC,
-    .pin = GPIO_PIN_1,
+static button_s btn_buzzer = {
+    .gport = GPIOC,
+    .gpin = GPIO_PIN_1,
     .mode = PULLUP,
     .last_status = RESET
 };
 
 static button_s btn_togglelights = {
-    .reg = GPIOF,
-    .pin = GPIO_PIN_4,
+    .gport = GPIOF,
+    .gpin = GPIO_PIN_4,
     .mode = PULLUP,
     .last_status = RESET
 };
@@ -114,13 +119,13 @@ void buttons_get_events(btn_events_s *ev)
         ev->claw_release = BTN_EV_NONE;
     }
 
-    if (btn_pressed(&btn_klaxon)) {
-        if (btn_klaxon.mode == ON_PRESS) {
+    if (btn_pressed(&btn_buzzer)) {
+        if (btn_buzzer.mode == ON_PRESS) {
             ev->buzzer = BTN_EV_PRESSED;
-            btn_klaxon.mode = ON_RELEASE;
+            btn_buzzer.mode = ON_RELEASE;
         } else {
             ev->buzzer = BTN_EV_RELEASED;
-            btn_klaxon.mode = ON_PRESS;
+            btn_buzzer.mode = ON_PRESS;
         }
     } else {
         ev->buzzer = BTN_EV_NONE;
@@ -140,11 +145,11 @@ void buttons_get_events(btn_events_s *ev)
 static bool btn_pressed(button_s *btn)
 {
     bool pressed = FALSE;
-    BitStatus current_status = GPIO_ReadInputPin(btn->reg, btn->pin);
+    BitStatus current_status = GPIO_ReadInputPin(btn->gport, btn->gpin);
 
     if (btn->last_status != current_status) {
         delay_ms(5);
-        current_status = GPIO_ReadInputPin(btn->reg, btn->pin);
+        current_status = GPIO_ReadInputPin(btn->gport, btn->gpin);
     }
 
     if (!btn->last_status && current_status)
@@ -159,7 +164,7 @@ static bool btn_pressed(button_s *btn)
 
 static bool btn_pressed_again(button_s *btn)
 {
-    register uint8_t i;
+    uint8_t i;
 
     for (i = 0; i < 200; i++) {
         delay_ms(1);

@@ -1,9 +1,8 @@
-#ifndef DELAY_H_INCLUDED
-#define DELAY_H_INCLUDED
+#ifndef _DELAY_H
+#define _DELAY_H
 
 #include <stm8s.h>
 
 void delay_ms(uint16_t);
-void delay_interrupt_handler(void) __interrupt(23);
 
-#endif
+#endif  /* _DELAY_H */

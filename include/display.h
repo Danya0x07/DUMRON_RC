@@ -1,15 +1,10 @@
-/**
- * Здесь интерфейс управления графическим интерфейсом.
- */
+#ifndef _DISPLAY_H
+#define _DISPLAY_H
 
-#ifndef DISPLAY_H_INCLUDED
-#define DISPLAY_H_INCLUDED
-
-#include <stm8s.h>
-#include "robot_interface.h"
+#include "protocol.h"
 
 void display_init(void);
 void display_update(const data_to_robot_s *, const data_from_robot_s *,
-                    bool was_conn_error, uint8_t battery_lvl);
+                    bool ack_received, uint8_t battery_lvl);
 
-#endif
+#endif /* _DISPLAY_H */

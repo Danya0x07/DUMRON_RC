@@ -1,11 +1,5 @@
-/**
- * Модуль опроса кнопок.
- */
-
 #ifndef _BUTTONS_H
 #define _BUTTONS_H
-
-#include <stm8s.h>
 
 typedef enum {
     BTN_EV_NONE = 0,

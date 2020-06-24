@@ -3,85 +3,82 @@
 #include "config.h"
 #include "delay.h"
 #include "debug.h"
-#include "emitters.h"
+#include "protocol.h"
 #include "buttons.h"
-#include "robot_interface.h"
 #include "joystick.h"
 #include "display.h"
 #include "radio.h"
 #include "battery.h"
+#include "emitters.h"
 
-void initialize(void);
+static void system_setup(void);
 
 int main(void)
 {
-    joystick_data_s joystick_data;
-    data_to_robot_s data_to_robot;
-    data_from_robot_s data_from_robot;
-    btn_events_s btn_events;
+    static data_to_robot_s out_data;
+    static data_from_robot_s in_data;
+    static btn_events_s btn_events;
 
-    initialize();
+    system_setup();
 
     display_init();
     radio_init();
-    joystick_start();
 
     for (;;) {
         buttons_get_events(&btn_events);
-        joystick_update(&joystick_data);
+        joystick_update();
 
         // button arm up
         if (btn_events.arm_up == BTN_EV_PRESSED) {
-            data_to_robot.ctrl.bf.armCtrl = ARM_UP;
+            out_data.ctrl.bf.arm_ctrl = ARM_UP;
         }
         else if (btn_events.arm_up == BTN_EV_RELEASED) {
-            data_to_robot.ctrl.bf.armCtrl = ARM_STOP;
+            out_data.ctrl.bf.arm_ctrl = ARM_STOP;
         }
 
         // button arm down
         if (btn_events.arm_down == BTN_EV_PRESSED) {
-            data_to_robot.ctrl.bf.armCtrl = ARM_DOWN;
+            out_data.ctrl.bf.arm_ctrl = ARM_DOWN;
         }
         else if (btn_events.arm_down == BTN_EV_RELEASED) {
-            data_to_robot.ctrl.bf.armCtrl = ARM_STOP;
+            out_data.ctrl.bf.arm_ctrl = ARM_STOP;
         }
 
         // button claw squeeze
         if (btn_events.claw_squeeze == BTN_EV_PRESSED) {
-            data_to_robot.ctrl.bf.clawCtrl = CLAW_SQUEESE;
+            out_data.ctrl.bf.claw_ctrl = CLAW_SQUEESE;
         }
         else if (btn_events.claw_squeeze == BTN_EV_RELEASED) {
-            data_to_robot.ctrl.bf.clawCtrl = CLAW_STOP;
+            out_data.ctrl.bf.claw_ctrl = CLAW_STOP;
         }
 
         // button claw release
         if (btn_events.claw_release == BTN_EV_PRESSED) {
-            data_to_robot.ctrl.bf.clawCtrl = CLAW_RELEASE;
+            out_data.ctrl.bf.claw_ctrl = CLAW_RELEASE;
         }
         else if (btn_events.claw_release == BTN_EV_RELEASED) {
-            data_to_robot.ctrl.bf.clawCtrl = CLAW_STOP;
+            out_data.ctrl.bf.claw_ctrl = CLAW_STOP;
         }
 
         // button buzzer
-        data_to_robot.ctrl.bf.buzzerEn = btn_events.buzzer == BTN_EV_PRESSED;
+        out_data.ctrl.bf.buzzer_en = btn_events.buzzer == BTN_EV_PRESSED;
 
         // button togglelights
         if (btn_events.toggle_lights == BTN_EV_PRESSED) {
-            data_to_robot.ctrl.bf.lightsEn = !data_to_robot.ctrl.bf.lightsEn;
+            out_data.ctrl.bf.lights_en = !out_data.ctrl.bf.lights_en;
         }
 
-        joystick_data_to_robot_movement(&joystick_data, &data_to_robot);
+        joystick_form_robot_movement(&out_data);
 
-        if (radio_is_time_to_update_io_data() ||
-                radio_data_to_robot_is_new(&data_to_robot)) {
+        if (radio_is_time_to_communicate() || radio_out_data_is_new(&out_data)) {
             static bool was_beep = FALSE;
             bool ack_received;
-            uint8_t battery_voltage = battery_get_charge();
+            uint8_t battery_charge = battery_get_charge();
 
-            radio_send_data(&data_to_robot);
-            ack_received = radio_check_for_incoming(&data_from_robot);
+            radio_send(&out_data);
+            ack_received = radio_check_ack(&in_data);
 
-            if (data_from_robot.status.bf.backDistance == DIST_CLIFF) {
+            if (in_data.status.bf.back_distance == DIST_CLIFF) {
                 if (!was_beep) {
                     buzzer_beep(1, 80);
                     was_beep = TRUE;
@@ -90,13 +87,13 @@ int main(void)
                 was_beep = FALSE;
             }
 
-            display_update(&data_to_robot, &data_from_robot, ack_received,
-                           battery_voltage);
+            display_update(&out_data, &in_data, ack_received,
+                           battery_charge);
         }
     }
 }
 
-void initialize(void)
+static void system_setup(void)
 {
     CLK_DeInit();
     CLK_SYSCLKConfig(CLK_PRESCALER_CPUDIV1);
@@ -158,8 +155,6 @@ void initialize(void)
     // Таймер для delay_ms.
     TIM4_DeInit();
     TIM4_TimeBaseInit(TIM4_PRESCALER_64, 124);
-    TIM4_ClearFlag(TIM4_FLAG_UPDATE);
-    TIM4_ITConfig(TIM4_IT_UPDATE, ENABLE);
     TIM4_Cmd(ENABLE);
 
     // АЦП для измерения джойстика и батарейки.
@@ -169,6 +164,7 @@ void initialize(void)
               ADC1_EXTTRIG_TIM, DISABLE,
               ADC1_ALIGN_RIGHT,
               ADC1_SCHMITTTRIG_CHANNEL0, DISABLE);
+    ADC1_StartConversion();
 
     // SPI для общения с радиомодулем и дисплеем.
     SPI_DeInit();

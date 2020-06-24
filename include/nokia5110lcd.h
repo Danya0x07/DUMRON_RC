@@ -1,7 +1,3 @@
-/**
- * Здесь интерфейс для взаимодействия с LCD дисплеем от Nokia 5110.
- */
-
 #ifndef NOKIA5110LCD_H_INCLUDED
 #define NOKIA5110LCD_H_INCLUDED
 
