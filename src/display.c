@@ -82,13 +82,13 @@ void display_update(const data_to_robot_s *dtr, const data_from_robot_s *dfr,
     lcd_set_position(8, 3);
     switch (dtr->ctrl.bf.arm_ctrl)
     {
-    case ARM_UP:
+    case ARMCTL_UP:
         lcd_print_custom(custom_charset, CUSTOM_CHAR_ARROWUP);
         break;
-    case ARM_DOWN:
+    case ARMCTL_DOWN:
         lcd_print_custom(custom_charset, CUSTOM_CHAR_ARROWDOWN);
         break;
-    case ARM_STOP:
+    case ARMCTL_STOP:
         lcd_print_ascii(' ');
     }
 
@@ -96,13 +96,13 @@ void display_update(const data_to_robot_s *dtr, const data_from_robot_s *dfr,
     lcd_set_position(7, 4);
     switch (dtr->ctrl.bf.claw_ctrl)
     {
-    case CLAW_SQUEESE:
+    case CLAWCTL_SQUEEZE:
         lcd_print_string("><");
         break;
-    case CLAW_RELEASE:
+    case CLAWCTL_RELEASE:
         lcd_print_string("<>");
         break;
-    case CLAW_STOP:
+    case CLAWCTL_STOP:
         lcd_print_string("  ");
     }
 

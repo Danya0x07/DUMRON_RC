@@ -18,16 +18,16 @@ typedef enum {
 
 /** Возможные состояния плеча манипулятора. */
 typedef enum {
-    ARM_STOP = 0,
-    ARM_UP,
-    ARM_DOWN
+    ARMCTL_STOP = 0,
+    ARMCTL_UP,
+    ARMCTL_DOWN
 } arm_control_e;
 
 /** Возможные состояние клешни манипулятора. */
 typedef enum {
-    CLAW_STOP = 0,
-    CLAW_SQUEESE,
-    CLAW_RELEASE
+    CLAWCTL_STOP = 0,
+    CLAWCTL_SQUEEZE,
+    CLAWCTL_RELEASE
 } claw_control_e;
 
 /**

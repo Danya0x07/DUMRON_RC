@@ -13,8 +13,8 @@ typedef enum {PULLDOWN, PULLUP} button_mode_e;
  * но btnx.mode == PULLDOWN, то btn_pressed(&btnx) == TRUE
  * при отпускании этой кнопки.
  */
-#define ON_PRESS   PULLUP
-#define ON_RELEASE PULLDOWN
+#define TRIGGER_ON_PRESS    PULLUP
+#define TRIGGER_ON_RELEASE  PULLDOWN
 
 typedef struct {
     gpio_port_t gport;
@@ -72,60 +72,60 @@ void buttons_get_events(btn_events_s *ev)
 {
 
     if (btn_pressed(&btn_armup)) {
-        if (btn_armup.mode == ON_PRESS) {
+        if (btn_armup.mode == TRIGGER_ON_PRESS) {
             ev->arm_up = BTN_EV_PRESSED;
-            btn_armup.mode = ON_RELEASE;
+            btn_armup.mode = TRIGGER_ON_RELEASE;
         } else {
             ev->arm_up = BTN_EV_RELEASED;
-            btn_armup.mode = ON_PRESS;
+            btn_armup.mode = TRIGGER_ON_PRESS;
         }
     } else {
         ev->arm_up = BTN_EV_NONE;
     }
 
     if (btn_pressed(&btn_armdown)) {
-        if (btn_armdown.mode == ON_PRESS) {
+        if (btn_armdown.mode == TRIGGER_ON_PRESS) {
             ev->arm_down = BTN_EV_PRESSED;
-            btn_armdown.mode = ON_RELEASE;
+            btn_armdown.mode = TRIGGER_ON_RELEASE;
         } else {
             ev->arm_down = BTN_EV_RELEASED;
-            btn_armdown.mode = ON_PRESS;
+            btn_armdown.mode = TRIGGER_ON_PRESS;
         }
     } else {
         ev->arm_down = BTN_EV_NONE;
     }
 
     if (btn_pressed(&btn_clawsqueeze)) {
-        if (btn_clawsqueeze.mode == ON_PRESS) {
+        if (btn_clawsqueeze.mode == TRIGGER_ON_PRESS) {
             ev->claw_squeeze = BTN_EV_PRESSED;
-            btn_clawsqueeze.mode = ON_RELEASE;
+            btn_clawsqueeze.mode = TRIGGER_ON_RELEASE;
         } else {
             ev->claw_squeeze = BTN_EV_RELEASED;
-            btn_clawsqueeze.mode = ON_PRESS;
+            btn_clawsqueeze.mode = TRIGGER_ON_PRESS;
         }
     } else {
         ev->claw_squeeze = BTN_EV_NONE;
     }
 
     if (btn_pressed(&btn_clawrelease)) {
-        if (btn_clawrelease.mode == ON_PRESS) {
+        if (btn_clawrelease.mode == TRIGGER_ON_PRESS) {
             ev->claw_release = BTN_EV_PRESSED;
-            btn_clawrelease.mode = ON_RELEASE;
+            btn_clawrelease.mode = TRIGGER_ON_RELEASE;
         } else {
             ev->claw_release = BTN_EV_RELEASED;
-            btn_clawrelease.mode = ON_PRESS;
+            btn_clawrelease.mode = TRIGGER_ON_PRESS;
         }
     } else {
         ev->claw_release = BTN_EV_NONE;
     }
 
     if (btn_pressed(&btn_buzzer)) {
-        if (btn_buzzer.mode == ON_PRESS) {
+        if (btn_buzzer.mode == TRIGGER_ON_PRESS) {
             ev->buzzer = BTN_EV_PRESSED;
-            btn_buzzer.mode = ON_RELEASE;
+            btn_buzzer.mode = TRIGGER_ON_RELEASE;
         } else {
             ev->buzzer = BTN_EV_RELEASED;
-            btn_buzzer.mode = ON_PRESS;
+            btn_buzzer.mode = TRIGGER_ON_PRESS;
         }
     } else {
         ev->buzzer = BTN_EV_NONE;

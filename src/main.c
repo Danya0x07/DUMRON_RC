@@ -30,34 +30,34 @@ int main(void)
 
         // button arm up
         if (btn_events.arm_up == BTN_EV_PRESSED) {
-            out_data.ctrl.bf.arm_ctrl = ARM_UP;
+            out_data.ctrl.bf.arm_ctrl = ARMCTL_UP;
         }
         else if (btn_events.arm_up == BTN_EV_RELEASED) {
-            out_data.ctrl.bf.arm_ctrl = ARM_STOP;
+            out_data.ctrl.bf.arm_ctrl = ARMCTL_STOP;
         }
 
         // button arm down
         if (btn_events.arm_down == BTN_EV_PRESSED) {
-            out_data.ctrl.bf.arm_ctrl = ARM_DOWN;
+            out_data.ctrl.bf.arm_ctrl = ARMCTL_DOWN;
         }
         else if (btn_events.arm_down == BTN_EV_RELEASED) {
-            out_data.ctrl.bf.arm_ctrl = ARM_STOP;
+            out_data.ctrl.bf.arm_ctrl = ARMCTL_STOP;
         }
 
         // button claw squeeze
         if (btn_events.claw_squeeze == BTN_EV_PRESSED) {
-            out_data.ctrl.bf.claw_ctrl = CLAW_SQUEESE;
+            out_data.ctrl.bf.claw_ctrl = CLAWCTL_SQUEEZE;
         }
         else if (btn_events.claw_squeeze == BTN_EV_RELEASED) {
-            out_data.ctrl.bf.claw_ctrl = CLAW_STOP;
+            out_data.ctrl.bf.claw_ctrl = CLAWCTL_STOP;
         }
 
         // button claw release
         if (btn_events.claw_release == BTN_EV_PRESSED) {
-            out_data.ctrl.bf.claw_ctrl = CLAW_RELEASE;
+            out_data.ctrl.bf.claw_ctrl = CLAWCTL_RELEASE;
         }
         else if (btn_events.claw_release == BTN_EV_RELEASED) {
-            out_data.ctrl.bf.claw_ctrl = CLAW_STOP;
+            out_data.ctrl.bf.claw_ctrl = CLAWCTL_STOP;
         }
 
         // button buzzer
