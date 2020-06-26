@@ -15,8 +15,8 @@ static void system_setup(void);
 
 int main(void)
 {
-    static data_to_robot_s out_data;
-    static data_from_robot_s in_data;
+    static data_to_robot_t out_data;
+    static data_from_robot_t in_data;
     static btn_events_s btn_events;
 
     system_setup();
@@ -61,7 +61,7 @@ int main(void)
         }
 
         // button buzzer
-        out_data.ctrl.bf.buzzer_en = btn_events.buzzer == BTN_EV_PRESSED;
+        out_data.ctrl.bf.buzzer_en = (btn_event_e)(btn_events.buzzer == BTN_EV_PRESSED);
 
         // button togglelights
         if (btn_events.toggle_lights == BTN_EV_PRESSED) {

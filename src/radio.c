@@ -28,7 +28,7 @@ void radio_init(void)
     }
 }
 
-void radio_send(data_to_robot_s *outcoming)
+void radio_send(data_to_robot_t *outcoming)
 {
     if (nrf24l01_full_tx_fifo())  {
         nrf24l01_flush_tx_fifo();
@@ -37,22 +37,22 @@ void radio_send(data_to_robot_s *outcoming)
         nrf24l01_flush_tx_fifo();
         nrf24l01_clear_interrupts(NRF24L01_IRQ_MAX_RT);
     }
-    nrf24l01_tx_write_pld(outcoming, sizeof(data_to_robot_s));
+    nrf24l01_tx_write_pld(outcoming, sizeof(data_to_robot_t));
     nrf24l01_tx_transmit();
 }
 
-bool radio_check_ack(data_from_robot_s *incoming)
+bool radio_check_ack(data_from_robot_t *incoming)
 {
     bool conn_ok = FALSE;
 
     if (nrf24l01_get_interrupts() & NRF24L01_IRQ_RX_DR) {
         do {
-            if (nrf24l01_read_pld_size() != sizeof(data_from_robot_s)) {
+            if (nrf24l01_read_pld_size() != sizeof(data_from_robot_t)) {
                 nrf24l01_flush_rx_fifo();
                 nrf24l01_clear_interrupts(NRF24L01_IRQ_RX_DR);
                 break;
             }
-            nrf24l01_read_pld(incoming, sizeof(data_from_robot_s));
+            nrf24l01_read_pld(incoming, sizeof(data_from_robot_t));
             nrf24l01_clear_interrupts(NRF24L01_IRQ_RX_DR);
             conn_ok = TRUE;
         } while (nrf24l01_data_in_rx_fifo());
@@ -70,9 +70,9 @@ bool radio_is_time_to_communicate(void)
     return time_to_communicate;
 }
 
-bool radio_out_data_is_new(const data_to_robot_s *outcoming)
+bool radio_out_data_is_new(const data_to_robot_t *outcoming)
 {
-    static data_to_robot_s cache;
+    static data_to_robot_t cache;
 
     bool data_is_new = (
         cache.ctrl.reg    != outcoming->ctrl.reg   ||

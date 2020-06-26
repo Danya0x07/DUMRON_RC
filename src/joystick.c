@@ -13,26 +13,26 @@ typedef enum {
     JOY_DIR_RIGHTUP,
     JOY_DIR_LEFTDOWN,
     JOY_DIR_RIGHTDOWN
-} joy_direction_e;
+} joy_direction_t;
 
 typedef enum {
     JOY_DEFL_NO,
     JOY_DEFL_LOW,
     JOY_DEFL_HIGH
-} joy_deflection_e;
+} joy_deflection_t;
 
 static struct {
-    joy_direction_e direction;
-    joy_deflection_e x_abs_defl;  // Абсолютное отклонение по x
-    joy_deflection_e y_abs_defl;  // Абсолютное отклонение по y
+    joy_direction_t direction;
+    joy_deflection_t x_abs_defl;  // Абсолютное отклонение по x
+    joy_deflection_t y_abs_defl;  // Абсолютное отклонение по y
 } joystick;
 
 // Подгонка для осей джойстика.
 #define CALIBRATION_VAL_X   (15)
 #define CALIBRATION_VAL_Y   (17)
 
-static joy_direction_e joystick_get_direction(uint8_t x, uint8_t y);
-static joy_deflection_e joystick_get_deflection(uint8_t axis_value);
+static joy_direction_t joystick_get_direction(uint8_t x, uint8_t y);
+static joy_deflection_t joystick_get_deflection(uint8_t axis_value);
 
 static inline void adc_select_channel(ADC1_Channel_TypeDef adc_ch)
 {
@@ -73,7 +73,7 @@ void joystick_update(void)
     }
 }
 
-void joystick_form_robot_movement(data_to_robot_s *dtr)
+void joystick_form_robot_movement(data_to_robot_t *dtr)
 {
     static const uint8_t robot_speeds[3] = {0, 128, 255};
 
@@ -131,9 +131,9 @@ void joystick_form_robot_movement(data_to_robot_s *dtr)
     }
 }
 
-static joy_direction_e joystick_get_direction(uint8_t x, uint8_t y)
+static joy_direction_t joystick_get_direction(uint8_t x, uint8_t y)
 {
-    joy_direction_e direction = JOY_DIR_MIDDLE;
+    joy_direction_t direction = JOY_DIR_MIDDLE;
 
     if (x == 2) {
         if (y > 2)
@@ -160,7 +160,7 @@ static joy_direction_e joystick_get_direction(uint8_t x, uint8_t y)
     return direction;
 }
 
-static joy_deflection_e joystick_get_deflection(uint8_t axis_value)
+static joy_deflection_t joystick_get_deflection(uint8_t axis_value)
 {
     if (axis_value < 1 || axis_value > 3)
         return JOY_DEFL_HIGH;

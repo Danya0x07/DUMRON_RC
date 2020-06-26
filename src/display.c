@@ -39,7 +39,7 @@ void display_init(void)
     lcd_clear();
 }
 
-void display_update(const data_to_robot_s *dtr, const data_from_robot_s *dfr,
+void display_update(const data_to_robot_t *dtr, const data_from_robot_t *dfr,
                     bool ack_received, uint8_t battery_charge)
 {
     /* Рисуем данные пульта. */
