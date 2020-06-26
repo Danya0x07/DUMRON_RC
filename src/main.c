@@ -132,7 +132,7 @@ static void system_setup(void)
     // Не используемые пока пины.
     GPIO_Init(GPIOA, GPIO_PIN_1 | GPIO_PIN_2, GPIO_MODE_IN_PU_NO_IT);
 
-    // UART для отладки.
+#ifdef DEBUG  // UART для отладки.
     UART2_DeInit();
     UART2_Init(9600,
                UART2_WORDLENGTH_8D,
@@ -140,6 +140,7 @@ static void system_setup(void)
                UART2_PARITY_NO,
                UART2_SYNCMODE_CLOCK_DISABLE,
                UART2_MODE_TXRX_ENABLE);
+#endif
 
     // Таймер для регулярного измерения батарейки.
     TIM2_DeInit();
@@ -152,9 +153,9 @@ static void system_setup(void)
     TIM3_Cmd(ENABLE);
 
     // Таймер для delay_ms.
-    TIM4_DeInit();
-    TIM4_TimeBaseInit(TIM4_PRESCALER_64, 124);
-    TIM4_Cmd(ENABLE);
+    TIM1_DeInit();
+    TIM1_TimeBaseInit(8000, TIM1_COUNTERMODE_UP, 0xFFFF, 0);
+    TIM1_Cmd(ENABLE);
 
     // АЦП для измерения джойстика и батарейки.
     ADC1_DeInit();

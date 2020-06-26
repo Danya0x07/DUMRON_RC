@@ -28,22 +28,11 @@ long_line_behaviour=1
 long_line_column=80
 
 [files]
-current_page=12
-FILE_NAME_0=1198;C;0;EUTF-8;0;1;0;C%3A%5CUsers%5C1%5Cprojects%5CDUMRON_RC%5Csrc%5Cmain.c;0;4
-FILE_NAME_1=0;C;0;EUTF-8;0;1;0;C%3A%5CUsers%5C1%5Cprojects%5CDUMRON_RC%5Cinclude%5Cdelay.h;0;4
-FILE_NAME_2=0;C;0;EUTF-8;0;1;0;C%3A%5CUsers%5C1%5Cprojects%5CDUMRON_RC%5Cinclude%5Cdisplay.h;0;4
-FILE_NAME_3=0;C;0;EUTF-8;0;1;0;C%3A%5CUsers%5C1%5Cprojects%5CDUMRON_RC%5Cinclude%5Cjoystick.h;0;4
-FILE_NAME_4=550;C;0;EUTF-8;0;1;0;C%3A%5CUsers%5C1%5Cprojects%5CDUMRON_RC%5Cinclude%5Cnokia5110lcd.h;0;4
-FILE_NAME_5=0;C;0;EUTF-8;0;1;0;C%3A%5CUsers%5C1%5Cprojects%5CDUMRON_RC%5Cinclude%5Cradio.h;0;4
-FILE_NAME_6=1357;C;0;EUTF-8;0;1;0;C%3A%5CUsers%5C1%5Cprojects%5CDUMRON_RC%5Csrc%5Cbuttons.c;0;4
-FILE_NAME_7=441;C;0;EUTF-8;0;1;0;C%3A%5CUsers%5C1%5Cprojects%5CDUMRON_RC%5Csrc%5Cdelay.c;0;4
-FILE_NAME_8=1912;C;0;EUTF-8;0;1;0;C%3A%5CUsers%5C1%5Cprojects%5CDUMRON_RC%5Csrc%5Cdisplay.c;0;4
-FILE_NAME_9=607;C;0;EUTF-8;0;1;0;C%3A%5CUsers%5C1%5Cprojects%5CDUMRON_RC%5Csrc%5Cjoystick.c;0;4
-FILE_NAME_10=4983;C;0;EUTF-8;0;1;0;C%3A%5CUsers%5C1%5Cprojects%5CDUMRON_RC%5Csrc%5Cnokia5110lcd.c;0;4
-FILE_NAME_11=736;C;0;EUTF-8;0;1;0;C%3A%5CUsers%5C1%5Cprojects%5CDUMRON_RC%5Csrc%5Cradio.c;0;4
-FILE_NAME_12=124;C;0;EUTF-8;0;1;0;C%3A%5CUsers%5C1%5Cprojects%5CDUMRON_RC%5Ctest%5Cdesktop%5Ctest_delay.c;0;4
-FILE_NAME_13=330;Conf;0;EUTF-8;0;1;0;C%3A%5CUsers%5C1%5Cprojects%5CDUMRON_RC%5Cplatformio.ini;0;4
-FILE_NAME_14=426;C;0;EUTF-8;0;1;0;C%3A%5CUsers%5C1%5Cprojects%5CDUMRON_RC%5Cinclude%5Cdebug.h;0;4
+current_page=0
+FILE_NAME_0=2600;C;0;EUTF-8;0;1;0;C%3A%5CUsers%5C1%5Cprojects%5CDUMRON_RC%5Csrc%5Cmain.c;0;4
+FILE_NAME_1=1532;C;0;EUTF-8;0;1;0;C%3A%5CUsers%5C1%5Cprojects%5CDUMRON_RC%5Csrc%5Cbuttons.c;0;4
+FILE_NAME_2=466;C;0;EUTF-8;0;1;0;C%3A%5CUsers%5C1%5Cprojects%5CDUMRON_RC%5Cinclude%5Cbuttons.h;0;4
+FILE_NAME_3=0;C;0;EUTF-8;0;1;0;C%3A%5CUsers%5C1%5Cprojects%5CDUMRON_RC%5Csrc%5Cjoystick.c;0;4
 
 [VTE]
 last_dir=/home/danya/Projects/DUMRON_RC

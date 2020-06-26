@@ -6,7 +6,7 @@
 typedef GPIO_TypeDef *gpio_port_t;
 typedef uint8_t gpio_pin_t;
 
-typedef enum {PULLDOWN, PULLUP} button_mode_e;
+typedef enum {PULLDOWN, PULLUP} btn_mode_e;
 
 /*
  * Если кнопка btnx подтянута резистором к vcc,
@@ -19,7 +19,7 @@ typedef enum {PULLDOWN, PULLUP} button_mode_e;
 typedef struct {
     gpio_port_t gport;
     gpio_pin_t gpin;
-    button_mode_e mode;
+    btn_mode_e mode;
     BitStatus last_status;
 } button_s;
 
@@ -66,6 +66,7 @@ static button_s btn_togglelights = {
 };
 
 static bool btn_pressed(button_s *btn);
+static bool btn_is_pressed(const button_s *btn);
 static bool btn_pressed_again(button_s *btn);
 
 void buttons_get_events(btn_events_s *ev)
@@ -140,6 +141,11 @@ void buttons_get_events(btn_events_s *ev)
     } else {
         ev->toggle_lights = BTN_EV_NONE;
     }
+}
+
+static bool btn_is_pressed(const button_s *btn)
+{
+    return GPIO_ReadInputPin(btn->gport, btn->gpin) != btn->mode;
 }
 
 static bool btn_pressed(button_s *btn)
