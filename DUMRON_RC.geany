@@ -28,11 +28,12 @@ long_line_behaviour=1
 long_line_column=80
 
 [files]
-current_page=0
-FILE_NAME_0=2600;C;0;EUTF-8;0;1;0;C%3A%5CUsers%5C1%5Cprojects%5CDUMRON_RC%5Csrc%5Cmain.c;0;4
-FILE_NAME_1=1532;C;0;EUTF-8;0;1;0;C%3A%5CUsers%5C1%5Cprojects%5CDUMRON_RC%5Csrc%5Cbuttons.c;0;4
-FILE_NAME_2=466;C;0;EUTF-8;0;1;0;C%3A%5CUsers%5C1%5Cprojects%5CDUMRON_RC%5Cinclude%5Cbuttons.h;0;4
-FILE_NAME_3=0;C;0;EUTF-8;0;1;0;C%3A%5CUsers%5C1%5Cprojects%5CDUMRON_RC%5Csrc%5Cjoystick.c;0;4
+current_page=4
+FILE_NAME_0=343;C;0;EUTF-8;0;1;0;C%3A%5CUsers%5C1%5Cprojects%5CDUMRON_RC%5Csrc%5Cmain.c;0;4
+FILE_NAME_1=0;C;0;EUTF-8;0;1;0;C%3A%5CUsers%5C1%5Cprojects%5CDUMRON_RC%5Cinclude%5Cconfig.h;0;4
+FILE_NAME_2=363;C;0;EUTF-8;0;1;0;C%3A%5CUsers%5C1%5Cprojects%5CDUMRON_RC%5Csrc%5Ckeypad.c;0;4
+FILE_NAME_3=57;C;0;EUTF-8;0;1;0;C%3A%5CUsers%5C1%5Cprojects%5CDUMRON_RC%5Cinclude%5Ckeypad.h;0;4
+FILE_NAME_4=152;C;0;EUTF-8;0;1;0;C%3A%5CUsers%5C1%5Cprojects%5CDUMRON_RC%5Cinclude%5Cjoystick.h;0;4
 
 [VTE]
 last_dir=/home/danya/Projects/DUMRON_RC

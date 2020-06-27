@@ -4,7 +4,7 @@
 #include "delay.h"
 #include "debug.h"
 #include "protocol.h"
-#include "buttons.h"
+#include "keypad.h"
 #include "joystick.h"
 #include "display.h"
 #include "radio.h"
@@ -17,7 +17,6 @@ int main(void)
 {
     static data_to_robot_t out_data;
     static data_from_robot_t in_data;
-    static btn_events_s btn_events;
 
     system_setup();
 
@@ -25,49 +24,10 @@ int main(void)
     radio_init();
 
     for (;;) {
-        buttons_get_events(&btn_events);
+        keypad_update();
         joystick_update();
 
-        // button arm up
-        if (btn_events.arm_up == BTN_EV_PRESSED) {
-            out_data.ctrl.bf.arm_ctrl = ARMCTL_UP;
-        }
-        else if (btn_events.arm_up == BTN_EV_RELEASED) {
-            out_data.ctrl.bf.arm_ctrl = ARMCTL_STOP;
-        }
-
-        // button arm down
-        if (btn_events.arm_down == BTN_EV_PRESSED) {
-            out_data.ctrl.bf.arm_ctrl = ARMCTL_DOWN;
-        }
-        else if (btn_events.arm_down == BTN_EV_RELEASED) {
-            out_data.ctrl.bf.arm_ctrl = ARMCTL_STOP;
-        }
-
-        // button claw squeeze
-        if (btn_events.claw_squeeze == BTN_EV_PRESSED) {
-            out_data.ctrl.bf.claw_ctrl = CLAWCTL_SQUEEZE;
-        }
-        else if (btn_events.claw_squeeze == BTN_EV_RELEASED) {
-            out_data.ctrl.bf.claw_ctrl = CLAWCTL_STOP;
-        }
-
-        // button claw release
-        if (btn_events.claw_release == BTN_EV_PRESSED) {
-            out_data.ctrl.bf.claw_ctrl = CLAWCTL_RELEASE;
-        }
-        else if (btn_events.claw_release == BTN_EV_RELEASED) {
-            out_data.ctrl.bf.claw_ctrl = CLAWCTL_STOP;
-        }
-
-        // button buzzer
-        out_data.ctrl.bf.buzzer_en = (btn_event_e)(btn_events.buzzer == BTN_EV_PRESSED);
-
-        // button togglelights
-        if (btn_events.toggle_lights == BTN_EV_PRESSED) {
-            out_data.ctrl.bf.lights_en = !out_data.ctrl.bf.lights_en;
-        }
-
+        keypad_form_robot_state(&out_data);
         joystick_form_robot_movement(&out_data);
 
         if (radio_is_time_to_communicate() || radio_out_data_is_new(&out_data)) {

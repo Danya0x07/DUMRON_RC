@@ -1,22 +1,39 @@
 #ifndef _BUTTONS_H
 #define _BUTTONS_H
 
+#include <stm8s.h>
+
+/** Подтяжка кнопки. */
 typedef enum {
-    BTN_EV_NONE = 0,
-    BTN_EV_PRESSED,
-    BTN_EV_RELEASED,
-    BTN_EV_DOUBLE_PRESSED
-} btn_event_e;
+    BUTTON_MODE_PULLDOWN = 0,
+    BUTTON_MODE_PULLUP
+} button_mode_t;
 
-typedef struct {
-    btn_event_e arm_up   :2;
-    btn_event_e arm_down :2;
-    btn_event_e claw_squeeze :2;
-    btn_event_e claw_release :2;
-    btn_event_e buzzer :2;
-    btn_event_e toggle_lights :2;
-} btn_events_s;
+typedef struct button {
+    GPIO_TypeDef *gport;
+    uint8_t gpin;
+    button_mode_t mode;
+    BitStatus _last_status;  // для обработки дребезга
+} button_t;
 
-void buttons_get_events(btn_events_s *ev);
+/** Возвращает TRUE, если кнопка *btn зажата в данный момент, иначе FALSE. */
+bool button_is_hold(const button_t *btn);
+
+/**
+ * Возвращает TRUE, если кнопка *btn была переведена из ненажатого состояния в
+ * нажатое.
+ * После первого срабатывания, вернувшего TRUE, возвращает FALSE до тех пор,
+ * пока кнопка не будет отпущена и нажата снова.
+ * Интересный факт: если перепутать атрибут mode кнопки, то TRUE будет
+ * возвращаться при отпускании, а не при нажатии.
+ */
+bool button_pressed(button_t *btn);
+
+/**
+ * Возвращает TRUE, если в течение небольшого промежутка времени
+ * button_pressed() вернула TRUE, иначе FALSE.
+ * Предназначена для обнаружения многократных нажатий.
+ */
+bool button_pressed_again(button_t *btn);
 
 #endif  /* _BUTTONS_H */
