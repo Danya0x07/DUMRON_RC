@@ -2,9 +2,7 @@
 
 #include "display.h"
 #include "nokia5110lcd.h"
-#include "delay.h"
-
-extern char *itoa(int, unsigned char);
+#include "halutils.h"
 
 enum {
     CUSTOM_CHAR_KLAXON,

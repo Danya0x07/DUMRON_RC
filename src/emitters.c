@@ -1,6 +1,6 @@
 #include "emitters.h"
 #include "config.h"
-#include "delay.h"
+#include "halutils.h"
 
 #define led_on()        GPIO_WriteLow(LED_GPORT, LED_GPIN)
 #define led_off()       GPIO_WriteHigh(LED_GPORT, LED_GPIN)

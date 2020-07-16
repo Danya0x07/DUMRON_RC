@@ -1,5 +1,5 @@
 #include "radio.h"
-#include "delay.h"
+#include "halutils.h"
 #include "emitters.h"
 
 #include <nrf24l01.h>

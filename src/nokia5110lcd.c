@@ -3,7 +3,7 @@
  */
 
 #include "nokia5110lcd.h"
-#include "delay.h"
+#include "halutils.h"
 #include "config.h"
 
 #define LCD_PIXELS_X    84

@@ -14,7 +14,7 @@
 #define _NRF24L01_PORT_H
 
 #include <stm8s.h>
-#include <../../include/delay.h>
+#include <../../include/halutils.h>
 #include <../../include/config.h>
 
 

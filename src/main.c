@@ -1,7 +1,7 @@
 #include <stm8s.h>
 
 #include "config.h"
-#include "delay.h"
+#include "halutils.h"
 #include "debug.h"
 #include "protocol.h"
 #include "keypad.h"
@@ -104,12 +104,12 @@ static void system_setup(void)
 
     // Таймер для регулярного измерения батарейки.
     TIM2_DeInit();
-    TIM2_TimeBaseInit(TIM2_PRESCALER_32768, 60000);
+    TIM2_TimeBaseInit(TIM2_PRESCALER_32768, 0xFFFF);
     TIM2_Cmd(ENABLE);
 
     // Таймер для регулярной посылки радиосообщения.
     TIM3_DeInit();
-    TIM3_TimeBaseInit(TIM3_PRESCALER_32768, 1000);
+    TIM3_TimeBaseInit(TIM3_PRESCALER_32768, 0xFFFF);
     TIM3_Cmd(ENABLE);
 
     // Таймер для delay_ms.
@@ -118,13 +118,12 @@ static void system_setup(void)
     TIM4_Cmd(ENABLE);
 
     // АЦП для измерения джойстика и батарейки.
-    ADC1_DeInit();
-    ADC1_Init(ADC1_CONVERSIONMODE_SINGLE,
-              ADC1_CHANNEL_0, ADC1_PRESSEL_FCPU_D10,
-              ADC1_EXTTRIG_TIM, DISABLE,
-              ADC1_ALIGN_RIGHT,
-              ADC1_SCHMITTTRIG_CHANNEL0, DISABLE);
-    ADC1_StartConversion();
+    ADC1->CR1 = ADC1_PRESSEL_FCPU_D10;
+    ADC1->CR2 = ADC1_ALIGN_RIGHT;
+    ADC1->TDRH = 0xFF;
+    ADC1->TDRL = 0xFF;
+    ADC1->CR1 |= ADC1_CR1_ADON;  // включение АЦП
+    adc_start_conversion(JOYSTICK_X_ADC_CH);
 
     // SPI для общения с радиомодулем и дисплеем.
     SPI_DeInit();

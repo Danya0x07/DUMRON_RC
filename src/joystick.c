@@ -1,6 +1,7 @@
 #include <stm8s.h>
 
 #include "joystick.h"
+#include "halutils.h"
 #include "config.h"
 
 typedef enum {
@@ -34,35 +35,29 @@ static struct {
 static joy_direction_t joystick_get_direction(uint8_t x, uint8_t y);
 static joy_deflection_t joystick_get_deflection(uint8_t axis_value);
 
-static inline void adc_select_channel(ADC1_Channel_TypeDef adc_ch)
-{
-    ADC1_ConversionConfig(ADC1_CONVERSIONMODE_SINGLE, adc_ch, ADC1_ALIGN_RIGHT);
-}
-
 void joystick_update(void)
 {
     static ADC1_Channel_TypeDef channel_to_watch = JOYSTICK_X_ADC_CH;
     static bool new_x_available = FALSE, new_y_available = FALSE;
     static uint8_t x, y;
 
-    if (ADC1_GetFlagStatus(ADC1_FLAG_EOC)) {
-        int8_t calib_val = (channel_to_watch == JOYSTICK_X_ADC_CH) ?
+    if (ADC1->CSR & ADC1_FLAG_EOC) {
+        int8_t calib_value = (channel_to_watch == JOYSTICK_X_ADC_CH) ?
                 CALIBRATION_VAL_X : CALIBRATION_VAL_Y;
 
-        uint8_t axis_value = (ADC1_GetConversionValue() + calib_val) * 4 / 1023;
+        uint8_t axis_value = (adc_read_value() + calib_value) * 4 / 1023;
 
         if (channel_to_watch == JOYSTICK_X_ADC_CH) {
             x = axis_value;
             new_x_available = TRUE;
             channel_to_watch = JOYSTICK_Y_ADC_CH;
         } else {  // channel_to_watch == JOYSTICK_Y_ADC_CH
-            y = 4 - axis_value;  // из-за конструкции джойстика
+            y = 4 - axis_value;  // обусловлено конструкцией джойстика
             new_y_available = TRUE;
             channel_to_watch = JOYSTICK_X_ADC_CH;
         }
 
-        adc_select_channel(channel_to_watch);
-        ADC1_StartConversion();
+        adc_start_conversion(channel_to_watch);
     }
 
     if (new_x_available && new_y_available) {
