@@ -19,7 +19,7 @@ indent_mode=2
 
 [project]
 name=DUMRON_RC
-base_path=C:\\Users\\1\\projects\\DUMRON_RC
+base_path=/home/danya/projects/DUMRON_RC
 description=
 file_patterns=
 
@@ -28,15 +28,15 @@ long_line_behaviour=1
 long_line_column=80
 
 [files]
-current_page=4
-FILE_NAME_0=343;C;0;EUTF-8;0;1;0;C%3A%5CUsers%5C1%5Cprojects%5CDUMRON_RC%5Csrc%5Cmain.c;0;4
-FILE_NAME_1=0;C;0;EUTF-8;0;1;0;C%3A%5CUsers%5C1%5Cprojects%5CDUMRON_RC%5Cinclude%5Cconfig.h;0;4
-FILE_NAME_2=363;C;0;EUTF-8;0;1;0;C%3A%5CUsers%5C1%5Cprojects%5CDUMRON_RC%5Csrc%5Ckeypad.c;0;4
-FILE_NAME_3=57;C;0;EUTF-8;0;1;0;C%3A%5CUsers%5C1%5Cprojects%5CDUMRON_RC%5Cinclude%5Ckeypad.h;0;4
-FILE_NAME_4=152;C;0;EUTF-8;0;1;0;C%3A%5CUsers%5C1%5Cprojects%5CDUMRON_RC%5Cinclude%5Cjoystick.h;0;4
+current_page=1
+FILE_NAME_0=3735;C;0;EUTF-8;0;1;0;%2Fhome%2Fdanya%2Fprojects%2FDUMRON_RC%2Fsrc%2Fmain.c;0;4
+FILE_NAME_1=540;C;0;EUTF-8;0;1;0;%2Fhome%2Fdanya%2Fprojects%2FDUMRON_RC%2Fsrc%2Fbattery.c;0;4
+FILE_NAME_2=0;C++;0;EUTF-8;0;1;0;%2Fhome%2Fdanya%2Fprojects%2FDUMRON_RC%2Finclude%2Fbuttons.h;0;4
+FILE_NAME_3=1317;C++;0;EUTF-8;0;1;0;%2Fhome%2Fdanya%2Fprojects%2FDUMRON_RC%2Finclude%2Fconfig.h;0;4
+FILE_NAME_4=0;C;0;EUTF-8;0;1;0;%2Fhome%2Fdanya%2Fprojects%2FDUMRON_RC%2Fsrc%2Fjoystick.c;0;4
 
 [VTE]
-last_dir=/home/danya/Projects/DUMRON_RC
+last_dir=/home/danya/projects/DUMRON_RC
 
 [prjorg]
 source_patterns=*.c;*.C;*.cpp;*.cxx;*.c++;*.cc;*.m;
@@ -61,4 +61,4 @@ EX_03_CM=pio test -e desktop
 EX_03_WD=%p
 EX_04_LB=check
 EX_04_CM=pio check
-EX_04_WD=
+EX_04_WD=%p

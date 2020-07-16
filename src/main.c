@@ -113,8 +113,6 @@ static void system_setup(void)
     TIM3_Cmd(ENABLE);
 
     // Таймер для delay_ms.
-    //TIM1_DeInit();
-    //TIM1_TimeBaseInit(8000, TIM1_COUNTERMODE_UP, 0xFFFF, 0);
     TIM4_DeInit();
     TIM4_TimeBaseInit(TIM4_PRESCALER_64, 0xFF);
     TIM4_Cmd(ENABLE);

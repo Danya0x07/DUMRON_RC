@@ -1,6 +1,5 @@
 #include "battery.h"
-
-#define BATTERY_CHANNEL ADC1_CHANNEL_2
+#include "config.h"
 
 static uint8_t battery_measure(void)
 {
@@ -8,14 +7,15 @@ static uint8_t battery_measure(void)
     uint8_t voltage;
 
     while (!ADC1_GetFlagStatus(ADC1_FLAG_EOC));
-    (void) ADC1_GetConversionValue();
+    (void)ADC1_GetConversionValue();
 
     /* Почему-то корректно работает только так. */
+    ADC1_DeInit();
     ADC1_Init(ADC1_CONVERSIONMODE_SINGLE,
-              BATTERY_CHANNEL, ADC1_PRESSEL_FCPU_D10,
+              BATTERY_ADC_CH, ADC1_PRESSEL_FCPU_D10,
               ADC1_EXTTRIG_TIM, DISABLE,
               ADC1_ALIGN_RIGHT,
-              ADC1_SCHMITTTRIG_CHANNEL2, DISABLE);
+              ADC1_SCHMITTTRIG_CHANNEL0, DISABLE);
     ADC1_StartConversion();
 
     while (!ADC1_GetFlagStatus(ADC1_FLAG_EOC));

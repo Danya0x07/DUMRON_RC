@@ -43,4 +43,8 @@
 #define JOYSTICK_X_ADC_CH   ADC1_CHANNEL_0
 #define JOYSTICK_Y_ADC_CH   ADC1_CHANNEL_1
 
+/* Делитель напряжения для измерения заряда батареек. */
+#define BATTERY_ADC_CH  ADC1_CHANNEL_2
+
+
 #endif /* _CONFIG_H */
