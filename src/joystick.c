@@ -41,7 +41,7 @@ void joystick_update(void)
     static bool new_x_available = FALSE, new_y_available = FALSE;
     static uint8_t x, y;
 
-    if (ADC1->CSR & ADC1_FLAG_EOC) {
+    if (adc_conversion_complete()) {
         int8_t calib_value = (channel_to_watch == JOYSTICK_X_ADC_CH) ?
                 CALIBRATION_VAL_X : CALIBRATION_VAL_Y;
 

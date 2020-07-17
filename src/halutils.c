@@ -1,16 +1,36 @@
 #include "halutils.h"
 
-static void delay_1ms(void)
+void tim2_set_counter(uint16_t value)
 {
-    TIM4_SetCounter(0);
-    while (TIM4_GetCounter() < 125)
-        ;
+    TIM2->CNTRH = (uint8_t)(value >> 8);
+    TIM2->CNTRL = (uint8_t)value;
+}
+
+uint16_t tim2_get_counter(void)
+{
+    uint16_t tmp = (uint16_t)TIM2->CNTRH << 8;
+    return tmp | TIM2->CNTRL;
+}
+
+void tim3_set_counter(uint16_t value)
+{
+    TIM3->CNTRH = (uint8_t)(value >> 8);
+    TIM3->CNTRL = (uint8_t)value;
+}
+
+uint16_t tim3_get_counter(void)
+{
+    uint16_t tmp = (uint16_t)TIM3->CNTRH << 8;
+    return tmp | TIM3->CNTRL;
 }
 
 void delay_ms(uint16_t ms)
 {
-    while (ms--)
-        delay_1ms();
+    while (ms--) {
+        tim4_set_counter(0);
+        while (tim4_get_counter() < 125)
+            ;  // задержка на 1ms
+    }
 }
 
 
@@ -50,6 +70,11 @@ void adc_start_conversion(ADC1_Channel_TypeDef channel)
 {
     ADC1->CSR = channel;
     ADC1->CR1 |= ADC1_CR1_ADON;
+}
+
+bool adc_conversion_complete(void)
+{
+    return (ADC1->CSR & ADC1_FLAG_EOC) != 0;
 }
 
 uint16_t adc_read_value(void)

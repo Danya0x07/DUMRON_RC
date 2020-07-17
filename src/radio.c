@@ -62,10 +62,10 @@ bool radio_check_ack(data_from_robot_t *incoming)
 
 bool radio_is_time_to_communicate(void)
 {
-    bool time_to_communicate = TIM3_GetCounter() >= 122;
+    bool time_to_communicate = tim3_get_counter() >= 122;
 
     if (time_to_communicate)
-        TIM3_SetCounter(0);
+        tim3_set_counter(0);
 
     return time_to_communicate;
 }

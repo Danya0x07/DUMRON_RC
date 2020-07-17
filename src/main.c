@@ -11,7 +11,7 @@
 #include "battery.h"
 #include "emitters.h"
 
-static void system_setup(void);
+static inline void system_setup(void);
 
 int main(void)
 {
@@ -52,7 +52,7 @@ int main(void)
     }
 }
 
-static void system_setup(void)
+static inline void system_setup(void)
 {
     CLK_DeInit();
     CLK_SYSCLKConfig(CLK_PRESCALER_CPUDIV1);
@@ -103,25 +103,26 @@ static void system_setup(void)
 #endif
 
     // Таймер для регулярного измерения батарейки.
-    TIM2_DeInit();
-    TIM2_TimeBaseInit(TIM2_PRESCALER_32768, 0xFFFF);
-    TIM2_Cmd(ENABLE);
+    TIM2->PSCR = TIM2_PRESCALER_32768;
+    TIM2->ARRH = 0xFF;
+    TIM2->ARRL = 0xFF;
+    TIM2->CR1 = TIM2_CR1_CEN;
 
     // Таймер для регулярной посылки радиосообщения.
-    TIM3_DeInit();
-    TIM3_TimeBaseInit(TIM3_PRESCALER_32768, 0xFFFF);
-    TIM3_Cmd(ENABLE);
+    TIM3->PSCR = TIM3_PRESCALER_32768;
+    TIM3->ARRH = 0xFF;
+    TIM3->ARRL = 0xFF;
+    TIM3->CR1 = TIM3_CR1_CEN;
 
     // Таймер для delay_ms.
-    TIM4_DeInit();
-    TIM4_TimeBaseInit(TIM4_PRESCALER_64, 0xFF);
-    TIM4_Cmd(ENABLE);
+    TIM4->PSCR = TIM4_PRESCALER_64;
+    TIM4->ARR = 0xFF;
+    TIM4->CR1 |= TIM4_CR1_CEN;
 
     // АЦП для измерения джойстика и батарейки.
     ADC1->CR1 = ADC1_PRESSEL_FCPU_D10;
     ADC1->CR2 = ADC1_ALIGN_RIGHT;
-    ADC1->TDRH = 0xFF;
-    ADC1->TDRL = 0xFF;
+    ADC1->TDRL = 0x07;
     ADC1->CR1 |= ADC1_CR1_ADON;  // включение АЦП
     adc_start_conversion(JOYSTICK_X_ADC_CH);
 

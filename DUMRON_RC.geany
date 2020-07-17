@@ -28,12 +28,12 @@ long_line_behaviour=1
 long_line_column=80
 
 [files]
-current_page=1
-FILE_NAME_0=3735;C;0;EUTF-8;0;1;0;%2Fhome%2Fdanya%2Fprojects%2FDUMRON_RC%2Fsrc%2Fmain.c;0;4
-FILE_NAME_1=540;C;0;EUTF-8;0;1;0;%2Fhome%2Fdanya%2Fprojects%2FDUMRON_RC%2Fsrc%2Fbattery.c;0;4
-FILE_NAME_2=0;C++;0;EUTF-8;0;1;0;%2Fhome%2Fdanya%2Fprojects%2FDUMRON_RC%2Finclude%2Fbuttons.h;0;4
-FILE_NAME_3=1317;C++;0;EUTF-8;0;1;0;%2Fhome%2Fdanya%2Fprojects%2FDUMRON_RC%2Finclude%2Fconfig.h;0;4
-FILE_NAME_4=0;C;0;EUTF-8;0;1;0;%2Fhome%2Fdanya%2Fprojects%2FDUMRON_RC%2Fsrc%2Fjoystick.c;0;4
+current_page=3
+FILE_NAME_0=3815;C;0;EUTF-8;0;1;0;%2Fhome%2Fdanya%2Fprojects%2FDUMRON_RC%2Fsrc%2Fmain.c;0;4
+FILE_NAME_1=182;C;0;EUTF-8;0;1;0;%2Fhome%2Fdanya%2Fprojects%2FDUMRON_RC%2Fsrc%2Fbattery.c;0;4
+FILE_NAME_2=382;C++;0;EUTF-8;0;1;0;%2Fhome%2Fdanya%2Fprojects%2FDUMRON_RC%2Finclude%2Fhalutils.h;0;4
+FILE_NAME_3=1070;C;0;EUTF-8;0;1;0;%2Fhome%2Fdanya%2Fprojects%2FDUMRON_RC%2Fsrc%2Fhalutils.c;0;4
+FILE_NAME_4=1780;C;0;EUTF-8;0;1;0;%2Fhome%2Fdanya%2Fprojects%2FDUMRON_RC%2Fsrc%2Fjoystick.c;0;4
 
 [VTE]
 last_dir=/home/danya/projects/DUMRON_RC
