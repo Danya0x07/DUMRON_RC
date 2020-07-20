@@ -11,8 +11,6 @@
 #include <stm8s.h>
 #include <stddef.h>
 
-typedef uint8_t uint_fast8_t;
-
 /** 1 для NRF24L01+, 0 для NRF24L01. */
 #define NRF24L01_PLUS   1
 

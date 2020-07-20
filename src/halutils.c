@@ -24,15 +24,60 @@ uint16_t tim3_get_counter(void)
     return tmp | TIM3->CNTRL;
 }
 
-void delay_ms(uint16_t ms)
+void adc_start_conversion(ADC1_Channel_TypeDef channel)
 {
-    while (ms--) {
-        tim4_set_counter(0);
-        while (tim4_get_counter() < 125)
-            ;  // задержка на 1ms
+    ADC1->CSR = channel;
+    ADC1->CR1 |= ADC1_CR1_ADON;
+}
+
+bool adc_conversion_complete(void)
+{
+    return (ADC1->CSR & ADC1_FLAG_EOC) != 0;
+}
+
+uint16_t adc_read_value(void)
+{
+    uint16_t temph = 0;
+    uint8_t templ = 0;
+
+    templ = ADC1->DRL;
+    temph = ADC1->DRH;
+    temph = temph << 8 | templ;
+
+    return temph;
+}
+
+uint8_t spi_transfer_byte(uint8_t byte)
+{
+    while (!SPI_GetFlagStatus(SPI_FLAG_TXE));
+    SPI_SendData(byte);
+    while (!SPI_GetFlagStatus(SPI_FLAG_RXNE));
+    return SPI_ReceiveData();
+}
+
+void spi_transfer_bytes(uint8_t *in, const uint8_t *out, uint8_t len)
+{
+    if (in == NULL) {
+        while (len--)
+            spi_transfer_byte(*out++);
+    } else if (out == NULL) {
+        while (len--)
+            *in++ = spi_transfer_byte(0);
+    } else {
+        while (len--)
+            *in++ = spi_transfer_byte(*out++);
     }
 }
 
+void delay_ms(uint16_t ms)
+{
+    while (ms--) {
+        // задержка на 1ms
+        tim4_set_counter(0);
+        while (tim4_get_counter() < 125)
+            ;
+    }
+}
 
 #define MAX_NUMBER_OF_DIGITS 16
 
@@ -63,28 +108,4 @@ char *itoa(int value, unsigned char radix)
     } while (*pbuff != '\0');
 
     return string;
-}
-
-
-void adc_start_conversion(ADC1_Channel_TypeDef channel)
-{
-    ADC1->CSR = channel;
-    ADC1->CR1 |= ADC1_CR1_ADON;
-}
-
-bool adc_conversion_complete(void)
-{
-    return (ADC1->CSR & ADC1_FLAG_EOC) != 0;
-}
-
-uint16_t adc_read_value(void)
-{
-    uint16_t temph = 0;
-    uint8_t templ = 0;
-
-    templ = ADC1->DRL;
-    temph = ADC1->DRH;
-    temph = temph << 8 | templ;
-
-    return temph;
 }

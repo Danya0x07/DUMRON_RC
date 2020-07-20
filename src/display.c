@@ -1,7 +1,7 @@
 #include <stm8s.h>
 
 #include "display.h"
-#include "nokia5110lcd.h"
+#include "pcd8544.h"
 #include "halutils.h"
 
 enum {
@@ -15,7 +15,7 @@ enum {
     NUMBER_OF_CUSTOM_CHARS
 };
 
-static const uint8_t custom_charset[NUMBER_OF_CUSTOM_CHARS][7] = {
+static const uint8_t custom_charset[NUMBER_OF_CUSTOM_CHARS][5] = {
     {0x0D, 0x34, 0xC6, 0xC6, 0xC6, 0x34, 0x0D},
     {0x1D, 0x22, 0xC1, 0xC1, 0xC1, 0x22, 0x1D},
     {0x00, 0x0C, 0x02, 0xFF, 0x02, 0x0C, 0x00},
@@ -26,15 +26,16 @@ static const uint8_t custom_charset[NUMBER_OF_CUSTOM_CHARS][7] = {
 
 void display_init(void)
 {
-    lcd_reset();
-    lcd_send_byte(LCD_COMMAND, 0x21);  /* Переключиться в режим расширенных команд. */
-    lcd_send_byte(LCD_COMMAND, 0xBF);  /* Установить яркость. */
-    lcd_send_byte(LCD_COMMAND, 0x04);  /* Установить температурный коэффициент 0. */
-    lcd_send_byte(LCD_COMMAND, 0x10);  /* Установить смещение напряжения 1:100. */
-    lcd_send_byte(LCD_COMMAND, 0x20);  /* Переключиться в режим стандартных команд. */
-    lcd_send_byte(LCD_COMMAND, 0x0C);  /* Перевести дисплей в нормальный режим. */
+    struct pcd8544_config config = {
+        .brightness = 0x3F,
+        .contrast = 0,
+        .temperature_coeff = 0
+    };
+
+    pcd8544_reset();
+    pcd8544_configure(&config);
     delay_ms(100);
-    lcd_clear();
+    pcd8544_clear();
 }
 
 void display_update(const data_to_robot_t *dtr, const data_from_robot_t *dfr,
@@ -43,41 +44,41 @@ void display_update(const data_to_robot_t *dtr, const data_from_robot_t *dfr,
     /* Рисуем данные пульта. */
 
     /* заряд батареи пульта (%); */
-    lcd_set_position(8, 0);
+    pcd8544_set_cursor(8, 0);
     if (battery_charge < 100) {
-        lcd_print_ascii(' ');
+        pcd8544_print_c(' ');
     }
     if (battery_charge < 10) {
-        lcd_print_ascii(' ');
+        pcd8544_print_c(' ');
     }
-    lcd_print_string(itoa(battery_charge, 10));
-    lcd_print_ascii('%');
+    pcd8544_print_s(itoa(battery_charge, 10));
+    pcd8544_print_c('%');
 
     /* состояние связи (есть/нет); */
-    lcd_set_position(7, 2);
+    pcd8544_set_cursor(7, 2);
     if (ack_received) {
         lcd_print_custom(custom_charset, CUSTOM_CHAR_CONNECTION);
     } else {
-        lcd_print_ascii(' ');
+        pcd8544_print_c(' ');
     }
 
     /* состояние фар (вкл/выкл); */
-    lcd_set_position(10, 2);
+    pcd8544_set_cursor(10, 2);
     if (dtr->ctrl.bf.lights_en) {
         lcd_print_custom(custom_charset, CUSTOM_CHAR_LIGHTS);
     } else {
-        lcd_print_ascii(' ');
+        pcd8544_print_c(' ');
     }
 
     /* состояние бибики (вкл/выкл); */
     if (dtr->ctrl.bf.buzzer_en) {
         lcd_print_custom(custom_charset, CUSTOM_CHAR_KLAXON);
     } else {
-        lcd_print_ascii(' ');
+        pcd8544_print_c(' ');
     }
 
     /* направление вертикального перемещения манипулятора (вверх/вниз/нет); */
-    lcd_set_position(8, 3);
+    pcd8544_set_cursor(8, 3);
     switch (dtr->ctrl.bf.arm_ctrl)
     {
     case ARMCTL_UP:
@@ -87,96 +88,96 @@ void display_update(const data_to_robot_t *dtr, const data_from_robot_t *dfr,
         lcd_print_custom(custom_charset, CUSTOM_CHAR_ARROWDOWN);
         break;
     case ARMCTL_STOP:
-        lcd_print_ascii(' ');
+        pcd8544_print_c(' ');
     }
 
     /* направление движения клешни (сжимается/разжимается/нет); */
-    lcd_set_position(7, 4);
+    pcd8544_set_cursor(7, 4);
     switch (dtr->ctrl.bf.claw_ctrl)
     {
     case CLAWCTL_SQUEEZE:
-        lcd_print_string("><");
+        pcd8544_print_s("><");
         break;
     case CLAWCTL_RELEASE:
-        lcd_print_string("<>");
+        pcd8544_print_s("<>");
         break;
     case CLAWCTL_STOP:
-        lcd_print_string("  ");
+        pcd8544_print_s("  ");
     }
 
     /* направление движения робота (вперёд/назад/налево/направо/нет); */
-    lcd_set_position(10, 3);
+    pcd8544_set_cursor(10, 3);
     switch (dtr->ctrl.bf.move_dir)
     {
     case MOVEDIR_FORWARD:
-        lcd_print_string("/\\");
+        pcd8544_print_s("/\\");
         break;
     case MOVEDIR_BACKWARD:
-        lcd_print_string("\\/");
+        pcd8544_print_s("\\/");
         break;
     case MOVEDIR_LEFTWARD:
-        lcd_print_string("<-");
+        pcd8544_print_s("<-");
         break;
     case MOVEDIR_RIGHTWARD:
-        lcd_print_string("->");
+        pcd8544_print_s("->");
         break;
     case MOVEDIR_NONE:
-        lcd_print_string("  ");
+        pcd8544_print_s("  ");
     }
     /* скорости гусениц (быстро/медленно/нет); */
-    lcd_set_position(10, 4);
-    lcd_print_ascii(dtr->speed_left  > 128 ? '^' : ' ');
-    lcd_print_ascii(dtr->speed_right > 128 ? '^' : ' ');
-    lcd_set_position(10, 5);
-    lcd_print_ascii(dtr->speed_left  > 0 ? '^' : ' ');
-    lcd_print_ascii(dtr->speed_right > 0 ? '^' : ' ');
+    pcd8544_set_cursor(10, 4);
+    pcd8544_print_c(dtr->speed_left  > 128 ? '^' : ' ');
+    pcd8544_print_c(dtr->speed_right > 128 ? '^' : ' ');
+    pcd8544_set_cursor(10, 5);
+    pcd8544_print_c(dtr->speed_left  > 0 ? '^' : ' ');
+    pcd8544_print_c(dtr->speed_right > 0 ? '^' : ' ');
 
     /* Печатаем данные робота. */
 
     /* заряд мозговой части (%); */
-    lcd_set_position(0, 0);
-    lcd_print_string(itoa(dfr->battery_brains, 10));
-    lcd_print_string("% ");
+    pcd8544_set_cursor(0, 0);
+    pcd8544_print_s(itoa(dfr->battery_brains, 10));
+    pcd8544_print_s("% ");
 
     /* заряд силовой части (%); */
-    lcd_set_position(0, 1);
-    lcd_print_string(itoa(dfr->battery_motors, 10));
-    lcd_print_string("% ");
+    pcd8544_set_cursor(0, 1);
+    pcd8544_print_s(itoa(dfr->battery_motors, 10));
+    pcd8544_print_s("% ");
 
     /* наличия сзади препятствия или перепада высоты; */
-    lcd_set_position(5, 2);
+    pcd8544_set_cursor(5, 2);
     switch (dfr->status.bf.back_distance)
     {
     case DIST_CLIFF:
-        lcd_print_ascii('O');
+        pcd8544_print_c('O');
         break;
     case DIST_OBSTACLE:
-        lcd_print_ascii('|');
+        pcd8544_print_c('|');
         break;
     case DIST_ERROR:
-        lcd_print_ascii('E');
+        pcd8544_print_c('E');
         break;
     case DIST_NOTHING:
-        lcd_print_ascii(' ');
+        pcd8544_print_c(' ');
     }
 
     /* температура окружающей среды; */
-    lcd_set_position(0, 4);
+    pcd8544_set_cursor(0, 4);
     if (dfr->temp_ambient != TEMPERATURE_ERROR_VALUE) {
-        lcd_print_string(itoa(dfr->temp_ambient, 10));
+        pcd8544_print_s(itoa(dfr->temp_ambient, 10));
         lcd_print_custom(custom_charset, CUSTOM_CHAR_CELSIUS);
     } else {
-        lcd_print_string("E ");
+        pcd8544_print_s("E ");
     }
-    lcd_print_string("  ");
+    pcd8544_print_s("  ");
 
     /* и температура радиаторов. */
-    lcd_set_position(0, 5);
+    pcd8544_set_cursor(0, 5);
     if (dfr->temp_radiators != TEMPERATURE_ERROR_VALUE) {
-        lcd_print_string(itoa(dfr->temp_radiators, 10));
+        pcd8544_print_s(itoa(dfr->temp_radiators, 10));
         lcd_print_custom(custom_charset, CUSTOM_CHAR_CELSIUS);
     } else {
-        lcd_print_string("E ");
+        pcd8544_print_s("E ");
     }
-    lcd_print_string("  ");
+    pcd8544_print_s("  ");
 }

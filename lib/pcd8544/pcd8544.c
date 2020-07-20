@@ -1,16 +1,33 @@
-/**
- * Здесь функции для управления LCD дисплеем от Nokia 5110.
+/*
+ * Copyright (C) 2020 Daniel Efimenko
+ *     github.com/Danya0x07
  */
 
-#include "nokia5110lcd.h"
-#include "halutils.h"
-#include "config.h"
+#include "pcd8544.h"
+#include "pcd8544_port.h"
 
-#define LCD_PIXELS_X    84
-#define LCD_PIXELS_Y    48
+#define NUM_PIXELS_X    84
+#define NUM_PIXELS_Y    48
+#define NUM_PAGES   6
 
-static const uint8_t ASCII[][5] = {
-    {0x00, 0x00, 0x00, 0x00, 0x00},  /* 20   */
+#define X_MAX       (NUM_PIXELS_X - 1)
+#define PAGE_MAX    (NUM_PAGES - 1)
+
+enum pcd8544_cmd {
+    CMD_NOP = 0x00,
+    CMD_FUNCTION_SET = 0x20,
+    CMD_DISPLAY_CTRL = 0x08,
+    CMD_SET_PAGE = 0x40,
+    CMD_SET_X = 0x80,
+    CMD_TEMPERATURE_CTRL = 0x04,
+    CMD_BIAS_SYSTEM = 0x10,
+    CMD_SET_VOP = 0x80
+};
+
+#define FUNCTION_SET(PD, V, H)  (CMD_FUNCTION_SET | (PD) << 2 | (V) << 1 | (H))
+
+static const LOOKUP_TABLE_MEMORY_SPECIFIER uint8_t font_table[][5] = {
+    {0x00, 0x00, 0x00, 0x00, 0x00},  /* 20 SPACE */
     {0x00, 0x00, 0x5f, 0x00, 0x00},  /* 21 ! */
     {0x00, 0x07, 0x00, 0x07, 0x00},  /* 22 " */
     {0x14, 0x7f, 0x14, 0x7f, 0x14},  /* 23 # */
@@ -70,7 +87,7 @@ static const uint8_t ASCII[][5] = {
     {0x07, 0x08, 0x70, 0x08, 0x07},  /* 59 Y */
     {0x61, 0x51, 0x49, 0x45, 0x43},  /* 5a Z */
     {0x00, 0x7f, 0x41, 0x41, 0x00},  /* 5b [ */
-    {0x02, 0x04, 0x08, 0x10, 0x20},  /* 5c ¥ */
+    {0x02, 0x04, 0x08, 0x10, 0x20},  /* 5c \ */
     {0x00, 0x41, 0x41, 0x7f, 0x00},  /* 5d ] */
     {0x04, 0x02, 0x01, 0x02, 0x04},  /* 5e ^ */
     {0x40, 0x40, 0x40, 0x40, 0x40},  /* 5f _ */
@@ -103,90 +120,132 @@ static const uint8_t ASCII[][5] = {
     {0x44, 0x64, 0x54, 0x4c, 0x44},  /* 7a z */
     {0x00, 0x08, 0x36, 0x41, 0x00},  /* 7b { */
     {0x00, 0x00, 0x7f, 0x00, 0x00},  /* 7c | */
-    {0x00, 0x41, 0x36, 0x08, 0x00},  /* 7d  */
-    {0x10, 0x08, 0x08, 0x10, 0x08},  /* 7e ← */
-    {0x78, 0x46, 0x41, 0x46, 0x78},  /* 7f → */
+    {0x00, 0x41, 0x36, 0x08, 0x00},  /* 7d } */
+    {0x10, 0x08, 0x08, 0x10, 0x08},  /* 7e ~ */
 };
 
-/**
- * @brief Перезагружает дисплей.
- * @note  Эту функцию НЕОБХОДИМО вызвать не позже чем через
- *        100 миллисекунд после подачи питания на дисплей.
- * @note  Эта функция платформозависимая.
- */
-void lcd_reset(void)
+static struct {
+    bool inverse;
+} brush_settings = {FALSE};
+
+static void write_cmd(uint8_t cmd)
 {
-    GPIO_WriteLow(LCD_GPORT, LCD_RST_GPIN);
-    delay_ms(1);
-    GPIO_WriteHigh(LCD_GPORT, LCD_RST_GPIN);
-    delay_ms(1);
+    _ce_low();
+    _dc_low();
+    _spi_send_byte(cmd);
+    _ce_high();
 }
 
-/**
- * @brief Устанавливает курсор в указанную символьную позицию.
- * @note  0 <= x <= 11, отсчёт слева направо;
- * @note  0 <= y <= 5   отсчёт сверху вниз;
- */
-void lcd_set_position(uint8_t x, uint8_t y)
+static void write_ddram(uint8_t data)
 {
-    x *= 7;
-    if (x > 83 || y > 5)
-        return;
-    lcd_send_byte(LCD_COMMAND, 0x80 | x);
-    lcd_send_byte(LCD_COMMAND, 0x40 | y);
+    if (brush_settings.inverse)
+        data = ~data;
+
+    _ce_low();
+    _dc_high();
+    _spi_send_byte(data);
+    _ce_high();
 }
 
-void lcd_print_ascii(char ch)
+void pcd8544_reset(void)
+{
+    _rst_low();
+    _delay_ms(1);
+    _rst_high();
+}
+
+void pcd8544_set_power(bool pwr)
+{
+    write_cmd(FUNCTION_SET(!pwr, 0, 0));
+}
+
+void pcd8544_configure(struct pcd8544_config *config)
+{
+    write_cmd(FUNCTION_SET(0, 0, 1));
+    write_cmd(CMD_BIAS_SYSTEM | config->brightness);
+    write_cmd(CMD_SET_VOP | config->contrast);
+    write_cmd(CMD_TEMPERATURE_CTRL | config->temperature_coeff);
+    write_cmd(FUNCTION_SET(0, 0, 0));
+    write_cmd(CMD_DISPLAY_CTRL | PCD8544_MODE_NORMAL);
+}
+
+void pcd8544_set_mode(enum pcd8544_mode mode)
+{
+    write_cmd(CMD_DISPLAY_CTRL | mode);
+}
+
+void pcd8544_set_brush(bool inverse)
+{
+    brush_settings.inverse = inverse;
+}
+
+void pcd8544_set_cursor(uint8_t column, uint8_t row)
+{
+    pcd8544_set_addr(6 * column, row);
+}
+
+void pcd8544_set_addr(uint8_t x, uint8_t page)
+{
+    if (x >= NUM_PIXELS_X)
+        x %= NUM_PIXELS_X;
+
+    if (page >= NUM_PAGES)
+        page %= NUM_PAGES;
+
+    write_cmd(CMD_SET_X | x);
+    write_cmd(CMD_SET_PAGE | page);
+}
+
+void pcd8544_print_c(char c)
 {
     uint8_t i;
-    lcd_send_byte(LCD_DATA, 0x00);
+
+    c -= 0x20;
     for (i = 0; i < 5; i++) {
-        lcd_send_byte(LCD_DATA, ASCII[ch - 0x20][i]);
+        write_ddram(_lookup(font_table + 5 * c + i);
     }
-    lcd_send_byte(LCD_DATA, 0x00);
+    write_ddram(0x00);
 }
 
-void lcd_print_custom(uint8_t charset[][7], uint8_t symbol)
+void pcd8544_print_s(const char *s)
 {
-    uint8_t i;
-    for (i = 0; i < 7; i++) {
-        lcd_send_byte(LCD_DATA, charset[symbol][i]);
+    while(*s) {
+        pcd8544_print_c(*s++);
     }
 }
 
-void lcd_print_string(char* str)
+void pcd8544_draw_img(uint8_t start_x, uint8_t start_pg,
+                      const struct pcd8544_image *img)
 {
-    while(*str) {
-        lcd_print_ascii(*str++);
+    uint8_t i, j;
+    uint8_t current_pg;
+    uint8_t data;
+    uint8_t *pdata;
+
+    for (i = 0; i < img->height_pg; i++) {
+        current_pg = start_pg + i;
+        if (current_pg > PAGE_MAX)
+            break;
+
+        pcd8544_set_addr(start_x, current_pg);
+
+        for (j = 0; j < img->width_px && start_x + j < NUM_PIXELS_X; j++) {
+            pdata = img->content + img->width_px * i + j;
+            if (img->lookup)
+                data = _lookup(pdata);
+            else
+                data = *pdata;
+            write_ddram(data);
+        }
     }
 }
 
-void lcd_clear(void)
+void pcd8544_clear(void)
 {
     uint16_t i;
-    lcd_set_position(0, 0);
-    for (i = 0; i < LCD_PIXELS_X * LCD_PIXELS_Y / 8; i++) {
-        lcd_send_byte(LCD_DATA, 0x00);
-    }
-}
 
-/**
- * @brief Отправляет байт дисплею по SPI.
- * @note  Эта функция платформозависимая.
- * @param meaning: Значение байта: команда или данные.
- * @param byte: Байт для передачи.
- */
-void lcd_send_byte(MeaningOfByte meaning, uint8_t byte)
-{
-    GPIO_WriteLow(LCD_GPORT, LCD_CE_GPIN);
-    if (meaning == LCD_COMMAND) {
-        GPIO_WriteLow(LCD_GPORT, LCD_DC_GPIN);
-    } else {
-        GPIO_WriteHigh(LCD_GPORT, LCD_DC_GPIN);
+    pcd8544_set_addr(0, 0);
+    for (i = 0; i < NUM_PIXELS_X * NUM_PAGES; i++) {
+        write_ddram(0x00);
     }
-    while (!SPI_GetFlagStatus(SPI_FLAG_TXE));
-    SPI_SendData(byte);
-    while(SPI_GetFlagStatus(SPI_FLAG_BSY));
-    (void) SPI_ReceiveData();
-    GPIO_WriteHigh(LCD_GPORT, LCD_CE_GPIN);
 }

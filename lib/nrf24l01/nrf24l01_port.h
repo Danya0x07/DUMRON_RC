@@ -13,10 +13,8 @@
 #ifndef _NRF24L01_PORT_H
 #define _NRF24L01_PORT_H
 
-#include <stm8s.h>
-#include <../../include/halutils.h>
-#include <../../include/config.h>
-
+#include <halutils.h>
+#include <config.h>
 
 /**
  * @name    Макросы для управления выводами трансивера.
@@ -43,12 +41,9 @@
  * Баг проявляется на уровнях оптимизации, отличных от -O0 и -Og.
  * Симптомы: некорректные значения при передаче/приёме данных по SPI.
  */
-static uint8_t _spi_transfer_byte(uint8_t byte)
+static inline uint8_t _spi_transfer_byte(uint8_t byte)
 {
-    while (!SPI_GetFlagStatus(SPI_FLAG_TXE));
-    SPI_SendData(byte);
-    while (!SPI_GetFlagStatus(SPI_FLAG_RXNE));
-    return SPI_ReceiveData();
+    return spi_transfer_byte(byte);
 }
 
 /**
@@ -66,19 +61,10 @@ static uint8_t _spi_transfer_byte(uint8_t byte)
  * @warning
  * in и out не могут быть NULL одновременно.
  */
-static void _spi_transfer_bytes(uint8_t *in, const uint8_t *out,
+static inline void _spi_transfer_bytes(uint8_t *in, const uint8_t *out,
                                        uint8_t len)
 {
-    if (in == NULL) {
-        while (len--)
-            _spi_transfer_byte(*out++);
-    } else if (out == NULL) {
-        while (len--)
-            *in++ = _spi_transfer_byte(0);
-    } else {
-        while (len--)
-            *in++ = _spi_transfer_byte(*out++);
-    }
+    spi_transfer_bytes(in, out, len);
 }
 
 /** Функция миллисекундной задержки. */
