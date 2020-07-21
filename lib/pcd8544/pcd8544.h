@@ -25,7 +25,7 @@ enum pcd8544_mode {
     PCD8544_MODE_FILLED = 1,
     PCD8544_MODE_NORMAL = 4,
     PCD8544_MODE_INVERTED = 5,
-}
+};
 
 struct pcd8544_config {
     uint8_t temperature_coeff;

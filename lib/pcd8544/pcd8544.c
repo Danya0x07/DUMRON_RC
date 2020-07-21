@@ -150,8 +150,9 @@ static void write_ddram(uint8_t data)
 void pcd8544_reset(void)
 {
     _rst_low();
-    _delay_ms(1);
+    _delay_ms(5);
     _rst_high();
+    _delay_ms(5);
 }
 
 void pcd8544_set_power(bool pwr)
@@ -163,8 +164,8 @@ void pcd8544_configure(struct pcd8544_config *config)
 {
     write_cmd(FUNCTION_SET(0, 0, 1));
     write_cmd(CMD_BIAS_SYSTEM | config->brightness);
-    write_cmd(CMD_SET_VOP | config->contrast);
     write_cmd(CMD_TEMPERATURE_CTRL | config->temperature_coeff);
+    write_cmd(CMD_SET_VOP | config->contrast);
     write_cmd(FUNCTION_SET(0, 0, 0));
     write_cmd(CMD_DISPLAY_CTRL | PCD8544_MODE_NORMAL);
 }
@@ -202,7 +203,7 @@ void pcd8544_print_c(char c)
 
     c -= 0x20;
     for (i = 0; i < 5; i++) {
-        write_ddram(_lookup(font_table + 5 * c + i);
+        write_ddram(_lookup((const uint8_t *)font_table + 5 * c + i));
     }
     write_ddram(0x00);
 }

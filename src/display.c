@@ -4,37 +4,68 @@
 #include "pcd8544.h"
 #include "halutils.h"
 
-enum {
-    CUSTOM_CHAR_KLAXON,
-    CUSTOM_CHAR_LIGHTS,
-    CUSTOM_CHAR_ARROWUP,
-    CUSTOM_CHAR_ARROWDOWN,
-    CUSTOM_CHAR_CONNECTION,
-    CUSTOM_CHAR_CELSIUS,
+static const uint8_t bitmap_buzzer_on[5] = {0x18, 0x28, 0x4C, 0x28, 0x18};
+static const uint8_t bitmap_lights_on[5] = {0x1C, 0x22, 0x62, 0x22, 0x1C};
+static const uint8_t bitmap_arrow_up[5] = {0x04, 0x02, 0x7F, 0x02, 0x04};
+static const uint8_t bitmap_arrow_down[5] = {0x10, 0x20, 0x7F, 0x20, 0x10};
+static const uint8_t bitmap_connection[5] = {0x7C, 0x04, 0x14, 0x10, 0x1F};
+static const uint8_t bitmap_celsius[5] = {0x03, 0x3B, 0x44, 0x44, 0x44};
 
-    NUMBER_OF_CUSTOM_CHARS
+static const struct pcd8544_image image_buzzer_on = {
+    .content = bitmap_buzzer_on,
+    .width_px = 5,
+    .height_pg = 1,
+    .lookup = FALSE
 };
 
-static const uint8_t custom_charset[NUMBER_OF_CUSTOM_CHARS][5] = {
-    {0x0D, 0x34, 0xC6, 0xC6, 0xC6, 0x34, 0x0D},
-    {0x1D, 0x22, 0xC1, 0xC1, 0xC1, 0x22, 0x1D},
-    {0x00, 0x0C, 0x02, 0xFF, 0x02, 0x0C, 0x00},
-    {0x00, 0x30, 0x40, 0xFF, 0x40, 0x30, 0x00},
-    {0x02, 0x0A, 0x2A, 0xFF, 0x2A, 0x0A, 0x02},
-    {0x02, 0x05, 0x3A, 0x44, 0x82, 0x82, 0x44},
+static const struct pcd8544_image image_lights_on = {
+    .content = bitmap_lights_on,
+    .width_px = 5,
+    .height_pg = 1,
+    .lookup = FALSE
+};
+
+static const struct pcd8544_image image_arrow_up = {
+    .content = bitmap_arrow_up,
+    .width_px = 5,
+    .height_pg = 1,
+    .lookup = FALSE
+};
+
+static const struct pcd8544_image image_arrow_down = {
+    .content = bitmap_arrow_down,
+    .width_px = 5,
+    .height_pg = 1,
+    .lookup = FALSE
+};
+
+static const struct pcd8544_image image_connection = {
+    .content = bitmap_connection,
+    .width_px = 5,
+    .height_pg = 1,
+    .lookup = FALSE
+};
+
+static const struct pcd8544_image image_celsius = {
+    .content = bitmap_celsius,
+    .width_px = 5,
+    .height_pg = 1,
+    .lookup = FALSE
 };
 
 void display_init(void)
 {
     struct pcd8544_config config = {
-        .brightness = 0x3F,
-        .contrast = 0,
-        .temperature_coeff = 0
+        .temperature_coeff = 0,
+        .brightness = 0,
+        .contrast = 0x3F
     };
 
     pcd8544_reset();
     pcd8544_configure(&config);
     delay_ms(100);
+    pcd8544_print_s("Wake UP!");
+    delay_ms(1000);
     pcd8544_clear();
 }
 
@@ -44,7 +75,7 @@ void display_update(const data_to_robot_t *dtr, const data_from_robot_t *dfr,
     /* Рисуем данные пульта. */
 
     /* заряд батареи пульта (%); */
-    pcd8544_set_cursor(8, 0);
+    pcd8544_set_cursor(9, 0);
     if (battery_charge < 100) {
         pcd8544_print_c(' ');
     }
@@ -55,9 +86,9 @@ void display_update(const data_to_robot_t *dtr, const data_from_robot_t *dfr,
     pcd8544_print_c('%');
 
     /* состояние связи (есть/нет); */
-    pcd8544_set_cursor(7, 2);
+    pcd8544_set_cursor(8, 2);
     if (ack_received) {
-        lcd_print_custom(custom_charset, CUSTOM_CHAR_CONNECTION);
+        pcd8544_draw_img(48, 2, &image_connection);
     } else {
         pcd8544_print_c(' ');
     }
@@ -65,14 +96,14 @@ void display_update(const data_to_robot_t *dtr, const data_from_robot_t *dfr,
     /* состояние фар (вкл/выкл); */
     pcd8544_set_cursor(10, 2);
     if (dtr->ctrl.bf.lights_en) {
-        lcd_print_custom(custom_charset, CUSTOM_CHAR_LIGHTS);
+        pcd8544_draw_img(60, 2, &image_lights_on);
     } else {
         pcd8544_print_c(' ');
     }
 
     /* состояние бибики (вкл/выкл); */
     if (dtr->ctrl.bf.buzzer_en) {
-        lcd_print_custom(custom_charset, CUSTOM_CHAR_KLAXON);
+        pcd8544_draw_img(66, 2, &image_buzzer_on);
     } else {
         pcd8544_print_c(' ');
     }
@@ -82,10 +113,10 @@ void display_update(const data_to_robot_t *dtr, const data_from_robot_t *dfr,
     switch (dtr->ctrl.bf.arm_ctrl)
     {
     case ARMCTL_UP:
-        lcd_print_custom(custom_charset, CUSTOM_CHAR_ARROWUP);
+        pcd8544_draw_img(48, 3, &image_arrow_up);
         break;
     case ARMCTL_DOWN:
-        lcd_print_custom(custom_charset, CUSTOM_CHAR_ARROWDOWN);
+        pcd8544_draw_img(48, 3, &image_arrow_down);
         break;
     case ARMCTL_STOP:
         pcd8544_print_c(' ');
@@ -165,7 +196,7 @@ void display_update(const data_to_robot_t *dtr, const data_from_robot_t *dfr,
     pcd8544_set_cursor(0, 4);
     if (dfr->temp_ambient != TEMPERATURE_ERROR_VALUE) {
         pcd8544_print_s(itoa(dfr->temp_ambient, 10));
-        lcd_print_custom(custom_charset, CUSTOM_CHAR_CELSIUS);
+        pcd8544_draw_img(0, 4, &image_celsius);
     } else {
         pcd8544_print_s("E ");
     }
@@ -175,7 +206,7 @@ void display_update(const data_to_robot_t *dtr, const data_from_robot_t *dfr,
     pcd8544_set_cursor(0, 5);
     if (dfr->temp_radiators != TEMPERATURE_ERROR_VALUE) {
         pcd8544_print_s(itoa(dfr->temp_radiators, 10));
-        lcd_print_custom(custom_charset, CUSTOM_CHAR_CELSIUS);
+        pcd8544_draw_img(0, 5, &image_celsius);
     } else {
         pcd8544_print_s("E ");
     }

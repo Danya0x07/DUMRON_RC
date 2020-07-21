@@ -36,18 +36,18 @@
  * целесообразно вынести соответствующую функцию в отдельный файл, а в этой
  * функции просто делегировать ей работу.
  */
-static inline uint8_t _spi_send_byte(uint8_t byte)
+static void _spi_send_byte(uint8_t byte)
 {
-    return spi_transfer_byte(byte);
+    spi_transfer_byte(byte);
 }
 
 #define _delay_ms(ms)   delay_ms(ms)
 
 #define LOOKUP_TABLE_MEMORY_SPECIFIER
 
-static inline uint8_t _lookup(uint8_t *addr)
+static inline uint8_t _lookup(const uint8_t *pbyte)
 {
-    return *byte_addr;
+    return *pbyte;
 }
 
 #endif /* _PCD8544_PORT_H */
