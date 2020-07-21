@@ -13,6 +13,7 @@
 #include <stddef.h>
 
 typedef uint8_t uint_fast8_t;
+typedef uint16_t uint_fast16_t;
 
 void tim2_set_counter(uint16_t value);
 uint16_t tim2_get_counter(void);

@@ -150,9 +150,8 @@ static void write_ddram(uint8_t data)
 void pcd8544_reset(void)
 {
     _rst_low();
-    _delay_ms(5);
+    _delay_ms(1);
     _rst_high();
-    _delay_ms(5);
 }
 
 void pcd8544_set_power(bool pwr)
@@ -163,9 +162,9 @@ void pcd8544_set_power(bool pwr)
 void pcd8544_configure(struct pcd8544_config *config)
 {
     write_cmd(FUNCTION_SET(0, 0, 1));
-    write_cmd(CMD_BIAS_SYSTEM | config->brightness);
+    write_cmd(CMD_BIAS_SYSTEM | config->contrast);
     write_cmd(CMD_TEMPERATURE_CTRL | config->temperature_coeff);
-    write_cmd(CMD_SET_VOP | config->contrast);
+    write_cmd(CMD_SET_VOP | config->brightness);
     write_cmd(FUNCTION_SET(0, 0, 0));
     write_cmd(CMD_DISPLAY_CTRL | PCD8544_MODE_NORMAL);
 }
@@ -199,7 +198,7 @@ void pcd8544_set_addr(uint8_t x, uint8_t page)
 
 void pcd8544_print_c(char c)
 {
-    uint8_t i;
+    uint_fast8_t i;
 
     c -= 0x20;
     for (i = 0; i < 5; i++) {
@@ -215,38 +214,41 @@ void pcd8544_print_s(const char *s)
     }
 }
 
-void pcd8544_draw_img(uint8_t start_x, uint8_t start_pg,
-                      const struct pcd8544_image *img)
+void pcd8544_draw_img(uint8_t x, uint8_t page, const struct pcd8544_image *img)
 {
-    uint8_t i, j;
-    uint8_t current_pg;
-    uint8_t data;
-    uint8_t *pdata;
+    const uint8_t *pdata = img->bitmap;
+    uint_fast8_t i, j;
+    uint_fast8_t current_x;
 
-    for (i = 0; i < img->height_pg; i++) {
-        current_pg = start_pg + i;
-        if (current_pg > PAGE_MAX)
-            break;
-
-        pcd8544_set_addr(start_x, current_pg);
-
-        for (j = 0; j < img->width_px && start_x + j < NUM_PIXELS_X; j++) {
-            pdata = img->content + img->width_px * i + j;
-            if (img->lookup)
-                data = _lookup(pdata);
-            else
-                data = *pdata;
-            write_ddram(data);
+    if (img->lookup) {
+        for (i = 0; i < img->height_pg && page < NUM_PAGES; i++, page++) {
+            pcd8544_set_addr(x, page);
+            for (j = 0, current_x = x;
+                 j < img->width_px && current_x < NUM_PIXELS_X;
+                 j++, pdata++, current_x++)
+            {
+                write_ddram(_lookup(pdata));
+            }
+        }
+    } else {
+        for (i = 0; i < img->height_pg && page < NUM_PAGES; i++, page++) {
+            pcd8544_set_addr(x, page);
+            for (j = 0, current_x = x;
+                 j < img->width_px && current_x < NUM_PIXELS_X;
+                 j++, pdata++, current_x++)
+            {
+                write_ddram(*pdata);
+            }
         }
     }
 }
 
 void pcd8544_clear(void)
 {
-    uint16_t i;
+    uint_fast16_t i;
 
     pcd8544_set_addr(0, 0);
     for (i = 0; i < NUM_PIXELS_X * NUM_PAGES; i++) {
-        write_ddram(0x00);
+        write_ddram(0);
     }
 }

@@ -36,7 +36,7 @@
  * целесообразно вынести соответствующую функцию в отдельный файл, а в этой
  * функции просто делегировать ей работу.
  */
-static void _spi_send_byte(uint8_t byte)
+static inline void _spi_send_byte(uint8_t byte)
 {
     spi_transfer_byte(byte);
 }

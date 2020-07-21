@@ -28,16 +28,18 @@ long_line_behaviour=1
 long_line_column=80
 
 [files]
-current_page=5
-FILE_NAME_0=6611;C;0;EUTF-8;0;1;0;%2Fhome%2Fdanya%2Fprojects%2FDUMRON_RC%2Flib%2Fpcd8544%2Fpcd8544.c;0;4
-FILE_NAME_1=0;C;0;EUTF-8;0;1;0;%2Fhome%2Fdanya%2Fprojects%2FDUMRON_RC%2Fsrc%2Fkeypad.c;0;4
-FILE_NAME_2=0;C;0;EUTF-8;0;1;0;%2Fhome%2Fdanya%2Fprojects%2FDUMRON_RC%2Flib%2Fnrf24l01%2Fnrf24l01.c;0;4
-FILE_NAME_3=3263;C;0;EUTF-8;0;1;0;%2Fhome%2Fdanya%2Fprojects%2FDUMRON_RC%2Fsrc%2Fmain.c;0;4
-FILE_NAME_4=1985;C;0;EUTF-8;0;1;0;%2Fhome%2Fdanya%2Fprojects%2FDUMRON_RC%2Flib%2Fpcd8544%2Fpcd8544.h;0;4
-FILE_NAME_5=271;C;0;EUTF-8;0;1;0;%2Fhome%2Fdanya%2Fprojects%2FDUMRON_RC%2Fsrc%2Fdisplay.c;0;4
-FILE_NAME_6=1560;C;0;EUTF-8;0;1;0;%2Fhome%2Fdanya%2Fprojects%2FDUMRON_RC%2Flib%2Fpcd8544%2Fpcd8544_port.h;0;4
-FILE_NAME_7=333;C;0;EUTF-8;0;1;0;%2Fhome%2Fdanya%2Fprojects%2FDUMRON_RC%2Flib%2Fpcd8544%2Fpcd8544_conf.h;0;4
-FILE_NAME_8=336;C;0;EUTF-8;0;1;0;%2Fhome%2Fdanya%2Fprojects%2FDUMRON_RC%2Flib%2Fnrf24l01%2Fnrf24l01_conf.h;0;4
+current_page=4
+FILE_NAME_0=7320;C;0;EUTF-8;0;1;0;%2Fhome%2Fdanya%2Fprojects%2FDUMRON_RC%2Flib%2Fpcd8544%2Fpcd8544.c;0;4
+FILE_NAME_1=618;C;0;EUTF-8;0;1;0;%2Fhome%2Fdanya%2Fprojects%2FDUMRON_RC%2Finclude%2Fhalutils.h;0;4
+FILE_NAME_2=3263;C;0;EUTF-8;0;1;0;%2Fhome%2Fdanya%2Fprojects%2FDUMRON_RC%2Fsrc%2Fmain.c;0;4
+FILE_NAME_3=2110;C;0;EUTF-8;0;1;0;%2Fhome%2Fdanya%2Fprojects%2FDUMRON_RC%2Flib%2Fpcd8544%2Fpcd8544.h;0;4
+FILE_NAME_4=1016;C;0;EUTF-8;0;1;0;%2Fhome%2Fdanya%2Fprojects%2FDUMRON_RC%2Fsrc%2Fdisplay.c;0;4
+FILE_NAME_5=0;C;0;EUTF-8;0;1;0;%2Fhome%2Fdanya%2Fprojects%2FDUMRON_RC%2Fsrc%2Fkeypad.c;0;4
+FILE_NAME_6=208;C;0;EUTF-8;0;1;0;%2Fhome%2Fdanya%2Fprojects%2FDUMRON_RC%2Fsrc%2Femitters.c;0;4
+FILE_NAME_7=1025;C;0;EUTF-8;0;1;0;%2Fhome%2Fdanya%2Fprojects%2FDUMRON_RC%2Fsrc%2Fhalutils.c;0;4
+FILE_NAME_8=1543;C;0;EUTF-8;0;1;0;%2Fhome%2Fdanya%2Fprojects%2FDUMRON_RC%2Flib%2Fpcd8544%2Fpcd8544_port.h;0;4
+FILE_NAME_9=333;C;0;EUTF-8;0;1;0;%2Fhome%2Fdanya%2Fprojects%2FDUMRON_RC%2Flib%2Fpcd8544%2Fpcd8544_conf.h;0;4
+FILE_NAME_10=336;C;0;EUTF-8;0;1;0;%2Fhome%2Fdanya%2Fprojects%2FDUMRON_RC%2Flib%2Fnrf24l01%2Fnrf24l01_conf.h;0;4
 
 [VTE]
 last_dir=/home/danya/projects/DUMRON_RC

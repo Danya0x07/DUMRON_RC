@@ -28,13 +28,13 @@ enum pcd8544_mode {
 };
 
 struct pcd8544_config {
-    uint8_t temperature_coeff;
     uint8_t brightness;
     uint8_t contrast;
+    uint8_t temperature_coeff;
 };
 
 struct pcd8544_image {
-    uint8_t *content;
+    const uint8_t *bitmap;
     uint8_t width_px;
     uint8_t height_pg;
     bool lookup;
@@ -69,8 +69,7 @@ void pcd8544_print_c(char c);
 
 void pcd8544_print_s(const char *s);
 
-void pcd8544_draw_img(uint8_t start_x, uint8_t start_pg,
-                      const struct pcd8544_image *img);
+void pcd8544_draw_img(uint8_t x, uint8_t page, const struct pcd8544_image *img);
 
 void pcd8544_clear(void);
 
