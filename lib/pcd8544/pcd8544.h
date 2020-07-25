@@ -20,6 +20,10 @@
 
 #include "pcd8544_conf.h"
 
+#ifndef PCD8544_USE_FRAMEBUFFER
+#   error PCD8544_USE_FRAMEBUFFER macro not found in "pcd8544_conf.h".
+#endif
+
 enum pcd8544_mode {
     PCD8544_MODE_BLANK = 0,
     PCD8544_MODE_FILLED = 1,
@@ -35,9 +39,9 @@ struct pcd8544_config {
 
 struct pcd8544_image {
     const uint8_t *bitmap;
+    bool lookup;
     uint8_t width_px;
     uint8_t height_pg;
-    bool lookup;
 };
 
 /**
@@ -54,7 +58,7 @@ void pcd8544_configure(struct pcd8544_config *config);
 
 void pcd8544_set_mode(enum pcd8544_mode mode);
 
-void pcd8544_set_brush(bool inverse);
+void pcd8544_set_brush(bool inverse, uint8_t font_size, uint8_t image_scale);
 
 /**
  * @brief Устанавливает курсор в указанную символьную позицию.
@@ -71,6 +75,16 @@ void pcd8544_print_s(const char *s);
 
 void pcd8544_draw_img(uint8_t x, uint8_t page, const struct pcd8544_image *img);
 
+void pcd8544_draw_img_part(uint8_t x, uint8_t page,
+                           const struct pcd8544_image *img,
+                           uint8_t x0, uint8_t x1,
+                           uint8_t y0, uint8_t y1);
+
 void pcd8544_clear(void);
+
+#if (PCD8544_USE_FRAMEBUFFER > 0)
+
+void pcd8544_update(void);
+#endif
 
 #endif /* _PCD8544_H */

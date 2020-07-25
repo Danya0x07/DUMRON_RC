@@ -11,4 +11,6 @@
 #include <stm8s.h>
 #include <stddef.h>
 
+#define PCD8544_USE_FRAMEBUFFER 0
+
 #endif /* _PCD8544_CONF_H */

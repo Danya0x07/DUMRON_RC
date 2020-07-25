@@ -11,6 +11,7 @@
 #define NUM_PAGES   6
 
 #define X_MAX       (NUM_PIXELS_X - 1)
+#define Y_MAX       (NUM_PIXELS_Y - 1)
 #define PAGE_MAX    (NUM_PAGES - 1)
 
 enum pcd8544_cmd {
@@ -124,9 +125,21 @@ static const LOOKUP_TABLE_MEMORY_SPECIFIER uint8_t font_table[][5] = {
     {0x10, 0x08, 0x08, 0x10, 0x08},  /* 7e ~ */
 };
 
+#if (PCD8544_USE_FRAMEBUFFER > 0)
+static uint8_t framebuffer[NUM_PAGES][NUM_PIXELS_X];
+#endif
+
 static struct {
     bool inverse;
-} brush_settings = {FALSE};
+    uint8_t font_size;
+    uint8_t image_scale;
+} brush = {FALSE, 1, 1};
+
+static struct {
+    uint8_t x;
+    uint8_t page;
+    uint8_t y;
+} cursor;
 
 static void write_cmd(uint8_t cmd)
 {
@@ -138,14 +151,62 @@ static void write_cmd(uint8_t cmd)
 
 static void write_ddram(uint8_t data)
 {
-    if (brush_settings.inverse)
-        data = ~data;
-
     _ce_low();
     _dc_high();
     _spi_send_byte(data);
     _ce_high();
 }
+
+static void write_dd(uint8_t data)
+{
+    if (brush.inverse)
+        data = ~data;
+
+#if (PCD8544_USE_FRAMEBUFFER > 0)
+    framebuffer[cursor.page][cursor.x] = data;
+#else
+    write_ddram(data);
+#endif
+
+    if (++cursor.x > X_MAX) {
+        cursor.x = 0;
+        if (++cursor.page > PAGE_MAX)
+            cursor.page = 0;
+    }
+}
+
+#if (PCD8544_USE_FRAMEBUFFER > 0)
+
+static void write_pixel(uint8_t x, uint8_t y, bool status)
+{
+    uint8_t page;
+    uint8_t bit_no;
+
+    if (x >= NUM_PIXELS_X)
+        x %= NUM_PIXELS_X;
+
+    if (y >= NUM_PIXELS_Y)
+        y %= NUM_PIXELS_Y;
+
+    page = y >> 3;
+    bit_no = y & 0x07;
+
+    framebuffer[page][x] &= ~(!status << bit_no);
+    framebuffer[page][x] |= status << bit_no;
+}
+
+void pcd8544_update(void)
+{
+    uint_fast8_t i, j;
+
+    pcd8544_set_addr(0, 0);
+    for (i = 0; i < NUM_PAGES; i++) {
+        for (j = 0; j < NUM_PIXELS_X; j++) {
+            write_ddram(framebuffer[i][j]);
+        }
+    }
+}
+#endif
 
 void pcd8544_reset(void)
 {
@@ -174,14 +235,21 @@ void pcd8544_set_mode(enum pcd8544_mode mode)
     write_cmd(CMD_DISPLAY_CTRL | mode);
 }
 
-void pcd8544_set_brush(bool inverse)
+void pcd8544_set_brush(bool inverse, uint8_t font_size, uint8_t image_scale)
 {
-    brush_settings.inverse = inverse;
+    if (font_size > 3)
+        font_size = 3;
+    if (image_scale > 6)
+        image_scale = 6;
+
+    brush.inverse = inverse;
+    brush.font_size = font_size;
+    brush.image_scale = image_scale;
 }
 
 void pcd8544_set_cursor(uint8_t column, uint8_t row)
 {
-    pcd8544_set_addr(6 * column, row);
+    pcd8544_set_addr(6 * column * brush.font_size, row * brush.font_size);
 }
 
 void pcd8544_set_addr(uint8_t x, uint8_t page)
@@ -192,19 +260,65 @@ void pcd8544_set_addr(uint8_t x, uint8_t page)
     if (page >= NUM_PAGES)
         page %= NUM_PAGES;
 
-    write_cmd(CMD_SET_X | x);
-    write_cmd(CMD_SET_PAGE | page);
+    cursor.x = x;
+    cursor.page = page;
+    cursor.y = 8 * page;
+
+    write_cmd(CMD_SET_X | cursor.x);
+    write_cmd(CMD_SET_PAGE | cursor.page);
+}
+
+static void draw(uint8_t *data, uint8_t length,
+                 uint8_t x_scale, uint8_t y_scale, uint8_t *buffer)
+{
+    uint_fast8_t i, j;
+    bool bit_status;
+    uint8_t idx;
+    uint8_t bit_no;
+
+    /*
+     * buffer[length * y_scale]
+     */
+    uint8_t start_x = cursor.x;
+    uint8_t start_page = cursor.page;
+
+    bit_no = 0;
+    for (i = 0; i < 8 * length; i++) {
+        bit_status = data[i >> 3] & 0x01;
+        for (j = 0; j < y_scale; j++) {
+            idx = bit_no >> 3;
+            buffer[idx] |= bit_status << (bit_no & 0x07);
+            bit_no++;
+        }
+        data[i >> 3] >>= 1;
+    }
+
+    for (i = 0; i < length * y_scale; i++) {
+        pcd8544_set_addr(start_x, start_page + i);
+        for (j = 0; j < x_scale; j++) {
+            write_dd(buffer[i]);
+        }
+    }
+    pcd8544_set_addr(start_x + x_scale, start_page);
 }
 
 void pcd8544_print_c(char c)
 {
     uint_fast8_t i;
+    const uint8_t *ch_addr;
+    uint8_t buffer[3] = {0};
+    uint8_t data;
 
     c -= 0x20;
+    ch_addr = (const uint8_t *)font_table + 5 * c;
+
     for (i = 0; i < 5; i++) {
-        write_ddram(_lookup((const uint8_t *)font_table + 5 * c + i));
+        data = _lookup(ch_addr + i);
+        draw(&data, 1, brush.font_size, brush.font_size, buffer);
     }
-    write_ddram(0x00);
+
+    data = 0x00;
+    draw(&data, 1, brush.font_size, brush.font_size, buffer);
 }
 
 void pcd8544_print_s(const char *s)
@@ -216,28 +330,80 @@ void pcd8544_print_s(const char *s)
 
 void pcd8544_draw_img(uint8_t x, uint8_t page, const struct pcd8544_image *img)
 {
-    const uint8_t *pdata = img->bitmap;
-    uint_fast8_t i, j;
+    const uint8_t *bitmap = img->bitmap;
     uint_fast8_t current_x;
+    uint8_t tmp;
+
+    tmp = page + img->height_pg;
+    const uint8_t end_pg = tmp > NUM_PAGES ? NUM_PAGES : tmp;
+
+    tmp = x + img->width_px;
+    const uint_fast8_t end_x = tmp > NUM_PIXELS_X ? NUM_PIXELS_X : tmp;
 
     if (img->lookup) {
-        for (i = 0; i < img->height_pg && page < NUM_PAGES; i++, page++) {
+        for (; page < end_pg; page++) {
             pcd8544_set_addr(x, page);
-            for (j = 0, current_x = x;
-                 j < img->width_px && current_x < NUM_PIXELS_X;
-                 j++, pdata++, current_x++)
-            {
-                write_ddram(_lookup(pdata));
+            for (current_x = x; current_x < end_x; current_x++) {
+                write_dd(_lookup(bitmap++));
             }
         }
     } else {
-        for (i = 0; i < img->height_pg && page < NUM_PAGES; i++, page++) {
+        for (; page < end_pg; page++) {
             pcd8544_set_addr(x, page);
-            for (j = 0, current_x = x;
-                 j < img->width_px && current_x < NUM_PIXELS_X;
-                 j++, pdata++, current_x++)
-            {
-                write_ddram(*pdata);
+            for (current_x = x; current_x < end_x; current_x++) {
+                write_dd(*bitmap++);
+            }
+        }
+    }
+}
+
+void pcd8544_draw_img_part(uint8_t x, uint8_t page,
+                           const struct pcd8544_image *img,
+                           uint8_t x0, uint8_t x1,
+                           uint8_t y0, uint8_t y1)
+{
+    const uint8_t *bitmap;
+    uint_fast8_t i, current_x;
+    uint8_t end_x;
+    uint8_t end_pg;
+    uint8_t data;
+    uint8_t buffer[6] = {0};
+
+    uint8_t tmp;
+
+    if (x0 > img->width_px)
+        x0 = img->width_px;
+    if (x1 > img->width_px)
+        x1 = img->width_px;
+    if (y0 > img->height_pg)
+        y0 = img->height_pg;
+    if (y1 > img->height_pg)
+        y1 = img->height_pg;
+
+    tmp = page + y1 - y0;
+    end_pg = tmp > NUM_PAGES ? NUM_PAGES : tmp;
+
+    tmp = x + x1 - x0;
+    end_x = tmp > NUM_PIXELS_X ? NUM_PIXELS_X : tmp;
+
+    bitmap = img->bitmap + y0 * img->width_px + x0;
+
+    if (img->lookup) {
+        for (i = 0; page < end_pg; page++, i++) {
+            pcd8544_set_addr(x, page);
+            bitmap = img->bitmap + (y0 + i) * img->width_px + x0;
+            for (current_x = x; current_x < end_x; current_x++) {
+                data = _lookup(bitmap++);
+                draw(&data, y1 - y0, brush.image_scale, brush.image_scale, buffer);
+            }
+        }
+    } else {
+        for (i = 0; page < end_pg; page++, i++) {
+            pcd8544_set_addr(x, page);
+            bitmap = img->bitmap + (y0 + i) * img->width_px + x0;
+            for (current_x = x; current_x < end_x; current_x++) {
+                data = *bitmap++;
+                draw(&data, y1 - y0, brush.image_scale, brush.image_scale, buffer);
             }
         }
     }
@@ -249,6 +415,6 @@ void pcd8544_clear(void)
 
     pcd8544_set_addr(0, 0);
     for (i = 0; i < NUM_PIXELS_X * NUM_PAGES; i++) {
-        write_ddram(0);
+        write_dd(0);
     }
 }

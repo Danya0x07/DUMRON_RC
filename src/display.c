@@ -29,51 +29,51 @@ static const uint8_t super_bitmap[2][28] = {
 
 static const struct pcd8544_image super_image = {
     .bitmap = (const uint8_t *)super_bitmap,
+    .lookup = FALSE,
     .width_px = 28,
-    .height_pg = 2,
-    .lookup = FALSE
+    .height_pg = 2
 };
 
 static const struct pcd8544_image buzzer_en_image = {
     .bitmap = buzzer_en_bitmap,
+    .lookup = FALSE,
     .width_px = 5,
-    .height_pg = 1,
-    .lookup = FALSE
+    .height_pg = 1
 };
 
 static const struct pcd8544_image lights_en_image = {
     .bitmap = lights_en_bitmap,
+    .lookup = FALSE,
     .width_px = 5,
-    .height_pg = 1,
-    .lookup = FALSE
+    .height_pg = 1
 };
 
 static const struct pcd8544_image arrow_up_image = {
     .bitmap = arrow_up_bitmap,
+    .lookup = FALSE,
     .width_px = 5,
-    .height_pg = 1,
-    .lookup = FALSE
+    .height_pg = 1
 };
 
 static const struct pcd8544_image arrow_down_image = {
     .bitmap = arrow_down_bitmap,
+    .lookup = FALSE,
     .width_px = 5,
-    .height_pg = 1,
-    .lookup = FALSE
+    .height_pg = 1
 };
 
 static const struct pcd8544_image connection_image = {
     .bitmap = connection_bitmap,
+    .lookup = FALSE,
     .width_px = 5,
-    .height_pg = 1,
-    .lookup = FALSE
+    .height_pg = 1
 };
 
 static const struct pcd8544_image celsius_image = {
     .bitmap = celsius_bitmap,
+    .lookup = FALSE,
     .width_px = 5,
-    .height_pg = 1,
-    .lookup = FALSE
+    .height_pg = 1
 };
 
 void display_init(void)
