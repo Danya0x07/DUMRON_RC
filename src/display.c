@@ -27,11 +27,22 @@ static const uint8_t super_bitmap[2][28] = {
     }
 };
 
+static const uint8_t sb2[100] = {
+    0x7E, 0x99, 0x99, 0x99, 0xDB, 0x7E, 0x18, 0x18, 0x18, 0x18, 0x18, 0x3C, 0x24, 0x3C
+};
+
 static const struct pcd8544_image super_image = {
     .bitmap = (const uint8_t *)super_bitmap,
     .lookup = FALSE,
     .width_px = 28,
     .height_pg = 2
+};
+
+static const struct pcd8544_image sb2_image = {
+    .bitmap = (const uint8_t *)sb2,
+    .lookup = FALSE,
+    .width_px = 14,
+    .height_pg = 1
 };
 
 static const struct pcd8544_image buzzer_en_image = {
@@ -79,13 +90,14 @@ static const struct pcd8544_image celsius_image = {
 void display_init(void)
 {
     struct pcd8544_config config = {
-        .brightness = 0x3F,
-        .contrast = 0,
-        .temperature_coeff = 0
+        .bias = 0,
+        .contrast = 0x3F,
+        .tempcoeff = 0
     };
 
     pcd8544_reset();
     pcd8544_configure(&config);
+    pcd8544_set_mode(PCD8544_MODE_NORMAL);
     pcd8544_clear();
 }
 
@@ -232,5 +244,11 @@ void display_update(const data_to_robot_t *dtr, const data_from_robot_t *dfr,
     }
     pcd8544_print_s("  ");
 
-    pcd8544_draw_img(18, 2, &super_image);
+
+    pcd8544_setup_brush(FALSE, 1, 6);
+    //pcd8544_set_cursor(0, 1);
+    pcd8544_draw_img(0, 0, &sb2_image);
+
+    //pcd8544_print_s("Wake up, Neo... Matrix has you...");
+    pcd8544_setup_brush(FALSE, 1, 1);
 }
