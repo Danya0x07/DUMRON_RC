@@ -87,6 +87,98 @@ static const struct pcd8544_image celsius_image = {
     .height_pg = 1
 };
 
+void test(void)
+{
+    // печать строки размера 1, переполнение
+    pcd8544_setup_brush(FALSE, 1, 1);
+    pcd8544_set_cursor(0, 0);
+    pcd8544_print_c('0');
+
+    pcd8544_setup_brush(FALSE, 1, 1);
+    pcd8544_set_cursor(0, 1);
+    pcd8544_print_s("string 1, should overflow, how many times I don't know, 1234567890");
+    delay_ms(5000);
+    pcd8544_clear();
+
+    // печать строки размера 2, переполнение
+    pcd8544_setup_brush(FALSE, 1, 1);
+    pcd8544_set_cursor(0, 0);
+    pcd8544_print_c('1');
+
+    pcd8544_setup_brush(FALSE, 2, 1);
+    pcd8544_set_cursor(0, 0);
+    pcd8544_print_s("string 2, should overflow, how many times I don't know");
+    delay_ms(5000);
+    pcd8544_clear();
+
+    // печать строки размера 3, переполнение
+    pcd8544_setup_brush(FALSE, 1, 1);
+    pcd8544_set_cursor(0, 0);
+    pcd8544_print_c('2');
+
+    pcd8544_setup_brush(FALSE, 3, 1);
+    pcd8544_set_cursor(0, 1);
+    pcd8544_print_s("string 3, should overflow, how many times I don't know");
+    delay_ms(5000);
+    pcd8544_clear();
+
+    // рисование картинки, размер 1
+    pcd8544_setup_brush(FALSE, 1, 1);
+    pcd8544_set_cursor(0, 0);
+    pcd8544_print_c('3');
+
+    pcd8544_setup_brush(FALSE, 1, 1);
+    pcd8544_draw_img(3, 1, &super_image);
+    delay_ms(5000);
+    pcd8544_clear();
+
+    // рисование картинки, размер 2
+    pcd8544_setup_brush(FALSE, 1, 2);
+    pcd8544_draw_img(3, 1, &super_image);
+    pcd8544_setup_brush(FALSE, 1, 1);
+    pcd8544_set_cursor(0, 0);
+    pcd8544_print_c('4');
+    delay_ms(5000);
+    pcd8544_clear();
+
+    // рисование картинки, размер 1, выезд
+    pcd8544_setup_brush(FALSE, 1, 1);
+    pcd8544_set_cursor(0, 0);
+    pcd8544_print_c('5');
+
+    pcd8544_setup_brush(FALSE, 1, 1);
+    pcd8544_draw_img(70, 5, &super_image);
+    delay_ms(5000);
+    pcd8544_clear();
+
+    // рисование картинки, размер 2, выезд
+    pcd8544_setup_brush(FALSE, 1, 1);
+    pcd8544_set_cursor(0, 0);
+    pcd8544_print_c('6');
+
+    pcd8544_setup_brush(FALSE, 1, 2);
+    pcd8544_draw_img(56, 4, &super_image);
+    delay_ms(5000);
+    pcd8544_clear();
+
+    // рисование картинки, заполнение, инверсия
+    pcd8544_setup_brush(TRUE, 1, 3);
+    pcd8544_draw_img(0, 0, &super_image);
+    pcd8544_setup_brush(FALSE, 1, 1);
+    pcd8544_set_cursor(0, 0);
+    pcd8544_print_c('7');
+    delay_ms(5000);
+    pcd8544_clear();
+
+    // рисование картинки, заполнение, выезд
+    pcd8544_setup_brush(FALSE, 1, 3);
+    pcd8544_draw_img(6, 1, &super_image);
+    pcd8544_setup_brush(FALSE, 1, 1);
+    pcd8544_set_cursor(0, 0);
+    pcd8544_print_c('8');
+    delay_ms(5000);
+}
+
 void display_init(void)
 {
     struct pcd8544_config config = {
@@ -99,6 +191,8 @@ void display_init(void)
     pcd8544_configure(&config);
     pcd8544_set_mode(PCD8544_MODE_NORMAL);
     pcd8544_clear();
+    test();
+    while (1);
 }
 
 void display_update(const data_to_robot_t *dtr, const data_from_robot_t *dfr,
