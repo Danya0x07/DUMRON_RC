@@ -190,6 +190,9 @@ void pcd8544_draw_img(uint8_t x, uint8_t page, const struct pcd8544_image *img);
 
 void pcd8544_erase_txt(uint8_t col, uint8_t row, uint8_t length);
 
+void pcd8544_erase_polygon(uint8_t start_x, uint8_t start_pg,
+                           uint8_t end_x, uint8_t end_pg);
+
 /**
  * @brief   Fill the PCD8544 DDRAM, or framebuffer instead if used, with '0's.
  */

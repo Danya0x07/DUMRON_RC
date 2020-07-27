@@ -202,6 +202,18 @@ void test(void)
 
     pcd8544_set_cursor(2, 1);
     pcd8544_print_s_f(7, 78, 4, "I am Inevideble; Fuck you!@@@@@@@@@@@@@@@@@@@@@");
+    delay_ms(2000);
+    pcd8544_clear();
+
+    // очистка прямоугольником
+    pcd8544_setup_brush(FALSE, 1, 1);
+    pcd8544_set_cursor(0, 0);
+    pcd8544_print_c('B');
+
+    pcd8544_setup_brush(TRUE, 1, 1);
+    pcd8544_erase_polygon(6, 1, 64, 5);
+    pcd8544_set_cursor(1, 1);
+    pcd8544_print_s_f(7, 78, 4, "Fsosiety00");
 }
 
 void display_init(void)

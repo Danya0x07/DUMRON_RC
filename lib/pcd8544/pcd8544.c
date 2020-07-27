@@ -100,18 +100,6 @@ static void write_pixel(uint8_t x, uint8_t y, bool status)
     framebuffer[page][x] &= ~(!status << bit_no);
     framebuffer[page][x] |= status << bit_no;
 }
-
-void pcd8544_update(void)
-{
-    uint_fast8_t i, j;
-
-    pcd8544_set_addr(0, 0);
-    for (i = 0; i < NUM_PAGES; i++) {
-        for (j = 0; j < NUM_PIXELS_X; j++) {
-            write_ddram(framebuffer[i][j]);
-        }
-    }
-}
 #endif
 
 void pcd8544_reset(void)
@@ -156,9 +144,10 @@ void pcd8544_setup_brush(bool inverse, uint8_t font_size, uint8_t image_scale)
     brush.image_scale = image_scale;
 }
 
-void pcd8544_set_cursor(uint8_t column, uint8_t row)
+void pcd8544_set_cursor(uint8_t col, uint8_t row)
 {
-    pcd8544_set_addr(6 * column * brush.font_size, row * brush.font_size);
+    pcd8544_set_addr(CHAR_WIDTH_PX * col * brush.font_size,
+                     row * brush.font_size);
 }
 
 void pcd8544_set_addr(uint8_t x, uint8_t page)
@@ -236,7 +225,8 @@ void pcd8544_print_s(const char *s)
     pcd8544_print_s_f(0, NUM_PIXELS_X, PAGE_MAX, s);
 }
 
-void pcd8544_print_s_f(uint8_t left_bd, uint8_t right_bd, uint8_t bottom_bd, const char *s)
+void pcd8544_print_s_f(uint8_t left_bd, uint8_t right_bd, uint8_t bottom_bd,
+                       const char *s)
 {
     uint_fast8_t current_pg = cursor.page;
     uint_fast8_t char_places_per_row =
@@ -268,7 +258,8 @@ void pcd8544_draw_img(uint8_t x, uint8_t page, const struct pcd8544_image *img)
         pcd8544_set_addr(x, page);
         if (img->lookup){
             for (j = 0; j < img->width_px; j++) {
-                draw_byte(_lookup(bitmap++), brush.image_scale, brush.image_scale);
+                draw_byte(_lookup(bitmap++), brush.image_scale,
+                          brush.image_scale);
                 x += brush.image_scale;
                 if (x > X_MAX)
                     break;
@@ -300,7 +291,18 @@ void pcd8544_erase_txt(uint8_t col, uint8_t row, uint8_t length)
     }
 }
 
-//void pcd8544_clear_img()
+void pcd8544_erase_polygon(uint8_t start_x, uint8_t start_pg,
+                           uint8_t end_x, uint8_t end_pg)
+{
+    uint_fast8_t i, j;
+
+    for (i = start_pg; i < end_pg; i++) {
+        pcd8544_set_addr(start_x, i);
+        for (j = start_x; j < end_x; j++) {
+            write_dd(0x00);
+        }
+    }
+}
 
 void pcd8544_clear(void)
 {
@@ -311,3 +313,18 @@ void pcd8544_clear(void)
         write_dd(0);
     }
 }
+
+#if (PCD8544_USE_FRAMEBUFFER > 0)
+
+void pcd8544_update(void)
+{
+    uint_fast8_t i, j;
+
+    pcd8544_set_addr(0, 0);
+    for (i = 0; i < NUM_PAGES; i++) {
+        for (j = 0; j < NUM_PIXELS_X; j++) {
+            write_ddram(framebuffer[i][j]);
+        }
+    }
+}
+#endif
