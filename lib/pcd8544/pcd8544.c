@@ -233,20 +233,26 @@ void pcd8544_print_c(char c)
 
 void pcd8544_print_s(const char *s)
 {
+    pcd8544_print_s_f(0, NUM_PIXELS_X, PAGE_MAX, s);
+}
+
+void pcd8544_print_s_f(uint8_t left_bd, uint8_t right_bd, uint8_t bottom_bd, const char *s)
+{
     uint_fast8_t current_pg = cursor.page;
     uint_fast8_t char_places_per_row =
-            NUM_PIXELS_X / CHAR_WIDTH_PX / brush.font_size;
-
+            right_bd / CHAR_WIDTH_PX / brush.font_size;
     uint_fast8_t i = cursor.x / CHAR_WIDTH_PX / brush.font_size;
 
     while(*s) {
         pcd8544_print_c(*s++);
         if (++i >= char_places_per_row) {
-            i = 0;
+            i = left_bd / CHAR_WIDTH_PX / brush.font_size;
             current_pg += brush.font_size;
-            if (current_pg > PAGE_MAX)
+            if (current_pg > bottom_bd)
                 break;
-            pcd8544_set_addr(0, current_pg);
+            pcd8544_set_addr(left_bd, current_pg);
+            if (*s == ' ')
+                s++;
         }
     }
 }
@@ -281,59 +287,21 @@ void pcd8544_draw_img(uint8_t x, uint8_t page, const struct pcd8544_image *img)
             break;
     }
 }
-/*
-void pcd8544_draw_img_part(uint8_t x, uint8_t page,
-                           const struct pcd8544_image *img,
-                           uint8_t x0, uint8_t x1,
-                           uint8_t y0, uint8_t y1)
+
+void pcd8544_erase_txt(uint8_t col, uint8_t row, uint8_t length)
 {
-    const uint8_t *bitmap;
-    uint_fast8_t i, current_x;
-    uint8_t end_x;
-    uint8_t end_pg;
-    uint8_t data;
-    uint8_t buffer[6] = {0};
+    uint_fast8_t i;
 
-    uint8_t tmp;
-
-    if (x0 > img->width_px)
-        x0 = img->width_px;
-    if (x1 > img->width_px)
-        x1 = img->width_px;
-    if (y0 > img->height_pg)
-        y0 = img->height_pg;
-    if (y1 > img->height_pg)
-        y1 = img->height_pg;
-
-    tmp = page + y1 - y0;
-    end_pg = tmp > NUM_PAGES ? NUM_PAGES : tmp;
-
-    tmp = x + x1 - x0;
-    end_x = tmp > NUM_PIXELS_X ? NUM_PIXELS_X : tmp;
-
-    bitmap = img->bitmap + y0 * img->width_px + x0;
-
-    if (img->lookup) {
-        for (i = 0; page < end_pg; page++, i++) {
-            pcd8544_set_addr(x, page);
-            bitmap = img->bitmap + (y0 + i) * img->width_px + x0;
-            for (current_x = x; current_x < end_x; current_x++) {
-                data = _lookup(bitmap++);
-                draw(&data, y1 - y0, brush.image_scale, brush.image_scale, buffer);
-            }
-        }
-    } else {
-        for (i = 0; page < end_pg; page++, i++) {
-            pcd8544_set_addr(x, page);
-            bitmap = img->bitmap + (y0 + i) * img->width_px + x0;
-            for (current_x = x; current_x < end_x; current_x++) {
-                data = *bitmap++;
-                draw(&data, y1 - y0, brush.image_scale, brush.image_scale, buffer);
-            }
+    pcd8544_set_cursor(col, row);
+    while (length--) {
+        for (i = 0; i < CHAR_WIDTH_PX; i++) {
+            draw_byte(0x00, brush.font_size, brush.font_size);
         }
     }
 }
-*/
+
+//void pcd8544_clear_img()
+
 void pcd8544_clear(void)
 {
     uint_fast16_t i;

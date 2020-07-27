@@ -97,7 +97,7 @@ void test(void)
     pcd8544_setup_brush(FALSE, 1, 1);
     pcd8544_set_cursor(0, 1);
     pcd8544_print_s("string 1, should overflow, how many times I don't know, 1234567890");
-    delay_ms(3000);
+    delay_ms(2000);
     pcd8544_clear();
 
     // печать строки размера 2, переполнение
@@ -108,7 +108,7 @@ void test(void)
     pcd8544_setup_brush(FALSE, 2, 1);
     pcd8544_set_cursor(1, 0);
     pcd8544_print_s("string 2, should overflow, how many times I don't know");
-    delay_ms(3000);
+    delay_ms(2000);
     pcd8544_clear();
 
     // печать строки размера 3, переполнение
@@ -119,7 +119,7 @@ void test(void)
     pcd8544_setup_brush(FALSE, 3, 1);
     pcd8544_set_cursor(1, 0);
     pcd8544_print_s("string 3, should overflow, how many times I don't know");
-    delay_ms(3000);
+    delay_ms(2000);
     pcd8544_clear();
 
     // рисование картинки, размер 1
@@ -129,7 +129,7 @@ void test(void)
 
     pcd8544_setup_brush(FALSE, 1, 1);
     pcd8544_draw_img(3, 1, &super_image);
-    delay_ms(3000);
+    delay_ms(2000);
     pcd8544_clear();
 
     // рисование картинки, размер 2
@@ -138,7 +138,7 @@ void test(void)
     pcd8544_setup_brush(FALSE, 1, 1);
     pcd8544_set_cursor(0, 0);
     pcd8544_print_c('4');
-    delay_ms(3000);
+    delay_ms(2000);
     pcd8544_clear();
 
     // рисование картинки, размер 1, выезд
@@ -148,7 +148,7 @@ void test(void)
 
     pcd8544_setup_brush(FALSE, 1, 1);
     pcd8544_draw_img(70, 5, &super_image);
-    delay_ms(3000);
+    delay_ms(2000);
     pcd8544_clear();
 
     // рисование картинки, размер 2, выезд
@@ -158,7 +158,7 @@ void test(void)
 
     pcd8544_setup_brush(FALSE, 1, 2);
     pcd8544_draw_img(56, 4, &super_image);
-    delay_ms(3000);
+    delay_ms(2000);
     pcd8544_clear();
 
     // рисование картинки, заполнение, инверсия
@@ -167,7 +167,7 @@ void test(void)
     pcd8544_setup_brush(FALSE, 1, 1);
     pcd8544_set_cursor(0, 0);
     pcd8544_print_c('7');
-    delay_ms(3000);
+    delay_ms(2000);
     pcd8544_clear();
 
     // рисование картинки, заполнение, выезд
@@ -176,7 +176,32 @@ void test(void)
     pcd8544_setup_brush(FALSE, 1, 1);
     pcd8544_set_cursor(0, 0);
     pcd8544_print_c('8');
-    delay_ms(3000);
+    delay_ms(2000);
+    pcd8544_clear();
+
+    // очистка текста, размеры 1 и 2
+    pcd8544_setup_brush(FALSE, 1, 1);
+    pcd8544_set_cursor(0, 0);
+    pcd8544_print_c('9');
+
+    pcd8544_set_cursor(0, 1);
+    pcd8544_print_s("string &");
+    pcd8544_erase_txt(0, 1, 5);
+
+    pcd8544_setup_brush(FALSE, 2, 1);
+    pcd8544_set_cursor(0, 2);
+    pcd8544_print_s("string");
+    pcd8544_erase_txt(0, 2, 5);
+    delay_ms(2000);
+    pcd8544_clear();
+
+    // текст в виртуальной рамке
+    pcd8544_setup_brush(FALSE, 1, 1);
+    pcd8544_set_cursor(0, 0);
+    pcd8544_print_c('A');
+
+    pcd8544_set_cursor(2, 1);
+    pcd8544_print_s_f(7, 78, 4, "I am Inevideble; Fuck you!@@@@@@@@@@@@@@@@@@@@@");
 }
 
 void display_init(void)

@@ -180,18 +180,15 @@ void pcd8544_print_c(char c);
  */
 void pcd8544_print_s(const char *s);
 
+void pcd8544_print_s_f(uint8_t left_bd, uint8_t right_bd, uint8_t bottom_bd,
+                       const char *s);
+
 /**
  *
  */
 void pcd8544_draw_img(uint8_t x, uint8_t page, const struct pcd8544_image *img);
 
-/**
- *
- */
-void pcd8544_draw_img_part(uint8_t x, uint8_t page,
-                           const struct pcd8544_image *img,
-                           uint8_t x0, uint8_t x1,
-                           uint8_t y0, uint8_t y1);
+void pcd8544_erase_txt(uint8_t col, uint8_t row, uint8_t length);
 
 /**
  * @brief   Fill the PCD8544 DDRAM, or framebuffer instead if used, with '0's.
