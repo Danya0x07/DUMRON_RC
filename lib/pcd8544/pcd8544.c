@@ -47,6 +47,11 @@ static struct {
     uint8_t y;
 } cursor;
 
+static struct {
+    uint8_t start_x;
+    uint8_t end_x;
+} update_boundaries[NUM_PAGES];
+
 static void write_cmd(uint8_t cmd)
 {
     _ce_low();
@@ -70,6 +75,10 @@ static void write_dd(uint8_t data)
 
 #if (PCD8544_USE_FRAMEBUFFER > 0)
     framebuffer[cursor.page][cursor.x] = data;
+    if (cursor.x < update_boundaries[cursor.page].start_x)
+        update_boundaries[cursor.page].start_x = cursor.x;
+    else if (cursor.x + 1 > update_boundaries[cursor.page].end_x)
+        update_boundaries[cursor.page].end_x = cursor.x + 1;
 #else
     write_ddram(data);
 #endif
@@ -312,6 +321,7 @@ void pcd8544_clear(void)
     for (i = 0; i < NUM_PIXELS_X * NUM_PAGES; i++) {
         write_dd(0);
     }
+    //pcd8544_update();
 }
 
 #if (PCD8544_USE_FRAMEBUFFER > 0)
@@ -320,11 +330,14 @@ void pcd8544_update(void)
 {
     uint_fast8_t i, j;
 
-    pcd8544_set_addr(0, 0);
     for (i = 0; i < NUM_PAGES; i++) {
-        for (j = 0; j < NUM_PIXELS_X; j++) {
+        if (update_boundaries[i].start_x == update_boundaries[i].end_x)
+            continue;
+        pcd8544_set_addr(update_boundaries[i].start_x, i);
+        for (j = update_boundaries[i].start_x; j < update_boundaries[i].end_x; j++) {
             write_ddram(framebuffer[i][j]);
         }
+        update_boundaries[i].start_x = update_boundaries[i].end_x = 0;
     }
 }
 #endif
