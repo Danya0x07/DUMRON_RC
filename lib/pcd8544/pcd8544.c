@@ -183,13 +183,12 @@ static void draw_byte(uint8_t data, uint8_t x_scale, uint8_t y_scale)
     const uint8_t start_pg = cursor.page;
     uint8_t current_x = start_x;
     uint8_t current_pg = start_pg;
-
     uint8_t buffer[NUM_PAGES];
     bool bit_status;
     uint8_t bit_no;
     uint_fast8_t i, j;
 
-    for (i = 0; i < NUM_PAGES; i++)
+    for (i = 0; i < y_scale; i++)
         buffer[i] = 0;
 
     bit_no = 0;
@@ -246,7 +245,7 @@ void pcd8544_print_s(const char *s)
             i = 0;
             current_pg += brush.font_size;
             if (current_pg > PAGE_MAX)
-                return;
+                break;
             pcd8544_set_addr(0, current_pg);
         }
     }
@@ -255,31 +254,31 @@ void pcd8544_print_s(const char *s)
 void pcd8544_draw_img(uint8_t x, uint8_t page, const struct pcd8544_image *img)
 {
     const uint8_t *bitmap = img->bitmap;
-    uint_fast8_t current_x, i;
-    uint16_t tmp;
+    const uint8_t start_x = x;
+    uint_fast8_t i, j;
 
-    tmp = page + img->height_pg * brush.image_scale;
-    const uint8_t end_pg = tmp > NUM_PAGES ? NUM_PAGES : tmp;
-
-    tmp = x + img->width_px * brush.image_scale;
-    const uint_fast8_t end_x = tmp > NUM_PIXELS_X ? NUM_PIXELS_X : tmp;
-
-    if (img->lookup) {
-        for (; page < end_pg; page++) {
-            pcd8544_set_addr(x, page);
-            for (current_x = x; current_x < end_x; current_x++) {
-                write_dd(_lookup(bitmap++));
+    for (i = 0; i < img->height_pg; i++) {
+        x = start_x;
+        pcd8544_set_addr(x, page);
+        if (img->lookup){
+            for (j = 0; j < img->width_px; j++) {
+                draw_byte(_lookup(bitmap++), brush.image_scale, brush.image_scale);
+                x += brush.image_scale;
+                if (x > X_MAX)
+                    break;
             }
-            bitmap += img->width_px - (end_x - x);
-        }
-    } else {
-        for (; page < end_pg; page+=brush.image_scale) {
-            pcd8544_set_addr(x, page);
-            for (current_x = x; current_x < end_x; current_x+=brush.image_scale) {
+        } else {
+            for (j = 0; j < img->width_px; j++) {
                 draw_byte(*bitmap++, brush.image_scale, brush.image_scale);
+                x += brush.image_scale;
+                if (x > X_MAX)
+                    break;
             }
-            bitmap += img->width_px * brush.image_scale - (end_x - x);
         }
+        bitmap += img->width_px - j - x / NUM_PIXELS_X;
+        page += brush.image_scale;
+        if (page > PAGE_MAX)
+            break;
     }
 }
 /*
