@@ -9,6 +9,8 @@
  *
  * This file contains configuration parameters that should be adjusted for your
  * particular application requirements.
+ * Also the includes that provide standard integer types and bool type must
+ * present in this file.
  */
 
 #ifndef _PCD8544_CONF_H

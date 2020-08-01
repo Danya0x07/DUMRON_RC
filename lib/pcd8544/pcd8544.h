@@ -8,7 +8,6 @@
  * @brief   PCD8544 LCD controller library interface.
  *
  * @todo    Добавить поддержку могучего языка;
- * @todo    Добавить рисование всякой геометрии;
  */
 
 #ifndef _PCD8544_H
@@ -24,10 +23,10 @@
  * @brief   PCD8544 display modes.
  */
 enum pcd8544_mode {
-    PCD8544_MODE_BLANK = 0,
-    PCD8544_MODE_ALL_ON = 1,
-    PCD8544_MODE_NORMAL = 4,
-    PCD8544_MODE_INVERTED = 5,
+    PCD8544_MODE_BLANK = 0,   /**< all pixels off */
+    PCD8544_MODE_ALL_ON = 1,  /**< all pixels on */
+    PCD8544_MODE_NORMAL = 4,  /**< normal mode */
+    PCD8544_MODE_INVERTED = 5,  /**< inverted mode */
 };
 
 /**
@@ -64,8 +63,8 @@ struct pcd8544_config {
     struct pcd8544_image image = {
         .bitmap = (const uint8_t *)bitmap_arr,
         .lookup = FALSE,
-        .width_px = 3,
-        .height_pg = 2
+        .width_px = 3,  // sizeof(bitmap[0])
+        .height_pg = 2  // sizeof(bitmap) / sizeof(bitmap[0])
     };
  * @endcode
  *
@@ -86,17 +85,11 @@ struct pcd8544_image {
     /**
      * If the @ref bitmap pointer points to array that is located in flash
      * memory and additional operations are needed to retrieve a byte of that
-     * array, this field must be set to TRUE(1), otherwise FALSE(0).
+     * array, this field must be set to 1, otherwise 0.
      */
     bool lookup;
-    /**
-     * Width of the bitmap in pixels.
-     */
-    uint8_t width_px;
-    /**
-     * Height of the bitmap in pages.
-     */
-    uint8_t height_pg;
+    uint8_t width_px;   /**< Width of the bitmap in pixels. */
+    uint8_t height_pg;  /**< Height of the bitmap in pages. */
 };
 
 /**
@@ -139,29 +132,40 @@ void pcd8544_set_power(bool pwr);
 void pcd8544_set_mode(enum pcd8544_mode mode);
 
 /**
- * @brief   Setup drawing aspects.
+ * @brief   Setup aspects of drawing and printing.
  *
  * @param[in] inverse       Whether to invert bits of every byte being written
  *                          to PCD8544 DDRAM or framebuffer if used.
- * @param[in] font_size
- * @param[in] image_scale
+ *
+ * @param[in] font_size     Text font size [1 - 3].
+ * @param[in] image_scale   Image scaling factor [1 - 6].
+ *
+ * @note
+ * The selected settings are valid until the next call to this function.
  */
 void pcd8544_setup_brush(bool inverse, uint8_t font_size, uint8_t image_scale);
 
 /**
- * @brief
- */
-void pcd8544_set_cursor(uint8_t column, uint8_t row);
-
-/**
+ * @brief   Set text cursor position on the display.
  *
+ * The coordinate range of cursor depends on the font size selected last time.
+ *
+ * @param[in] col   Vertical column, [0 - 13] for font_size == 1,
+ *                  [0 - 6] for font_size == 2, [0 - 4] for font_size == 3.
+ *
+ * @param[in] row   Horizontal row, [0 - 5] for font_size == 1,
+ *                  [0 - 2] for font_size == 2, [0 - 1] for font_size == 3.
+ *
+ * @see pcd8544_setup_brush()
  */
-void pcd8544_set_addr(uint8_t x, uint8_t page);
+void pcd8544_set_cursor(uint8_t col, uint8_t row);
 
 /**
  * @brief   Print a single character on the display.
  *
  * @param[in] c     Character to print.
+ *
+ * @see pcd8544_set_cursor()
  */
 void pcd8544_print_c(char c);
 
@@ -170,31 +174,70 @@ void pcd8544_print_c(char c);
  *
  * If the string does not fit on a horizontal row, the overflowing part is
  * printed on the row below. If there is no rows below current one, the
- * overflowing part of the string is not printed at all.
+ * overflowing part of the string is not printed.
  *
  * @param[in] s     String to print.
+ *
+ * @see pcd8544_set_cursor()
  */
 void pcd8544_print_s(const char *s);
 
-void pcd8544_print_s_f(uint8_t left_bd, uint8_t right_bd, uint8_t bottom_bd,
-                       const char *s);
+/**
+ * @brief   Print a string on the display in a virtual frame.
+ *
+ * With this function you can print a string in a limited rectangular area
+ * of the display.
+ *
+ * @param[in] x0    Left border of the virtual frame [0 - 83].
+ * @param[in] x1    Right border of the virtual frame [0 - 83].
+ * @param[in] p1    Bottom border (page) of the virtual frame [0 - 5].
+ * @param[in] s     String to print.
+ *
+ * @note
+ * The p0 (top border) parameter is taken from last call to pcd8544_set_cursor()
+ * and it musst be less then p1, otherwise result is incorrect. And x0 < x1.
+ *
+ * @see pcd8544_set_cursor()
+ */
+void pcd8544_print_s_f(uint8_t x0, uint8_t x1, uint8_t p1, const char *s);
 
 /**
+ * @brief   Draw an image on the display.
  *
+ * Printing scaled images is useful. For example, to print a simple
+ * logo that has no high-resolution details, we can save it to pcd8544_image
+ * with width_px == 14 and height_pg == 1, and then scale it 6 times by calling
+ * pcd8544_setup_brush (). Thus, it will fit the entire display, but it's bitmap
+ * will take 14 instead of 504 bytes of memory.
+ *
+ * @param[in] x0    X coordinate of the left corner of the image [0 - 83].
+ * @param[in] p0    A page from which to start drawing the image [0 - 5].
+ *
+ * @note
+ * if the image does not fit on the display, the part that does not fit is
+ * not drawn.
  */
-void pcd8544_draw_img(uint8_t x, uint8_t page, const struct pcd8544_image *img);
+void pcd8544_draw_img(uint8_t x0, uint8_t p0, const struct pcd8544_image *img);
 
-void pcd8544_erase_txt(uint8_t col, uint8_t row, uint8_t length);
-
-void pcd8544_erase_polygon(uint8_t start_x, uint8_t start_pg,
-                           uint8_t end_x, uint8_t end_pg);
+/**
+ * @brief   Fill the area of the display with a solid color.
+ *
+ * @param[in] x0    X coordinate of the left corner of the filled area [0 - 83].
+ * @param[in] p0    A page where the filled area starts [0 - 5].
+ * @param[in] x1    X coordinate of the right corner of the filled area [0 - 83]
+ * @param[in] p1    A page where the filled area ends [0 - 5].
+ *
+ * @note
+ * x0 <= x1 and p0 <= p1, otherwise nothing is drawn.
+ */
+void pcd8544_fill_area(uint8_t x0, uint8_t p0, uint8_t x1, uint8_t p1);
 
 /**
  * @brief   Fill the PCD8544 DDRAM, or framebuffer instead if used, with '0's.
  */
 void pcd8544_clear(void);
 
-#if (PCD8544_USE_FRAMEBUFFER > 0)
+#if (PCD8544_USE_FRAMEBUFFER == 1)
 /**
  * @brief   Write contents of the framebuffer to PCD8544 DDRAM.
  *
@@ -203,6 +246,37 @@ void pcd8544_clear(void);
  * be updated by calling this function.
  */
 void pcd8544_update(void);
+
+/**
+ * @brief   Set the state of a pixel on the display.
+ *
+ * @param[in] x     X coordinate of a pixel [0 - 83].
+ * @param[in] y     Y coordinate of a pixel [0 - 47].
+ * @param[in] state The new state of the pixel (1 - filled, 0 - cleared).
+ */
+void pcd8544_write_pixel(uint8_t x, uint8_t y, bool state);
+
+/**
+ * @brief   Draw a horizontal line on the display.
+ *
+ * @param[in] y     Y coordinate of the line [0 - 47].
+ * @param[in] x0    The start X coordinate of the line [0 - 83].
+ * @param[in] x1    The end X coordinate of the line [0 - 83].
+ *
+ * @attention   x0 <= x1, otherwise nothing is drawn.
+ */
+void pcd8544_draw_hline(uint8_t y, uint8_t x0, uint8_t x1);
+
+/**
+ * @brief   Draw a vertical line on the display.
+ *
+ * @param[in] x     X coordinate of the line [0 - 83].
+ * @param[in] y0    The start Y coordinate of the line [0 - 47].
+ * @param[in] y1    The end Y coordinate of the line [0 - 47].
+ *
+ * @attention   y0 <= y1, otherwise nothing is drawn.
+ */
+void pcd8544_draw_vline(uint8_t x, uint8_t y0, uint8_t y1);
 #endif
 
 #endif /* _PCD8544_H */

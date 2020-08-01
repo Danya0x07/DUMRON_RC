@@ -45,7 +45,7 @@ static void draw_byte(uint8_t data, uint8_t x_scale, uint8_t y_scale,
 
     for (i = 0; i < y_scale; i++) {
         page_ovf = 0;
-        //pcd8544_set_addr(current_x, current_pg);
+        //set_addr(current_x, current_pg);
         for (j = 0; j < x_scale; j++) {
             //write_dd(buffer[i]);
             /*if (++current_x > X_MAX) {
@@ -55,7 +55,7 @@ static void draw_byte(uint8_t data, uint8_t x_scale, uint8_t y_scale,
                 below_pg = current_pg + page_ovf;
                 if (below_pg > PAGE_MAX)
                     break;
-                pcd8544_set_addr(current_x, below_pg);
+                set_addr(current_x, below_pg);
             }*/
         }
         current_pg++;
@@ -63,7 +63,7 @@ static void draw_byte(uint8_t data, uint8_t x_scale, uint8_t y_scale,
 /*
     current_x = start_x + x_scale;
     current_pg = start_pg + current_x / NUM_PIXELS_X;
-    pcd8544_set_addr(current_x, current_pg);*/
+    set_addr(current_x, current_pg);*/
 }
 
 void test_draw(void)
