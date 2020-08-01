@@ -251,7 +251,7 @@ void test(void)
     pcd8544_print_c('A');
 
     pcd8544_setup_brush(TRUE, 1, 1);
-    pcd8544_fill_area(6, 1, 64, 5);
+    pcd8544_clear_area(6, 1, 64, 5);
     pcd8544_set_cursor(1, 1);
     pcd8544_print_s_f(7, 78, 4, "Fsosiety00");
     pcd8544_update();
@@ -266,9 +266,13 @@ void test(void)
 
     pcd8544_draw_vline(42, 4, 43);
     pcd8544_draw_hline(23, 4, 79);
+    pcd8544_draw_pixel(83, 0, 1);
+    pcd8544_draw_pixel(83, 2, 0);
     pcd8544_setup_brush(TRUE, 1, 1);
     pcd8544_draw_vline(70, 4, 43);
     pcd8544_draw_hline(40, 4, 79);
+    pcd8544_draw_pixel(83, 47, 1);
+    pcd8544_draw_pixel(83, 45, 0);
     pcd8544_update();
 #endif
     delay_ms(2000);

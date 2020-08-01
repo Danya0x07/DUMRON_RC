@@ -16,7 +16,7 @@
 #include "pcd8544_conf.h"
 
 #ifndef PCD8544_USE_FRAMEBUFFER
-#   error PCD8544_USE_FRAMEBUFFER macro not found in "pcd8544_conf.h".
+#   error PCD8544_USE_FRAMEBUFFER macro not found in pcd8544_conf.h.
 #endif
 
 /**
@@ -103,10 +103,10 @@ void pcd8544_reset(void);
 /**
  * @brief   Configure the PCD8544 LCD controller.
  *
+ * @param[in] config    Address of a PCD8544 configuration being applied.
+ *
  * @note
  * This function also wakes PCD8544 out of power-down mode if it was selected.
- *
- * @param[in] config    Address of a PCD8544 configuration being applied.
  */
 void pcd8544_configure(struct pcd8544_config *config);
 
@@ -115,12 +115,12 @@ void pcd8544_configure(struct pcd8544_config *config);
  *
  * Entering power-down mode can reduce current consumption of the PCD8544.
  *
+ * @param[in] pwr   1 to select chip-active mode, 0 to select power-down mode.
+ *
  * @note
  * Before entering power-down mode, the PCD8544 DDRAM is filled with '0's to
  * ensure specified current consumption.
  * However, the framebuffer, if used, is not flushed.
- *
- * @param[in] pwr   1 to select chip-active mode, 0 to select power-down mode.
  */
 void pcd8544_set_power(bool pwr);
 
@@ -207,7 +207,7 @@ void pcd8544_print_s_f(uint8_t x0, uint8_t x1, uint8_t p1, const char *s);
  * Printing scaled images is useful. For example, to print a simple
  * logo that has no high-resolution details, we can save it to pcd8544_image
  * with width_px == 14 and height_pg == 1, and then scale it 6 times by calling
- * pcd8544_setup_brush (). Thus, it will fit the entire display, but it's bitmap
+ * pcd8544_setup_brush(). Thus, it will fit the entire display, but it's bitmap
  * will take 14 instead of 504 bytes of memory.
  *
  * @param[in] x0    X coordinate of the left corner of the image [0 - 83].
@@ -220,20 +220,26 @@ void pcd8544_print_s_f(uint8_t x0, uint8_t x1, uint8_t p1, const char *s);
 void pcd8544_draw_img(uint8_t x0, uint8_t p0, const struct pcd8544_image *img);
 
 /**
- * @brief   Fill the area of the display with a solid color.
+ * @brief   Clear the area of the display.
  *
- * @param[in] x0    X coordinate of the left corner of the filled area [0 - 83].
- * @param[in] p0    A page where the filled area starts [0 - 5].
- * @param[in] x1    X coordinate of the right corner of the filled area [0 - 83]
- * @param[in] p1    A page where the filled area ends [0 - 5].
+ * @param[in] x0    X coordinate of the left corner of the area [0 - 83].
+ * @param[in] p0    A page where the area starts [0 - 5].
+ * @param[in] x1    X coordinate of the right corner of the area[0 - 83].
+ * @param[in] p1    A page where the area ends [0 - 5]
  *
  * @note
  * x0 <= x1 and p0 <= p1, otherwise nothing is drawn.
+ * If the last time pcd8544_setup_brush() was called with `inverse` argument
+ * equal to 1, the clear color is inverted.
  */
-void pcd8544_fill_area(uint8_t x0, uint8_t p0, uint8_t x1, uint8_t p1);
+void pcd8544_clear_area(uint8_t x0, uint8_t p0, uint8_t x1, uint8_t p1);
 
 /**
  * @brief   Fill the PCD8544 DDRAM, or framebuffer instead if used, with '0's.
+ *
+ * @note
+ * If the last time pcd8544_setup_brush() was called with `inverse` argument
+ * equal to 1, the clear color is inverted.
  */
 void pcd8544_clear(void);
 
@@ -254,7 +260,7 @@ void pcd8544_update(void);
  * @param[in] y     Y coordinate of a pixel [0 - 47].
  * @param[in] state The new state of the pixel (1 - filled, 0 - cleared).
  */
-void pcd8544_write_pixel(uint8_t x, uint8_t y, bool state);
+void pcd8544_draw_pixel(uint8_t x, uint8_t y, bool state);
 
 /**
  * @brief   Draw a horizontal line on the display.
@@ -263,7 +269,8 @@ void pcd8544_write_pixel(uint8_t x, uint8_t y, bool state);
  * @param[in] x0    The start X coordinate of the line [0 - 83].
  * @param[in] x1    The end X coordinate of the line [0 - 83].
  *
- * @attention   x0 <= x1, otherwise nothing is drawn.
+ * @note
+ * x0 <= x1, otherwise nothing is drawn.
  */
 void pcd8544_draw_hline(uint8_t y, uint8_t x0, uint8_t x1);
 
@@ -274,7 +281,8 @@ void pcd8544_draw_hline(uint8_t y, uint8_t x0, uint8_t x1);
  * @param[in] y0    The start Y coordinate of the line [0 - 47].
  * @param[in] y1    The end Y coordinate of the line [0 - 47].
  *
- * @attention   y0 <= y1, otherwise nothing is drawn.
+ * @note
+ * y0 <= y1, otherwise nothing is drawn.
  */
 void pcd8544_draw_vline(uint8_t x, uint8_t y0, uint8_t y1);
 #endif

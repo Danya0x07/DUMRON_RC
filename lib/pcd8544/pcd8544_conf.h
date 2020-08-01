@@ -9,13 +9,17 @@
  *
  * This file contains configuration parameters that should be adjusted for your
  * particular application requirements.
- * Also the includes that provide standard integer types and bool type must
- * present in this file.
  */
 
 #ifndef _PCD8544_CONF_H
 #define _PCD8544_CONF_H
 
+/*
+ * Headers that provide standard integer types and bool type.
+ * They are here because standard libraries from some vendors provide their
+ * standard types, so there might be conflicts with standard C headers and we
+ * need an ability to replace them with custom headers.
+ */
 #include <stm8s.h>
 #include <stddef.h>
 

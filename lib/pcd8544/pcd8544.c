@@ -130,7 +130,9 @@ void pcd8544_configure(struct pcd8544_config *config)
 
 void pcd8544_set_power(bool pwr)
 {
-    if (!pwr) {
+    if (pwr) {
+        write_cmd(CMD_FUNCTION_SET);
+    } else {
         uint_fast8_t i, j;
 
         set_addr(0, 0);
@@ -142,8 +144,6 @@ void pcd8544_set_power(bool pwr)
             update_bd[i].end = NUM_PIXELS_X;
         }
         write_cmd(CMD_FUNCTION_SET | FS_PD);
-    } else {
-        write_cmd(CMD_FUNCTION_SET);
     }
 }
 
@@ -171,19 +171,18 @@ void pcd8544_setup_brush(bool inverse, uint8_t font_size, uint8_t image_scale)
 
 void pcd8544_set_cursor(uint8_t col, uint8_t row)
 {
-    set_addr(CHAR_WIDTH_PX * col * brush.font_size,
-                     row * brush.font_size);
+    set_addr(CHAR_WIDTH_PX * col * brush.font_size, row * brush.font_size);
 }
 
 static void draw_byte(uint8_t data, uint8_t x_scale, uint8_t y_scale)
 {
     static uint8_t buffer[NUM_PAGES];
-    const uint8_t start_x = cursor.x;
-    const uint8_t start_pg = cursor.page;
-    uint8_t current_x = start_x;
-    uint8_t current_pg = start_pg;
-    bool bit_status;
-    uint8_t bit_no;
+    const uint_fast8_t start_x = cursor.x;
+    const uint_fast8_t start_pg = cursor.page;
+    uint_fast8_t current_x = start_x;
+    uint_fast8_t current_pg = start_pg;
+    uint_fast8_t bit_status;
+    uint_fast8_t bit_no;
     uint_fast8_t i, j;
 
     for (i = 0; i < y_scale; i++)
@@ -236,19 +235,27 @@ void pcd8544_print_s(const char *s)
 
 void pcd8544_print_s_f(uint8_t x0, uint8_t x1, uint8_t p1, const char *s)
 {
-    uint_fast8_t current_pg = cursor.page;
-    uint_fast8_t char_places_per_row =
-            x1 / CHAR_WIDTH_PX / brush.font_size;
-    uint_fast8_t i = cursor.x / CHAR_WIDTH_PX / brush.font_size;
+    uint_fast8_t pg = cursor.page;
+    uint_fast8_t place = cursor.x / CHAR_WIDTH_PX / brush.font_size;
+    uint_fast8_t start_place = x0 / CHAR_WIDTH_PX / brush.font_size;
+    uint_fast8_t char_places_per_row;
 
+    if (x1 > NUM_PIXELS_X)
+        x1 = NUM_PIXELS_X;
+    if (p1 > PAGE_MAX)
+        p1 = PAGE_MAX;
+    if (x0 > x1)
+        return;
+
+    char_places_per_row = x1 / CHAR_WIDTH_PX / brush.font_size;
     while(*s) {
         pcd8544_print_c(*s++);
-        if (++i >= char_places_per_row) {
-            i = x0 / CHAR_WIDTH_PX / brush.font_size;
-            current_pg += brush.font_size;
-            if (current_pg > p1)
+        if (++place >= char_places_per_row) {
+            place = start_place;
+            pg += brush.font_size;
+            if (pg > p1)
                 break;
-            set_addr(x0, current_pg);
+            set_addr(x0, pg);
             /*
              * There is no point in printing a space at the beginning
              * of the wrapped line.
@@ -262,10 +269,14 @@ void pcd8544_print_s_f(uint8_t x0, uint8_t x1, uint8_t p1, const char *s)
 void pcd8544_draw_img(uint8_t x0, uint8_t p0, const struct pcd8544_image *img)
 {
     const uint8_t *bitmap = img->bitmap;
-    uint_fast8_t x, pg = p0;
+    uint_fast8_t x;
+    uint_fast8_t pg;
     uint_fast8_t i, j;
 
-    for (i = 0; i < img->height_pg; i++) {
+    if (x0 > X_MAX || p0 > PAGE_MAX)
+        return;
+
+    for (i = 0, pg = p0; i < img->height_pg; i++) {
         x = x0;
         set_addr(x, pg);
         if (img->lookup){
@@ -291,7 +302,7 @@ void pcd8544_draw_img(uint8_t x0, uint8_t p0, const struct pcd8544_image *img)
     }
 }
 
-void pcd8544_fill_area(uint8_t x0, uint8_t p0, uint8_t x1, uint8_t p1)
+void pcd8544_clear_area(uint8_t x0, uint8_t p0, uint8_t x1, uint8_t p1)
 {
     uint_fast8_t i, j;
 
@@ -335,7 +346,7 @@ void pcd8544_update(void)
     }
 }
 
-void pcd8544_write_pixel(uint8_t x, uint8_t y, bool state)
+void pcd8544_draw_pixel(uint8_t x, uint8_t y, bool state)
 {
     uint8_t page;
     uint8_t bit_no;
@@ -345,6 +356,9 @@ void pcd8544_write_pixel(uint8_t x, uint8_t y, bool state)
 
     if (y >= NUM_PIXELS_Y)
         y -= NUM_PIXELS_Y;
+
+    if (brush.inverse)
+        state = !state;
 
     page = y >> 3;
     bit_no = y & 0x07;
@@ -356,9 +370,16 @@ void pcd8544_write_pixel(uint8_t x, uint8_t y, bool state)
 void pcd8544_draw_hline(uint8_t y, uint8_t x0, uint8_t x1)
 {
     uint_fast8_t i;
-    uint8_t pg = y >> 3;
+    uint8_t pg;
     uint8_t data;
 
+    if (y >= NUM_PIXELS_Y)
+        y -= NUM_PIXELS_Y;
+
+    if (x1 >= NUM_PIXELS_X)
+        x1 -= NUM_PIXELS_X;
+
+    pg = y >> 3;
     set_addr(x0, pg);
     y &= 0x07;
     for (i = x0; i <= x1; i++) {
@@ -372,11 +393,19 @@ void pcd8544_draw_hline(uint8_t y, uint8_t x0, uint8_t x1)
 
 void pcd8544_draw_vline(uint8_t x, uint8_t y0, uint8_t y1)
 {
-    uint_fast8_t i;
-    uint_fast8_t p0 = y0 >> 3;
-    uint_fast8_t p1 = y1 >> 3;
+    uint_fast8_t p0, p1;
     uint_fast8_t shift_l, shift_r;
+    uint_fast8_t i;
     uint8_t data;
+
+    if (x >= NUM_PIXELS_X)
+        x -= NUM_PIXELS_X;
+
+    if (y1 >= NUM_PIXELS_Y)
+        y1 -= NUM_PIXELS_Y;
+
+    p0 = y0 >> 3;
+    p1 = y1 >> 3;
 
     for (i = p0; i <= p1; i++) {
         set_addr(x, i);
