@@ -357,11 +357,16 @@ void pcd8544_draw_hline(uint8_t y, uint8_t x0, uint8_t x1)
 {
     uint_fast8_t i;
     uint8_t pg = y >> 3;
+    uint8_t data;
 
     set_addr(x0, pg);
     y &= 0x07;
     for (i = x0; i <= x1; i++) {
-        write_dd(framebuffer[pg][i] | 1 << y);
+        data = framebuffer[pg][i];
+        if (brush.inverse)
+            data = ~data;
+        data |= 1 << y;
+        write_dd(data);
     }
 }
 
@@ -371,12 +376,17 @@ void pcd8544_draw_vline(uint8_t x, uint8_t y0, uint8_t y1)
     uint_fast8_t p0 = y0 >> 3;
     uint_fast8_t p1 = y1 >> 3;
     uint_fast8_t shift_l, shift_r;
+    uint8_t data;
 
     for (i = p0; i <= p1; i++) {
         set_addr(x, i);
         shift_l = (y0 & 0x07) * (i == p0);
         shift_r = (7 - (y1 & 0x07)) * (i == p1);
-        write_dd(framebuffer[i][x] | ((0xFF << shift_l) & (0xFF >> shift_r)));
+        data = framebuffer[i][x];
+        if (brush.inverse)
+            data = ~data;
+        data |= (0xFF << shift_l) & (0xFF >> shift_r);
+        write_dd(data);
     }
 }
 #endif
