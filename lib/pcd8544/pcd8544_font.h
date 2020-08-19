@@ -16,16 +16,21 @@
 #define _PCD8544_FONT_H
 
 /**
- * @brief   Font table to use in the library.
+ * @brief   ASCII character bitmap table.
  *
- * National locale support can be added by editing this font table and
- * saving this file in appropriate encoding.
+ * if the project uses several libraries containing such a table, it can be
+ * moved from this file to a separate location, keeping it accessible from this
+ * file (`#define ascii_table   your_custom_super_name_for_ascii_table`)
+ * so that there is no duplications.
+ * Other font tables also can be added here (or not here), but for this library
+ * only 5x7 fonts are supported (they can be scaled programmatically by the
+ * library).
  *
  * @note
  * Additional architecture-specific attributes can be added to this declaration
  * to tell the compiler to place this font table in the program memory.
  */
-static const uint8_t font_table[][5] = {
+static const uint8_t ascii_table[][5] = {
     {0x00, 0x00, 0x00, 0x00, 0x00},  /* 20 SPACE */
     {0x00, 0x00, 0x5f, 0x00, 0x00},  /* 21 ! */
     {0x00, 0x07, 0x00, 0x07, 0x00},  /* 22 " */
@@ -121,25 +126,44 @@ static const uint8_t font_table[][5] = {
     {0x00, 0x00, 0x7f, 0x00, 0x00},  /* 7c | */
     {0x00, 0x41, 0x36, 0x08, 0x00},  /* 7d } */
     {0x10, 0x08, 0x08, 0x10, 0x08},  /* 7e ~ */
-    /* ------- End of ASCII charset. ------- */
 };
 
 /**
- * @brief   Get the index of a character bitmap in the font table.
+ * @brief   Private library variable to store currently selected language.
  *
- * This function has been moved to a separate file, because it may take some
- * nontrivial steps to get the indices of national character bitmaps. It depends
- * on the structure of the selected national encoding. If the national locale
- * support is not needed for the application, the return value of this function
- * must be `c - 0x20`.
- *
- * @param[in] c     The character whose index in the font table to get.
- *
- * @return  Index of the character bitmap in the font_table.
+ * This variable is declared here to be accessed directly (and quickly) in the
+ * _get_character_bitmap() function.
  */
-static inline uint8_t _get_character_bitmap_index(char c)
+static enum pcd8544_language current_language = PCD8544_LANG_EN;
+
+/**
+ * @brief   Get the bitmap of a character.
+ *
+ * The idea is to return the addresses of bitmap images of characters from
+ * different font tables depending on the selected language.
+ *
+ * @note
+ * This library works only with 5x7 fonts. Bitmaps can be programmatically
+ * scaled by the library.
+ *
+ * @param[in] c     The character whose bitmap to get.
+ *
+ * @return  Address of the bitmap of the character.
+ */
+static inline const uint8_t *_get_character_bitmap(char c)
 {
-    return c - 0x20;
+    const uint8_t *bitmap;
+
+    switch (current_language)
+    {
+    default:
+    case PCD8544_LANG_EN:
+        bitmap = (const uint8_t *)&ascii_table[c - 0x20];
+        break;
+    /* Other languages - other font tables and manipulations with indicies. */
+    }
+
+    return bitmap;
 }
 
-#endif /* _PCD8544_FONT_H */
+#endif  /* _PCD8544_FONT_H */

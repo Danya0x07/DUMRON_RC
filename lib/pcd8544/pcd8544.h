@@ -6,8 +6,6 @@
 /**
  * @file
  * @brief   PCD8544 LCD controller library interface.
- *
- * @todo    Добавить поддержку могучего языка;
  */
 
 #ifndef _PCD8544_H
@@ -62,7 +60,7 @@ struct pcd8544_config {
 
     struct pcd8544_image image = {
         .bitmap = (const uint8_t *)bitmap_arr,
-        .lookup = FALSE,
+        .lookup = false,
         .width_px = 3,  // sizeof(bitmap[0])
         .height_pg = 2  // sizeof(bitmap) / sizeof(bitmap[0])
     };
@@ -70,7 +68,7 @@ struct pcd8544_config {
  *
  * @note
  * In case of AVR, if `bitmap_arr` is declared with `PROGMEM` qualifier,
- * `image.lookup` will be TRUE.
+ * `image.lookup` will be `true`.
  */
 struct pcd8544_image {
     /**
@@ -159,6 +157,18 @@ void pcd8544_setup_brush(bool inverse, uint8_t font_size, uint8_t image_scale);
  * @see pcd8544_setup_brush()
  */
 void pcd8544_set_cursor(uint8_t col, uint8_t row);
+
+/**
+ * @brief   Set language of the text printed on the display.
+ *
+ * The selected language determines from which font table and how bitmaps of
+ * characters will be retrieved.
+ *
+ * @param[in] lang  Language to set for further printing.
+ *
+ * @see pcd8544_font.h
+ */
+void pcd8544_set_txt_language(enum pcd8544_language lang);
 
 /**
  * @brief   Print a single character on the display.

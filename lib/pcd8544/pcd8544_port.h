@@ -53,8 +53,8 @@ static inline void _spi_send_byte(uint8_t byte)
  * @brief   Look up a byte in the program memory.
  *
  * This function is used to retrieve bytes of bitmaps that are placed in
- * program memory. They are bitmaps from font_table and user created images,
- * which have the pcd8544_image.lookup field set to TRUE(1).
+ * program memory. They are bitmaps from font tables and user created images,
+ * which have the pcd8544_image.lookup field set to `true`.
  * If no additional operations are required to retrieve data from program
  * memory, the return value of this function must be `*pbyte`.
  *
@@ -70,4 +70,4 @@ static inline uint8_t _lookup(const uint8_t *pbyte)
     return *pbyte;
 }
 
-#endif /* _PCD8544_PORT_H */
+#endif  /* _PCD8544_PORT_H */

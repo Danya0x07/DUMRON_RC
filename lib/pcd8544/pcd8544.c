@@ -46,7 +46,7 @@ static struct {
     bool inverse;
     uint8_t font_size;
     uint8_t image_scale;
-} brush = {FALSE, 1, 1};
+} brush = {false, 1, 1};
 
 static struct {
     uint8_t x;
@@ -174,6 +174,11 @@ void pcd8544_set_cursor(uint8_t col, uint8_t row)
     set_addr(CHAR_WIDTH_PX * col * brush.font_size, row * brush.font_size);
 }
 
+void pcd8544_set_txt_language(enum pcd8544_language lang)
+{
+    current_language = lang;
+}
+
 static void draw_byte(uint8_t data, uint8_t x_scale, uint8_t y_scale)
 {
     static uint8_t buffer[NUM_PAGES];
@@ -215,16 +220,13 @@ static void draw_byte(uint8_t data, uint8_t x_scale, uint8_t y_scale)
 
 void pcd8544_print_c(char c)
 {
-    const uint8_t *ch_addr;
+    const uint8_t *bitmap;
     uint_fast8_t i;
 
-    c = _get_character_bitmap_index(c);
-    ch_addr = (const uint8_t *)&font_table[c];
-
+    bitmap = _get_character_bitmap(c);
     for (i = 0; i < 5; i++) {
-        draw_byte(_lookup(ch_addr + i), brush.font_size, brush.font_size);
+        draw_byte(_lookup(bitmap++), brush.font_size, brush.font_size);
     }
-
     draw_byte(0x00, brush.font_size, brush.font_size);
 }
 
@@ -279,7 +281,7 @@ void pcd8544_draw_img(uint8_t x0, uint8_t p0, const struct pcd8544_image *img)
     for (i = 0, pg = p0; i < img->height_pg; i++) {
         x = x0;
         set_addr(x, pg);
-        if (img->lookup){
+        if (img->lookup) {
             for (j = 0; j < img->width_px; j++) {
                 draw_byte(_lookup(bitmap++), brush.image_scale,
                           brush.image_scale);

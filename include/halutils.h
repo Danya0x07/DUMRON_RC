@@ -12,6 +12,9 @@
 #include <stm8s.h>
 #include <stddef.h>
 
+#define true    TRUE
+#define false   FALSE
+
 typedef uint8_t uint_fast8_t;
 typedef uint16_t uint_fast16_t;
 
