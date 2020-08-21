@@ -24,7 +24,7 @@
 #include <stm8s.h>
 
 /** Use framebuffer (1), or not (0) */
-#define PCD8544_USE_FRAMEBUFFER 1
+#define PCD8544_USE_FRAMEBUFFER 0
 
 /**
  * @brief   Possible languages for the text printed on PCD8544 LCD.
@@ -38,7 +38,8 @@
  */
 enum pcd8544_language {
     PCD8544_LANG_EN,
-    /* ... More constants can be added as needed. */
+    PCD8544_LANG_RU
+    /* ... More can be added as needed. */
 };
 
 #endif /* _PCD8544_CONF_H */

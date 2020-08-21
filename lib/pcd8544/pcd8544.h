@@ -11,6 +11,10 @@
 #ifndef _PCD8544_H
 #define _PCD8544_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "pcd8544_conf.h"
 
 #ifndef PCD8544_USE_FRAMEBUFFER
@@ -162,7 +166,7 @@ void pcd8544_set_cursor(uint8_t col, uint8_t row);
  * @brief   Set language of the text printed on the display.
  *
  * The selected language determines from which font table and how bitmaps of
- * characters will be retrieved.
+ * non-ASCII characters will be retrieved.
  *
  * @param[in] lang  Language to set for further printing.
  *
@@ -295,6 +299,10 @@ void pcd8544_draw_hline(uint8_t y, uint8_t x0, uint8_t x1);
  * y0 <= y1, otherwise nothing is drawn.
  */
 void pcd8544_draw_vline(uint8_t x, uint8_t y0, uint8_t y1);
+#endif
+
+#ifdef __cplusplus
+}
 #endif
 
 #endif /* _PCD8544_H */

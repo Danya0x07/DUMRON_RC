@@ -140,8 +140,10 @@ void pcd8544_set_power(bool pwr)
             for (j = 0; j < NUM_PIXELS_X; j++) {
                 write_ddram(0x00);
             }
+#if (PCD8544_USE_FRAMEBUFFER == 1)
             update_bd[i].start = 0;
             update_bd[i].end = NUM_PIXELS_X;
+#endif
         }
         write_cmd(CMD_FUNCTION_SET | FS_PD);
     }
