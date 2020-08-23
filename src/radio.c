@@ -1,5 +1,6 @@
 #include "radio.h"
 #include "halutils.h"
+#include "display.h"
 #include "emitters.h"
 
 #include <nrf24l01.h>
@@ -24,6 +25,7 @@ void radio_init(void)
     delay_ms(NRF24L01_PWR_ON_DELAY_MS);
 
     if (nrf24l01_tx_configure(&config) < 0) {
+        display_transceiver_missing();
         led_blink(3, 300);
     }
 }

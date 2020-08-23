@@ -23,6 +23,8 @@ int main(void)
     display_init();
     radio_init();
 
+    display_splash_screen();
+
     for (;;) {
         keypad_update();
         joystick_update();

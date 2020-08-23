@@ -205,22 +205,6 @@ static void print_int_to_right_bd(uint8_t col, uint8_t row, int16_t value, char 
     print_int_value(value, unit);
 }
 
-static void show_splash_screen(void)
-{
-    pcd8544_clear();
-    pcd8544_setup_brush(FALSE, 2, 1);
-    pcd8544_set_cursor(0, 0);
-    pcd8544_print_s("ДУМРОН");
-    pcd8544_set_cursor(0, 1);
-    pcd8544_print_s("пульт");
-    pcd8544_setup_brush(FALSE, 1, 1);
-    pcd8544_set_cursor(10, 3);
-    pcd8544_print_s("v2.0");
-    pcd8544_setup_brush(TRUE, 1, 1);
-    pcd8544_set_cursor(0, 5);
-    pcd8544_print_s(" by Danya0x07 ");
-}
-
 void display_init(void)
 {
     struct pcd8544_config config = {
@@ -233,11 +217,41 @@ void display_init(void)
     pcd8544_configure(&config);
     pcd8544_set_mode(PCD8544_MODE_NORMAL);
     pcd8544_set_txt_language(PCD8544_LANG_RU);
-    show_splash_screen();
+    pcd8544_setup_brush(FALSE, 1, 1);
+    pcd8544_clear();
+}
+
+void display_splash_screen(void)
+{
+    pcd8544_setup_brush(FALSE, 2, 1);
+    pcd8544_clear();
+    pcd8544_set_cursor(0, 0);
+    pcd8544_print_s("ДУМРОН");
+    pcd8544_set_cursor(0, 1);
+    pcd8544_print_s("пульт");
+    pcd8544_setup_brush(FALSE, 1, 1);
+    pcd8544_set_cursor(10, 3);
+    pcd8544_print_s("v2.0");
+    pcd8544_setup_brush(TRUE, 1, 1);
+    pcd8544_set_cursor(0, 5);
+    pcd8544_print_s(" by Danya0x07 ");
     delay_ms(3000);
     pcd8544_setup_brush(FALSE, 1, 1);
     pcd8544_clear();
 }
+
+void display_transceiver_missing(void)
+{
+    pcd8544_setup_brush(FALSE, 1, 1);
+    pcd8544_clear();
+    pcd8544_set_cursor(0, 0);
+    pcd8544_print_s("Ошибка:");
+    pcd8544_set_cursor(0, 1);
+    pcd8544_print_s("не найден");
+    pcd8544_set_cursor(0, 2);
+    pcd8544_print_s("радиомодуль");
+}
+
 void display_update(const data_to_robot_t *dtr, const data_from_robot_t *dfr,
                     bool ack_received, uint8_t battery_charge)
 {
