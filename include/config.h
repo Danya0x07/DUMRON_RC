@@ -5,6 +5,11 @@
 #ifndef _CONFIG_H
 #define _CONFIG_H
 
+/* Последовательный канал для отладки. */
+#define UART_GPORT  GPIOD
+#define UART_TX_GPIN    GPIO_PIN_5
+#define UART_RX_GPIN    GPIO_PIN_6
+
 /* Отладочный светодиод. */
 #define LED_GPORT   GPIOE
 #define LED_GPIN    GPIO_PIN_5
@@ -45,6 +50,5 @@
 
 /* Делитель напряжения для измерения заряда батареек. */
 #define BATTERY_ADC_CH  ADC1_CHANNEL_2
-
 
 #endif /* _CONFIG_H */

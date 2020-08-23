@@ -245,7 +245,7 @@ void display_transceiver_missing(void)
     pcd8544_setup_brush(FALSE, 1, 1);
     pcd8544_clear();
     pcd8544_set_cursor(0, 0);
-    pcd8544_print_s("Ошибка:");
+    pcd8544_print_s("[ошибка]:");
     pcd8544_set_cursor(0, 1);
     pcd8544_print_s("не найден");
     pcd8544_set_cursor(0, 2);

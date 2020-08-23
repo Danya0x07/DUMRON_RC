@@ -22,10 +22,11 @@ static uint8_t battery_measure(void)
 
 uint8_t battery_get_charge(void)
 {
+    static uint8_t counter = 0;
     static uint8_t voltage = 100;
 
-    if (tim2_get_counter() > 300) {
-        tim2_set_counter(0);
+    if (!counter++) {
+        counter = 0;
         voltage = battery_measure();
     }
     return voltage;

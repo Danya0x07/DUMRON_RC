@@ -32,9 +32,9 @@ int main(void)
         keypad_form_robot_state(&out_data);
         joystick_form_robot_movement(&out_data);
 
-        if (radio_is_time_to_communicate() || radio_out_data_is_new(&out_data)) {
+        if (radio_is_time_to_communicate() || radio_out_data_is_new(&out_data) ) {
             static bool was_beep = FALSE;
-            bool ack_received;
+            bool ack_received = TRUE;
             uint8_t battery_charge = battery_get_charge();
 
             radio_send(&out_data);
@@ -56,15 +56,25 @@ int main(void)
 
 static inline void system_setup(void)
 {
+    // Выбор тактовой частоты 8 МГц.
     CLK->CKDIVR &= ~CLK_CKDIVR_HSIDIV;
     CLK->CKDIVR |= CLK_PRESCALER_HSIDIV2;
 
-    GPIO_DeInit(GPIOA);
-    GPIO_DeInit(GPIOB);
-    GPIO_DeInit(GPIOC);
-    GPIO_DeInit(GPIOD);
-    GPIO_DeInit(GPIOE);
-    GPIO_DeInit(GPIOF);
+    // Отключение тактирования неиспользуемой периферии
+    CLK->PCKENR1 &= ~(CLK_PCKENR1_I2C | CLK_PCKENR1_TIM1 | CLK_PCKENR1_TIM2);
+    CLK->PCKENR2 &= ~CLK_PCKENR2_AWU;
+
+#ifdef DEBUG  // UART для отладки.
+    UART2_Init(9600,
+               UART2_WORDLENGTH_8D,
+               UART2_STOPBITS_1,
+               UART2_PARITY_NO,
+               UART2_SYNCMODE_CLOCK_DISABLE,
+               UART2_MODE_TXRX_ENABLE);
+#else
+    CLK->PCKENR1 &= ~CLK_PCKENR1_UART2;
+    GPIO_Init(UART_GPORT, UART_TX_GPIN | UART_RX_GPIN, GPIO_MODE_IN_PU_NO_IT);
+#endif
 
     // Пины SPI (MOSI & SCK).
     GPIO_Init(GPIOC, GPIO_PIN_6 | GPIO_PIN_5, GPIO_MODE_OUT_PP_LOW_FAST);
@@ -92,22 +102,6 @@ static inline void system_setup(void)
 
     // Не используемые пока пины.
     GPIO_Init(GPIOA, GPIO_PIN_1 | GPIO_PIN_2, GPIO_MODE_IN_PU_NO_IT);
-
-#ifdef DEBUG  // UART для отладки.
-    UART2_DeInit();
-    UART2_Init(9600,
-               UART2_WORDLENGTH_8D,
-               UART2_STOPBITS_1,
-               UART2_PARITY_NO,
-               UART2_SYNCMODE_CLOCK_DISABLE,
-               UART2_MODE_TXRX_ENABLE);
-#endif
-
-    // Таймер для регулярного измерения батарейки.
-    TIM2->PSCR = TIM2_PRESCALER_32768;
-    TIM2->ARRH = 0xFF;
-    TIM2->ARRL = 0xFF;
-    TIM2->CR1 = TIM2_CR1_CEN;
 
     // Таймер для регулярной посылки радиосообщения.
     TIM3->PSCR = TIM3_PRESCALER_32768;
