@@ -56,9 +56,8 @@ int main(void)
 
 static inline void system_setup(void)
 {
-    CLK_DeInit();
-    CLK_SYSCLKConfig(CLK_PRESCALER_CPUDIV1);
-    CLK_SYSCLKConfig(CLK_PRESCALER_HSIDIV2);
+    CLK->CKDIVR &= ~CLK_CKDIVR_HSIDIV;
+    CLK->CKDIVR |= CLK_PRESCALER_HSIDIV2;
 
     GPIO_DeInit(GPIOA);
     GPIO_DeInit(GPIOB);
@@ -129,11 +128,11 @@ static inline void system_setup(void)
     adc_start_conversion(JOYSTICK_X_ADC_CH);
 
     // SPI для общения с радиомодулем и дисплеем.
-    SPI_DeInit();
-    SPI_Init(SPI_FIRSTBIT_MSB, SPI_BAUDRATEPRESCALER_16, SPI_MODE_MASTER,
-             SPI_CLOCKPOLARITY_LOW, SPI_CLOCKPHASE_1EDGE,
-             SPI_DATADIRECTION_2LINES_FULLDUPLEX, SPI_NSS_SOFT, 7);
-    SPI_Cmd(ENABLE);
+    SPI->CR1 = SPI_MODE_MASTER | SPI_FIRSTBIT_MSB | SPI_BAUDRATEPRESCALER_16 |
+               SPI_CLOCKPOLARITY_LOW | SPI_CLOCKPHASE_1EDGE;
+    SPI->CR2 = SPI_CR2_SSI | SPI_DATADIRECTION_2LINES_FULLDUPLEX | SPI_NSS_SOFT;
+    SPI->CRCPR = 0x07;
+    SPI->CR1 |= SPI_CR1_SPE;
 
     // Разрешаем прерывания.
     enableInterrupts();

@@ -1,4 +1,5 @@
 #include <stm8s.h>
+#include "halutils.h"
 
 extern char *itoa(int, unsigned char);
 

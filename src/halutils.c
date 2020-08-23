@@ -49,10 +49,10 @@ uint16_t adc_read_value(void)
 
 uint8_t spi_transfer_byte(uint8_t byte)
 {
-    while (!SPI_GetFlagStatus(SPI_FLAG_TXE));
-    SPI_SendData(byte);
-    while (!SPI_GetFlagStatus(SPI_FLAG_RXNE));
-    return SPI_ReceiveData();
+    while (!(SPI->SR & SPI_FLAG_TXE));
+    SPI->DR = byte;
+    while (!(SPI->SR & SPI_FLAG_RXNE));
+    return SPI->DR;
 }
 
 void spi_transfer_bytes(uint8_t *in, const uint8_t *out, uint8_t len)

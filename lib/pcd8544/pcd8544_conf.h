@@ -23,6 +23,9 @@
 #include <stddef.h>
 #include <stm8s.h>
 
+#define true    TRUE
+#define false   FALSE
+
 /** Use framebuffer (1), or not (0) */
 #define PCD8544_USE_FRAMEBUFFER 0
 
