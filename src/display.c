@@ -355,7 +355,7 @@ void display_update(const data_to_robot_t *dtr, const data_from_robot_t *dfr,
         pcd8544_draw_img(0, 3, &obstacle_image);
         break;
     case DIST_NOTHING:
-        pcd8544_clear_area(0, 3, 17, 1);
+        pcd8544_clear_area(0, 3, 17, 3);
         break;
     case DIST_ERROR:
         pcd8544_set_cursor(0, 3);
