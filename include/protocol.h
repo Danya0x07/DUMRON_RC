@@ -30,6 +30,13 @@ typedef enum {
     CLAWCTL_RELEASE
 } claw_control_t;
 
+
+/**
+ * Частотный канал, а который настроены робот и пульт сразу после включения,
+ * и который потом меняется.
+ */
+#define RADIO_INITIAL_CHANNEL	126
+
 /**
  * Структура пакетов, идущих от пульта к роботу.
  */
@@ -46,6 +53,15 @@ typedef struct {
         } bf;
         uint16_t reg;
     } ctrl;
+
+    union {
+    	struct {
+    		uint8_t switched :1;
+			uint8_t channel	 :7;
+    	} bf;
+    	uint8_t reg;
+    } radio;
+
     uint8_t speed_left;
     uint8_t speed_right;
 } data_to_robot_t;
@@ -79,5 +95,8 @@ typedef struct {
     int8_t  temp_ambient;
     int8_t  temp_radiators;
 } data_from_robot_t;
+
+_Static_assert(sizeof(data_to_robot_t) == 5, "Unexpected payload size.");
+_Static_assert(sizeof(data_from_robot_t) == 5, "Unexpected payload size.");
 
 #endif /* _PROTOCOL_H */

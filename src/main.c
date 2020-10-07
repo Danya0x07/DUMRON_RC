@@ -15,8 +15,19 @@ static inline void system_setup(void);
 
 int main(void)
 {
-    static data_to_robot_t out_data;
-    static data_from_robot_t in_data;
+    static data_to_robot_t out_data = {
+        .ctrl.reg = 0,
+        .radio.reg = RADIO_INITIAL_CHANNEL << 1,  // магия битовых полей
+        .speed_left = 0,
+        .speed_right = 0,
+    };
+    static data_from_robot_t in_data = {
+        .status.reg = 0,
+        .battery_brains = 100,
+        .battery_motors = 100,
+        .temp_ambient = TEMPERATURE_ERROR_VALUE,
+        .temp_radiators = TEMPERATURE_ERROR_VALUE,
+    };
 
     system_setup();
 
@@ -40,7 +51,7 @@ int main(void)
             radio_send(&out_data);
             ack_received = radio_check_ack(&in_data);
 
-            if (in_data.status.bf.back_distance == DIST_CLIFF) {
+            if (in_data.status.bf.back_distance >= DIST_CLIFF) {
                 if (!was_beep) {
                     buzzer_beep(1, 80);
                     was_beep = TRUE;

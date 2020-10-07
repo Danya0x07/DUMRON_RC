@@ -359,7 +359,7 @@ void display_update(const data_to_robot_t *dtr, const data_from_robot_t *dfr,
         break;
     case DIST_ERROR:
         pcd8544_set_cursor(0, 3);
-        pcd8544_print_s("ERR");
+        pcd8544_print_s("N/A");
     }
 
     // температура окружающей среды
@@ -368,7 +368,7 @@ void display_update(const data_to_robot_t *dtr, const data_from_robot_t *dfr,
         uint8_t pos = print_int_value(dfr->temp_ambient, 0);
         pcd8544_draw_img(pos * 6, 4, &celsius_image);
     } else {
-        pcd8544_print_s("ERR ");
+        pcd8544_print_s("N/A ");
     }
 
     // температура внутри корпуса
@@ -377,10 +377,11 @@ void display_update(const data_to_robot_t *dtr, const data_from_robot_t *dfr,
         uint8_t pos = print_int_value(dfr->temp_radiators, 0);
         pcd8544_draw_img(pos * 6, 5, &celsius_image);
     } else {
-        pcd8544_print_s("ERR ");
+        pcd8544_print_s("N/A ");
     }
 
-    // на будущее, номер текущего частотного канала
+    // номер текущего частотного канала
     pcd8544_set_cursor(5, 1);
-    pcd8544_print_s("CH126");
+    pcd8544_print_s("CH");
+    print_int_from_left_bd(7, 1, dtr->radio.bf.channel, 0);
 }

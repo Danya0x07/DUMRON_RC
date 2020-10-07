@@ -5,13 +5,15 @@
 
 #include <nrf24l01.h>
 
+static uint8_t radio_find_free_channel(void);
+
 void radio_init(void)
 {
-    uint8_t address[4] = {0xC7, 0x68, 0xAC, 0x35};
+    uint8_t address[3] = {0xC7, 0x68, 0xAC};
 
     struct nrf24l01_tx_config config = {
         .address = address,
-        .addr_size = NRF24L01_ADDRS_4BYTE,
+        .addr_size = NRF24L01_ADDRS_3BYTE,
         .crc_mode = NRF24L01_CRC_1BYTE,
         .datarate = NRF24L01_DATARATE_1MBPS,
         .power = NRF24L01_POWER_0DBM,
@@ -19,7 +21,7 @@ void radio_init(void)
         .retr_count = NRF24L01_RETR_COUNT_3,
         .mode = NRF24L01_TX_MODE_ACK_PAYLOAD,
         .en_irq = 0,
-        .rf_channel = 112
+        .rf_channel = RADIO_INITIAL_CHANNEL
     };
 
     delay_ms(NRF24L01_PWR_ON_DELAY_MS);
@@ -88,4 +90,42 @@ bool radio_out_data_is_new(const data_to_robot_t *outcoming)
     }
 
     return data_is_new;
+}
+
+static uint8_t radio_find_free_channel(void)
+{
+    const uint8_t num_areas = 18;
+    const uint8_t area_length = NRF24L01_CHANNELS / num_areas;
+    
+    uint8_t noise_buffer[NRF24L01_CHANNELS];
+    uint8_t average_noise = 0xFF;
+    uint8_t cleanest_channel = RADIO_INITIAL_CHANNEL;
+    uint8_t i, j;
+
+    nrf24l01_measure_noise(noise_buffer, 0, NRF24L01_CHANNELS - 1);
+
+    for (i = 0; i < num_areas; i++) {
+        uint8_t cleanest_channel_of_area = RADIO_INITIAL_CHANNEL;
+        uint16_t average_noise_of_area = 0;
+        uint8_t min_noise_of_area = 0xFF;
+
+        for (j = 0; j < area_length; j++) {
+            uint8_t channel = i * area_length + j;
+            uint8_t noise = noise_buffer[channel];
+
+            if (noise < min_noise_of_area) {
+                min_noise_of_area = noise;
+                cleanest_channel_of_area = channel;
+            }
+            average_noise_of_area += noise;
+        }
+        average_noise_of_area /= area_length;
+
+        if (average_noise_of_area < average_noise) {
+            average_noise = average_noise_of_area;
+            cleanest_channel = cleanest_channel_of_area;
+        }
+
+    }
+    return cleanest_channel;
 }
