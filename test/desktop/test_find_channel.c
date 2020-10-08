@@ -16,7 +16,7 @@ static uint8_t noise_buffer_mock_1[7][6] = {
 
 uint8_t noise_buffer[NRF24L01_CHANNELS] = {0};
 
-static uint8_t radio_find_free_channel(void)
+static uint8_t find_cleanest_channel(void)
 {
     const uint8_t num_areas = 7;
     const uint8_t area_length = NRF24L01_CHANNELS / num_areas;
@@ -54,8 +54,8 @@ static uint8_t radio_find_free_channel(void)
 
 void test_find_clear_rf_ch(void)
 {
-    TEST_ASSERT_EQUAL(0, radio_find_free_channel());
+    TEST_ASSERT_EQUAL(0, find_cleanest_channel());
 
     memcpy(noise_buffer, noise_buffer_mock_1, NRF24L01_CHANNELS);
-    TEST_ASSERT_EQUAL(21, radio_find_free_channel());
+    TEST_ASSERT_EQUAL(21, find_cleanest_channel());
 }

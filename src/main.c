@@ -35,6 +35,7 @@ int main(void)
     radio_init();
 
     display_splash_screen();
+    radio_select_new_channel(&out_data);
 
     for (;;) {
         keypad_update();
@@ -48,6 +49,10 @@ int main(void)
             bool ack_received = TRUE;
             uint8_t battery_charge = battery_get_charge();
 
+            /*if (radio_current_channel_is_dirty()) {
+                radio_select_new_channel(&out_data);
+            }*/
+
             radio_send(&out_data);
             ack_received = radio_check_ack(&in_data);
 
@@ -55,6 +60,7 @@ int main(void)
                 if (!was_beep) {
                     buzzer_beep(1, 80);
                     was_beep = TRUE;
+                    //radio_select_new_channel(&out_data);
                 }
             } else {
                 was_beep = FALSE;

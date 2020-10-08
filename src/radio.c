@@ -5,7 +5,8 @@
 
 #include <nrf24l01.h>
 
-static uint8_t radio_find_free_channel(void);
+static uint8_t find_cleanest_channel(void);
+static bool ping(const data_to_robot_t *payload, uint8_t retries);
 
 void radio_init(void)
 {
@@ -43,6 +44,25 @@ void radio_send(data_to_robot_t *outcoming)
     }
     nrf24l01_tx_write_pld(outcoming, sizeof(data_to_robot_t));
     nrf24l01_tx_transmit();
+}
+
+uint8_t radio_select_new_channel(data_to_robot_t *dtr)
+{
+    uint8_t prev_channel = dtr->radio.bf.channel;
+    dtr->radio.bf.channel = find_cleanest_channel();
+    dtr->radio.bf.switched = 1;
+
+    if (ping(dtr, 1)) {
+        nrf24l01_set_rf_channel(dtr->radio.bf.channel);
+        nrf24l01_flush_rx_fifo();
+        nrf24l01_flush_tx_fifo();
+        nrf24l01_clear_interrupts(NRF24L01_IRQ_ALL);
+    } else {
+        dtr->radio.bf.channel = prev_channel;
+    }
+    dtr->radio.bf.switched = 0;
+
+    return dtr->radio.bf.channel;
 }
 
 bool radio_check_ack(data_from_robot_t *incoming)
@@ -92,7 +112,41 @@ bool radio_out_data_is_new(const data_to_robot_t *outcoming)
     return data_is_new;
 }
 
-static uint8_t radio_find_free_channel(void)
+bool radio_current_channel_is_dirty(void)
+{
+    uint8_t lost, retr;
+    nrf24l01_tx_get_statistics(&lost, &retr);
+    return lost == 0x0F;
+}
+
+static bool ping(const data_to_robot_t *payload, uint8_t retries)
+{
+    nrf24l01_clear_interrupts(NRF24L01_IRQ_ALL);
+    nrf24l01_flush_tx_fifo();
+    nrf24l01_flush_rx_fifo();
+    nrf24l01_tx_write_pld(payload, sizeof(data_to_robot_t));
+    //nrf24l01_tx_reuse_pld();
+
+    while (retries--) {
+        const uint8_t timeout_ms = 5;
+        uint8_t irq = 0;
+        nrf24l01_tx_transmit();
+
+        // Таймаут нужен, чтобы не зависнуть, если радиомодуль не подключён.
+        tim4_set_counter(0);
+        while (tim4_get_counter() < timeout_ms && 
+                    (irq = nrf24l01_get_interrupts()) == 0)
+            ;
+        if (irq & NRF24L01_IRQ_RX_DR)
+            return TRUE;
+        nrf24l01_clear_interrupts(NRF24L01_IRQ_ALL);
+    }
+    nrf24l01_flush_tx_fifo();
+    nrf24l01_tx_transmit();
+    return FALSE;
+}
+
+static uint8_t find_cleanest_channel(void)
 {
     const uint8_t num_areas = 18;
     const uint8_t area_length = NRF24L01_CHANNELS / num_areas;
