@@ -252,8 +252,23 @@ void display_transceiver_missing(void)
     pcd8544_print_s("радиомодуль");
 }
 
+void display_rf_scan_started(void)
+{
+    pcd8544_setup_brush(FALSE, 1, 1);
+    pcd8544_clear();
+    pcd8544_set_cursor(0, 0);
+    pcd8544_print_s("Сканирование");
+    pcd8544_set_cursor(0, 1);
+    pcd8544_print_s("эфира...");
+}
+
+void display_rf_scan_ended(void)
+{
+    pcd8544_clear();
+}
+
 void display_update(const data_to_robot_t *dtr, const data_from_robot_t *dfr,
-                    bool ack_received, uint8_t battery_charge)
+                    bool was_response, uint8_t battery_charge)
 {
     const struct pcd8544_image *img = NULL;
 
@@ -263,7 +278,7 @@ void display_update(const data_to_robot_t *dtr, const data_from_robot_t *dfr,
     print_int_to_right_bd(10, 0, battery_charge, '%');
 
     // качество связи
-    img = ack_received ? &connection_image : &blank_image;
+    img = was_response ? &connection_image : &blank_image;
     pcd8544_draw_img(48, 0, img);
 
     // включен ли прожектор

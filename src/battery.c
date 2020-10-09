@@ -25,8 +25,8 @@ uint8_t battery_get_charge(void)
     static uint8_t counter = 0;
     static uint8_t voltage = 100;
 
-    if (!counter++) {
-        counter = 0;
+    // Слишком часто проверять батарейку не надо.
+    if (counter++ == 0) {
         voltage = battery_measure();
     }
     return voltage;

@@ -8,7 +8,7 @@
 static uint8_t find_cleanest_channel(void);
 static bool ping(const data_to_robot_t *payload, uint8_t retries);
 
-void radio_init(void)
+int8_t radio_init(void)
 {
     uint8_t address[3] = {0xC7, 0x68, 0xAC};
 
@@ -27,10 +27,7 @@ void radio_init(void)
 
     delay_ms(NRF24L01_PWR_ON_DELAY_MS);
 
-    if (nrf24l01_tx_configure(&config) < 0) {
-        display_transceiver_missing();
-        led_blink(3, 300);
-    }
+    return nrf24l01_tx_configure(&config);
 }
 
 void radio_send(data_to_robot_t *outcoming)
@@ -54,9 +51,6 @@ uint8_t radio_select_new_channel(data_to_robot_t *dtr)
 
     if (ping(dtr, 1)) {
         nrf24l01_set_rf_channel(dtr->radio.bf.channel);
-        nrf24l01_flush_rx_fifo();
-        nrf24l01_flush_tx_fifo();
-        nrf24l01_clear_interrupts(NRF24L01_IRQ_ALL);
     } else {
         dtr->radio.bf.channel = prev_channel;
     }
@@ -65,7 +59,7 @@ uint8_t radio_select_new_channel(data_to_robot_t *dtr)
     return dtr->radio.bf.channel;
 }
 
-bool radio_check_ack(data_from_robot_t *incoming)
+bool radio_check_response(data_from_robot_t *incoming)
 {
     bool conn_ok = FALSE;
 
@@ -121,11 +115,13 @@ bool radio_current_channel_is_dirty(void)
 
 static bool ping(const data_to_robot_t *payload, uint8_t retries)
 {
+    bool was_response = FALSE;
+    
     nrf24l01_clear_interrupts(NRF24L01_IRQ_ALL);
     nrf24l01_flush_tx_fifo();
     nrf24l01_flush_rx_fifo();
     nrf24l01_tx_write_pld(payload, sizeof(data_to_robot_t));
-    //nrf24l01_tx_reuse_pld();
+    nrf24l01_tx_reuse_pld();
 
     while (retries--) {
         const uint8_t timeout_ms = 5;
@@ -137,13 +133,15 @@ static bool ping(const data_to_robot_t *payload, uint8_t retries)
         while (tim4_get_counter() < timeout_ms && 
                     (irq = nrf24l01_get_interrupts()) == 0)
             ;
-        if (irq & NRF24L01_IRQ_RX_DR)
-            return TRUE;
         nrf24l01_clear_interrupts(NRF24L01_IRQ_ALL);
+        if (irq & NRF24L01_IRQ_TX_DS) {
+            was_response = TRUE;
+            break;
+        }
     }
     nrf24l01_flush_tx_fifo();
-    nrf24l01_tx_transmit();
-    return FALSE;
+    nrf24l01_flush_rx_fifo();
+    return was_response;
 }
 
 static uint8_t find_cleanest_channel(void)

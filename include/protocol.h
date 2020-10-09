@@ -35,7 +35,7 @@ typedef enum {
  * Частотный канал, а который настроены робот и пульт сразу после включения,
  * и который потом меняется.
  */
-#define RADIO_INITIAL_CHANNEL	126
+#define RADIO_INITIAL_CHANNEL	125
 
 /**
  * Структура пакетов, идущих от пульта к роботу.
@@ -49,7 +49,7 @@ typedef struct {
             uint8_t lights_en :1;
 
             uint8_t buzzer_en :1;
-            uint8_t _extra   :7;  /* резервируем байт на будущее */
+            uint8_t reserved  :7;  /* резервируем байт на будущее */
         } bf;
         uint16_t reg;
     } ctrl;
@@ -86,7 +86,7 @@ typedef struct {
     union {
         struct {
             uint8_t back_distance :2;
-            uint8_t _extra :6;  /* резервируем байт на будущее */
+            uint8_t reserved      :6;
         } bf;
         uint8_t reg;
     } status;

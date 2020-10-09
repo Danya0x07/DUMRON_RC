@@ -12,12 +12,13 @@
 #include "emitters.h"
 
 static inline void system_setup(void);
+static inline void react_to_response(const data_from_robot_t *data);
 
 int main(void)
 {
     static data_to_robot_t out_data = {
         .ctrl.reg = 0,
-        .radio.reg = RADIO_INITIAL_CHANNEL << 1,  // магия битовых полей
+        .radio.reg = RADIO_INITIAL_CHANNEL << 1,  // магия битовых полей в SDCC
         .speed_left = 0,
         .speed_right = 0,
     };
@@ -28,14 +29,21 @@ int main(void)
         .temp_ambient = TEMPERATURE_ERROR_VALUE,
         .temp_radiators = TEMPERATURE_ERROR_VALUE,
     };
-
+    
     system_setup();
 
     display_init();
-    radio_init();
+
+    if (radio_init() < 0) {
+        display_transceiver_missing();
+        led_blink(3, 300);
+    }
 
     display_splash_screen();
+
+    display_rf_scan_started();
     radio_select_new_channel(&out_data);
+    display_rf_scan_ended();
 
     for (;;) {
         keypad_update();
@@ -45,29 +53,29 @@ int main(void)
         joystick_form_robot_movement(&out_data);
 
         if (radio_is_time_to_communicate() || radio_out_data_is_new(&out_data) ) {
-            static bool was_beep = FALSE;
-            bool ack_received = TRUE;
+            bool was_response;
             uint8_t battery_charge = battery_get_charge();
 
-            /*if (radio_current_channel_is_dirty()) {
-                radio_select_new_channel(&out_data);
-            }*/
-
             radio_send(&out_data);
-            ack_received = radio_check_ack(&in_data);
+            was_response = radio_check_response(&in_data);
+            react_to_response(&in_data);
 
-            if (in_data.status.bf.back_distance >= DIST_CLIFF) {
-                if (!was_beep) {
-                    buzzer_beep(1, 80);
-                    was_beep = TRUE;
-                    //radio_select_new_channel(&out_data);
-                }
-            } else {
-                was_beep = FALSE;
-            }
-
-            display_update(&out_data, &in_data, ack_received, battery_charge);
+            display_update(&out_data, &in_data, was_response, battery_charge);
         }
+    }
+}
+
+static inline void react_to_response(const data_from_robot_t *data)
+{
+    static bool was_beep = FALSE;
+
+    if (data->status.bf.back_distance >= DIST_CLIFF) {
+        if (!was_beep) {
+            buzzer_beep(1, 80);
+            was_beep = TRUE;
+        }
+    } else {
+        was_beep = FALSE;
     }
 }
 
