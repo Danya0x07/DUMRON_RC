@@ -22,16 +22,16 @@ static uint8_t find_cleanest_channel(void)
     const uint8_t area_length = NRF24L01_CHANNELS / num_areas;
     uint8_t average_noise = 0xFF;
     uint8_t free_channel;
-    uint8_t i, j;
+    int8_t i, j;
 
     // nrf24l01_measure_noise(noise_buff, 0, NRF24L01_CHANNELS - 1);
 
-    for (i = 0; i < num_areas; i++) {
+    for (i = num_areas - 1; i >= 0; i--) {
         uint8_t cleanest_rf_ch;
         uint8_t min_noise = 0xFF;
         uint16_t average = 0;
 
-        for (j = 0; j < area_length; j++) {
+        for (j = area_length - 1; j >= 0; j--) {
             uint8_t channel = i * area_length + j;
             uint8_t noise = noise_buffer[channel];
 
@@ -54,8 +54,8 @@ static uint8_t find_cleanest_channel(void)
 
 void test_find_clear_rf_ch(void)
 {
-    TEST_ASSERT_EQUAL(0, find_cleanest_channel());
+    TEST_ASSERT_EQUAL(41, find_cleanest_channel());
 
     memcpy(noise_buffer, noise_buffer_mock_1, NRF24L01_CHANNELS);
-    TEST_ASSERT_EQUAL(21, find_cleanest_channel());
+    TEST_ASSERT_EQUAL(23, find_cleanest_channel());
 }

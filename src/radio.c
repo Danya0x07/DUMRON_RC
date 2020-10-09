@@ -46,10 +46,15 @@ void radio_send(data_to_robot_t *outcoming)
 uint8_t radio_select_new_channel(data_to_robot_t *dtr)
 {
     uint8_t prev_channel = dtr->radio.bf.channel;
-    dtr->radio.bf.channel = find_cleanest_channel();
+    uint8_t new_channel = find_cleanest_channel();
+
+    if (new_channel == prev_channel)
+        return prev_channel;
+    
+    dtr->radio.bf.channel = new_channel;
     dtr->radio.bf.switched = 1;
 
-    if (ping(dtr, 1)) {
+    if (ping(dtr, 5)) {
         nrf24l01_set_rf_channel(dtr->radio.bf.channel);
     } else {
         dtr->radio.bf.channel = prev_channel;
@@ -146,22 +151,23 @@ static bool ping(const data_to_robot_t *payload, uint8_t retries)
 
 static uint8_t find_cleanest_channel(void)
 {
-    const uint8_t num_areas = 18;
-    const uint8_t area_length = NRF24L01_CHANNELS / num_areas;
+    const int8_t num_areas = 18;
+    const int8_t area_length = NRF24L01_CHANNELS / num_areas;
     
     uint8_t noise_buffer[NRF24L01_CHANNELS];
     uint8_t average_noise = 0xFF;
     uint8_t cleanest_channel = RADIO_INITIAL_CHANNEL;
-    uint8_t i, j;
+    int8_t i, j;
 
     nrf24l01_measure_noise(noise_buffer, 0, NRF24L01_CHANNELS - 1);
 
-    for (i = 0; i < num_areas; i++) {
+    // Ищем чистый канал по полосе справа налево.
+    for (i = num_areas - 1; i >= 0; i--) {
         uint8_t cleanest_channel_of_area = RADIO_INITIAL_CHANNEL;
         uint16_t average_noise_of_area = 0;
         uint8_t min_noise_of_area = 0xFF;
 
-        for (j = 0; j < area_length; j++) {
+        for (j = area_length - 1; j >= 0; j--) {
             uint8_t channel = i * area_length + j;
             uint8_t noise = noise_buffer[channel];
 
