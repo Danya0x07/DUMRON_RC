@@ -13,7 +13,7 @@ bool button_pressed(button_t *btn)
 
     if (btn->_last_status != current_status) {
         delay_ms(5);
-        current_status = GPIO_ReadInputPin(btn->gport, btn->gpin);
+        current_status = !!GPIO_ReadInputPin(btn->gport, btn->gpin);
     }
 
     if (!btn->_last_status && current_status)
